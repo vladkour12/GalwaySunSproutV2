@@ -1,0 +1,412 @@
+
+import React, { useEffect, useState } from 'react';
+import { AppState, Tray, Transaction, Customer, CropType } from '../types';
+import { clearDB, getStorageEstimate, getDatabaseStats, DbStats } from '../services/storage';
+import { Database, Download, Upload, Trash2, HardDrive, AlertTriangle, CheckCircle, Image as ImageIcon, Sprout, ShoppingBag, Users, X, DollarSign, Scale } from 'lucide-react';
+
+interface DataManagerProps {
+  state: AppState;
+  onImport: (newState: AppState) => void;
+  onReset: () => void;
+}
+
+const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) => {
+  const [storageStats, setStorageStats] = useState<{ usage: number; quota: number } | null>(null);
+  const [dbBreakdown, setDbBreakdown] = useState<DbStats[]>([]);
+  const [resetConfirm, setResetConfirm] = useState(false);
+  const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  
+  // Data Inspector State
+  const [viewingStore, setViewingStore] = useState<string | null>(null);
+
+  useEffect(() => {
+    getStorageEstimate().then(setStorageStats);
+    getDatabaseStats().then(setDbBreakdown);
+  }, [state]);
+
+  const formatBytes = (bytes: number, decimals = 2) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  };
+
+  const getCount = (store: string) => dbBreakdown.find(s => s.store === store)?.count || 0;
+
+  const handleExport = () => {
+    const dataStr = JSON.stringify(state, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `galway-sun-sprouts-backup-${new Date().toISOString().split('T')[0]}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  };
+
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileReader = new FileReader();
+    const file = event.target.files?.[0];
+
+    if (file) {
+      fileReader.readAsText(file, "UTF-8");
+      fileReader.onload = (e) => {
+        try {
+          const content = e.target?.result;
+          if (typeof content === 'string') {
+            const parsedState = JSON.parse(content);
+            if (parsedState.crops && parsedState.trays) {
+              onImport(parsedState);
+              setImportStatus('success');
+              setTimeout(() => setImportStatus('idle'), 3000);
+            } else {
+              throw new Error("Invalid format");
+            }
+          }
+        } catch (error) {
+          console.error("Import failed:", error);
+          setImportStatus('error');
+          setTimeout(() => setImportStatus('idle'), 3000);
+        }
+      };
+    }
+  };
+
+  const handleFactoryReset = async () => {
+    if (window.confirm("FINAL WARNING: This will delete ALL data including custom crops and images. This cannot be undone.")) {
+       await clearDB();
+       onReset(); 
+       setResetConfirm(false);
+    }
+  };
+
+  // --- Data Rendering Helper ---
+  const renderDataContent = () => {
+     if (!viewingStore) return null;
+
+     switch(viewingStore) {
+        case 'trays':
+           return (
+              <div className="space-y-2">
+                 {state.trays.length === 0 && <p className="text-slate-400 text-center py-4">No records found.</p>}
+                 {state.trays.slice().reverse().map((tray: Tray) => {
+                    const crop = state.crops.find(c => c.id === tray.cropTypeId);
+                    return (
+                       <div key={tray.id} className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex justify-between items-center">
+                          <div>
+                             <p className="font-bold text-slate-800 text-sm">{crop?.name || 'Unknown Crop'}</p>
+                             <div className="flex items-center space-x-2 text-[10px] text-slate-500 mt-1">
+                                <span className={`px-1.5 py-0.5 rounded border ${tray.stage === 'Harvested' ? 'bg-teal-50 border-teal-100 text-teal-700' : 'bg-white border-slate-200'}`}>{tray.stage}</span>
+                                <span>{new Date(tray.startDate).toLocaleDateString()}</span>
+                                <span>{tray.location}</span>
+                             </div>
+                          </div>
+                          <div className="text-right">
+                             {tray.yield && (
+                                <span className="flex items-center justify-end text-xs font-bold text-teal-600 mb-1">
+                                   <Scale className="w-3 h-3 mr-1" />
+                                   {tray.yield}g
+                                </span>
+                             )}
+                             <span className="text-[10px] text-slate-400 block">ID: {tray.id.substr(0,4)}</span>
+                          </div>
+                       </div>
+                    );
+                 })}
+              </div>
+           );
+         case 'transactions':
+            return (
+               <div className="space-y-2">
+                  {state.transactions.length === 0 && <p className="text-slate-400 text-center py-4">No records found.</p>}
+                  {state.transactions.slice().reverse().map((tx: Transaction) => (
+                     <div key={tx.id} className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex justify-between items-center">
+                        <div className="flex items-center space-x-3">
+                           <div className={`p-2 rounded-lg ${tx.type === 'income' ? 'bg-teal-100 text-teal-600' : 'bg-red-100 text-red-600'}`}>
+                              <DollarSign className="w-4 h-4" />
+                           </div>
+                           <div>
+                              <p className="font-bold text-slate-800 text-sm">{tx.category}</p>
+                              <p className="text-[10px] text-slate-500">{tx.description} • {new Date(tx.date).toLocaleDateString()}</p>
+                           </div>
+                        </div>
+                        <span className={`font-bold text-sm ${tx.type === 'income' ? 'text-teal-600' : 'text-slate-700'}`}>
+                           {tx.type === 'income' ? '+' : '-'}€{tx.amount}
+                        </span>
+                     </div>
+                  ))}
+               </div>
+            );
+         case 'customers':
+            return (
+               <div className="space-y-2">
+                  {state.customers.length === 0 && <p className="text-slate-400 text-center py-4">No records found.</p>}
+                  {state.customers.map((cust: Customer) => (
+                     <div key={cust.id} className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <div className="flex justify-between items-start mb-1">
+                           <p className="font-bold text-slate-800 text-sm">{cust.name}</p>
+                           <span className="text-[10px] bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-500">{cust.type}</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500">{cust.contact} • {cust.email}</p>
+                     </div>
+                  ))}
+               </div>
+            );
+         case 'crops':
+            return (
+               <div className="space-y-2">
+                  {state.crops.map((crop: CropType) => (
+                     <div key={crop.id} className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center space-x-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs shadow-sm ${crop.color.split(' ')[0]} ${crop.color.split(' ')[1]}`}>
+                           {crop.name.charAt(0)}
+                        </div>
+                        <div className="flex-1">
+                           <p className="font-bold text-slate-800 text-sm">{crop.name}</p>
+                           <p className="text-[10px] text-slate-500">{crop.seedingRate}g seed • {crop.estimatedYieldPerTray}g yield</p>
+                        </div>
+                     </div>
+                  ))}
+               </div>
+            );
+         case 'images':
+            const cropsWithImages = state.crops.filter(c => c.imageUrl);
+            return (
+               <div className="grid grid-cols-3 gap-2">
+                  {cropsWithImages.length === 0 && <p className="col-span-3 text-slate-400 text-center py-4">No images saved.</p>}
+                  {cropsWithImages.map(crop => (
+                     <div key={crop.id} className="aspect-square bg-slate-100 rounded-lg overflow-hidden relative border border-slate-200">
+                        {crop.imageUrl ? (
+                           <img src={crop.imageUrl} alt={crop.name} className="w-full h-full object-cover" />
+                        ) : (
+                           <div className="w-full h-full flex items-center justify-center text-slate-300">
+                              <ImageIcon className="w-6 h-6" />
+                           </div>
+                        )}
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[9px] p-1 truncate text-center">
+                           {crop.name}
+                        </div>
+                     </div>
+                  ))}
+               </div>
+            );
+         default:
+            return null;
+     }
+  };
+
+  const getStoreTitle = (store: string) => {
+     switch(store) {
+        case 'trays': return 'Growing Records';
+        case 'transactions': return 'Financial Records';
+        case 'customers': return 'Customer Database';
+        case 'crops': return 'Crop Varieties';
+        case 'images': return 'Image Gallery';
+        default: return 'Data Viewer';
+     }
+  };
+
+  return (
+    <div className="space-y-6">
+       <div className="flex flex-col space-y-1 mb-6">
+        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Data Management</h2>
+        <p className="text-slate-500 text-sm">Monitor storage usage and inspect records.</p>
+      </div>
+
+      {/* Storage Stats Card */}
+      <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
+         <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+               <div className="p-3 bg-blue-50 rounded-2xl text-blue-600">
+                  <HardDrive className="w-6 h-6" />
+               </div>
+               <div>
+                  <h3 className="font-bold text-slate-800">Storage Usage</h3>
+                  <p className="text-xs text-slate-400 font-medium">IndexedDB System</p>
+               </div>
+            </div>
+            {storageStats && (
+               <div className="text-right">
+                  <span className="block text-xl font-bold text-blue-600">{formatBytes(storageStats.usage)}</span>
+                  <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Used</span>
+               </div>
+            )}
+         </div>
+
+         {/* Detailed Breakdown Table */}
+         <div className="bg-slate-50 rounded-2xl p-1 overflow-hidden">
+            <div className="grid grid-cols-1 divide-y divide-slate-100">
+               <button onClick={() => setViewingStore('trays')} className="p-3 flex items-center justify-between hover:bg-white transition-colors rounded-xl w-full text-left group">
+                  <div className="flex items-center space-x-3">
+                     <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center text-teal-600 group-hover:scale-110 transition-transform">
+                        <Sprout className="w-4 h-4" />
+                     </div>
+                     <div>
+                        <span className="block text-sm font-bold text-slate-700">Growing Data</span>
+                        <span className="text-[10px] text-slate-400">Active & Harvested Trays</span>
+                     </div>
+                  </div>
+                  <span className="text-sm font-bold text-slate-800 flex items-center">
+                     {getCount('trays')} Records
+                     <span className="ml-2 text-slate-300 group-hover:text-teal-500">→</span>
+                  </span>
+               </button>
+
+               <button onClick={() => setViewingStore('transactions')} className="p-3 flex items-center justify-between hover:bg-white transition-colors rounded-xl w-full text-left group">
+                  <div className="flex items-center space-x-3">
+                     <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
+                        <ShoppingBag className="w-4 h-4" />
+                     </div>
+                     <div>
+                        <span className="block text-sm font-bold text-slate-700">Selling Data</span>
+                        <span className="text-[10px] text-slate-400">Transactions & Finances</span>
+                     </div>
+                  </div>
+                  <span className="text-sm font-bold text-slate-800 flex items-center">
+                     {getCount('transactions')} Records
+                     <span className="ml-2 text-slate-300 group-hover:text-indigo-500">→</span>
+                  </span>
+               </button>
+
+               <button onClick={() => setViewingStore('customers')} className="p-3 flex items-center justify-between hover:bg-white transition-colors rounded-xl w-full text-left group">
+                  <div className="flex items-center space-x-3">
+                     <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600 group-hover:scale-110 transition-transform">
+                        <Users className="w-4 h-4" />
+                     </div>
+                     <div>
+                        <span className="block text-sm font-bold text-slate-700">Orders Data</span>
+                        <span className="text-[10px] text-slate-400">Customer Profiles</span>
+                     </div>
+                  </div>
+                  <span className="text-sm font-bold text-slate-800 flex items-center">
+                     {getCount('customers')} Records
+                     <span className="ml-2 text-slate-300 group-hover:text-orange-500">→</span>
+                  </span>
+               </button>
+
+               <button onClick={() => setViewingStore('images')} className="p-3 flex items-center justify-between hover:bg-white transition-colors rounded-xl w-full text-left group">
+                  <div className="flex items-center space-x-3">
+                     <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center text-pink-600 group-hover:scale-110 transition-transform">
+                        <ImageIcon className="w-4 h-4" />
+                     </div>
+                     <div>
+                        <span className="block text-sm font-bold text-slate-700">Images</span>
+                        <span className="text-[10px] text-slate-400">Custom Crop Photos</span>
+                     </div>
+                  </div>
+                  <span className="text-sm font-bold text-slate-800 flex items-center">
+                     {getCount('images')} Saved
+                     <span className="ml-2 text-slate-300 group-hover:text-pink-500">→</span>
+                  </span>
+               </button>
+
+               <button onClick={() => setViewingStore('crops')} className="p-3 flex items-center justify-between hover:bg-white transition-colors rounded-xl w-full text-left group">
+                  <div className="flex items-center space-x-3">
+                     <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center text-slate-600 group-hover:scale-110 transition-transform">
+                        <Database className="w-4 h-4" />
+                     </div>
+                     <div>
+                        <span className="block text-sm font-bold text-slate-700">Crop Definitions</span>
+                        <span className="text-[10px] text-slate-400">Metadata (No Images)</span>
+                     </div>
+                  </div>
+                  <span className="text-sm font-bold text-slate-800 flex items-center">
+                     {getCount('crops')} Varieties
+                     <span className="ml-2 text-slate-300 group-hover:text-slate-500">→</span>
+                  </span>
+               </button>
+            </div>
+         </div>
+      </div>
+
+      {/* Actions Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+         {/* Backup */}
+         <button 
+            onClick={handleExport}
+            className="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-md hover:border-teal-200 transition-all group"
+         >
+            <div className="p-4 bg-teal-50 rounded-full text-teal-600 mb-3 group-hover:scale-110 transition-transform">
+               <Download className="w-8 h-8" />
+            </div>
+            <h3 className="font-bold text-slate-800">Backup All Data</h3>
+            <p className="text-xs text-slate-400 mt-1">Download consolidated JSON</p>
+         </button>
+
+         {/* Restore */}
+         <label className="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-md hover:border-blue-200 transition-all group cursor-pointer relative">
+            <input type="file" accept=".json" onChange={handleImport} className="hidden" />
+            <div className="p-4 bg-blue-50 rounded-full text-blue-600 mb-3 group-hover:scale-110 transition-transform">
+               {importStatus === 'success' ? <CheckCircle className="w-8 h-8" /> : importStatus === 'error' ? <AlertTriangle className="w-8 h-8 text-red-500" /> : <Upload className="w-8 h-8" />}
+            </div>
+            <h3 className="font-bold text-slate-800">Restore Data</h3>
+            <p className="text-xs text-slate-400 mt-1">Upload JSON backup</p>
+            {importStatus === 'success' && <span className="absolute bottom-2 text-xs text-teal-500 font-bold">Import Successful!</span>}
+            {importStatus === 'error' && <span className="absolute bottom-2 text-xs text-red-500 font-bold">Import Failed</span>}
+         </label>
+      </div>
+
+      {/* Danger Zone */}
+      <div className="mt-8 pt-8 border-t border-slate-200">
+         <div className="flex items-center space-x-2 mb-4">
+            <AlertTriangle className="w-5 h-5 text-red-500" />
+            <h3 className="font-bold text-red-900">Danger Zone</h3>
+         </div>
+         
+         {!resetConfirm ? (
+            <button 
+               onClick={() => setResetConfirm(true)}
+               className="w-full flex items-center justify-center p-4 bg-red-50 text-red-700 font-bold rounded-2xl border border-red-100 hover:bg-red-100 transition-colors"
+            >
+               <Trash2 className="w-5 h-5 mr-2" />
+               Reset Database
+            </button>
+         ) : (
+            <div className="bg-red-50 p-4 rounded-2xl border border-red-100 animate-fade-in">
+               <p className="text-sm text-red-800 font-bold mb-3 text-center">Are you sure? This deletes growing, selling, and order data.</p>
+               <div className="flex space-x-3">
+                  <button 
+                     onClick={() => setResetConfirm(false)}
+                     className="flex-1 py-3 bg-white text-slate-600 font-bold rounded-xl border border-slate-200"
+                  >
+                     Cancel
+                  </button>
+                  <button 
+                     onClick={handleFactoryReset}
+                     className="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-200"
+                  >
+                     Confirm Reset
+                  </button>
+               </div>
+            </div>
+         )}
+      </div>
+
+      {/* Data Viewer Modal */}
+      {viewingStore && (
+         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-fade-in">
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[80vh]">
+               <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center sticky top-0 z-10">
+                  <h3 className="text-lg font-bold text-slate-800">{getStoreTitle(viewingStore)}</h3>
+                  <button onClick={() => setViewingStore(null)} className="p-1 rounded-full hover:bg-slate-200 transition-colors text-slate-500">
+                     <X className="w-5 h-5" />
+                  </button>
+               </div>
+               <div className="p-4 overflow-y-auto">
+                  {renderDataContent()}
+               </div>
+               <div className="p-4 bg-slate-50 border-t border-slate-100 text-center">
+                  <button onClick={() => setViewingStore(null)} className="text-sm font-bold text-slate-500 hover:text-slate-800">
+                     Close Viewer
+                  </button>
+               </div>
+            </div>
+         </div>
+      )}
+    </div>
+  );
+};
+
+export default DataManager;
