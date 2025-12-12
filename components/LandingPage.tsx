@@ -1,211 +1,263 @@
-
-import React from 'react';
-import { Sprout, MapPin, Mail, Lock, Instagram, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { Sprout, MapPin, Mail, Lock, Instagram, ArrowRight, Leaf, Truck, Sun, Clock, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 
 interface LandingPageProps {
   onLoginClick: () => void;
 }
 
-// Staggered Text Animations
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
-};
-
 const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
-  return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 overflow-hidden relative flex flex-col">
-      
-      {/* Background Decor - Animated with Framer Motion */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        <motion.div 
-          animate={{ 
-            scale: [1, 1.2, 1],
-            x: [0, 50, 0],
-            y: [0, 30, 0], 
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-teal-50 rounded-full mix-blend-multiply filter blur-[100px] opacity-70"
-        />
-        <motion.div 
-          animate={{ 
-            scale: [1, 1.1, 1],
-            x: [0, -30, 0],
-            y: [0, -50, 0], 
-          }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-50 rounded-full mix-blend-multiply filter blur-[100px] opacity-70"
-        />
-      </div>
+  const { scrollYProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
+  
+  const [activeFeature, setActiveFeature] = useState(0);
 
-      {/* Navigation */}
+  const features = [
+    { title: "Ultra Fresh", desc: "Harvested < 24h before delivery", icon: Clock, color: "bg-amber-100 text-amber-700" },
+    { title: "Zero Miles", desc: "Grown right here in Galway City", icon: MapPin, color: "bg-teal-100 text-teal-700" },
+    { title: "100% Organic", desc: "No pesticides, just water & light", icon: Leaf, color: "bg-emerald-100 text-emerald-700" },
+    { title: "Chef Grade", desc: "Supplying top local restaurants", icon: Sun, color: "bg-rose-100 text-rose-700" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden selection:bg-teal-200 selection:text-teal-900">
+      
+      {/* Navbar */}
       <motion.nav 
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
-        className="px-6 py-6 flex justify-between items-center max-w-5xl mx-auto w-full z-50"
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-white/80 backdrop-blur-xl border-b border-white/20"
       >
-        <div className="flex items-center space-x-2 group cursor-pointer">
-          <motion.div 
-            whileHover={{ rotate: 10, scale: 1.1 }}
-            className="w-10 h-10 bg-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-200"
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2 group cursor-pointer">
+            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-500/20 group-hover:scale-110 transition-transform duration-300">
+              <Sprout className="w-6 h-6" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-slate-900">Galway Sun Sprouts</span>
+          </div>
+          <button 
+            onClick={onLoginClick}
+            className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-full text-sm font-bold transition-all shadow-lg shadow-slate-900/20 hover:shadow-slate-900/40 hover:-translate-y-0.5"
           >
-            <Sprout className="w-6 h-6" />
-          </motion.div>
-          <span className="text-xl font-bold tracking-tight text-slate-900 group-hover:text-teal-700 transition-colors">Galway Sun Sprouts</span>
+            <Lock className="w-4 h-4" />
+            <span>Farmer Login</span>
+          </button>
         </div>
-        <motion.button 
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onLoginClick}
-          className="flex items-center space-x-2 text-sm font-bold text-slate-500 hover:text-teal-600 hover:bg-teal-50 px-4 py-2 rounded-full transition-all border border-transparent hover:border-teal-100"
-        >
-          <Lock className="w-4 h-4" />
-          <span>Farmer Access</span>
-        </motion.button>
       </motion.nav>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col justify-center px-6 py-8 md:py-12">
-        <div className="max-w-5xl mx-auto w-full flex flex-col md:flex-row items-center gap-12 md:gap-20">
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden">
+        {/* Animated Background Blobs */}
+        <div className="absolute inset-0 overflow-hidden -z-10 pointer-events-none">
+           <motion.div 
+             animate={{ scale: [1, 1.2, 1], x: [0, 50, 0], y: [0, 30, 0] }}
+             transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+             className="absolute top-0 right-0 w-[800px] h-[800px] bg-teal-200/20 rounded-full blur-[120px]" 
+           />
+           <motion.div 
+             animate={{ scale: [1, 1.1, 1], x: [0, -30, 0], y: [0, -50, 0] }}
+             transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+             className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-200/20 rounded-full blur-[100px]" 
+           />
+        </div>
+
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           
-          {/* Left Text Content - Staggered */}
-          <motion.div 
-            className="flex-1 space-y-8 text-center md:text-left"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <motion.div variants={itemVariants}>
-              <div className="inline-flex items-center space-x-2 bg-teal-50 border border-teal-100 rounded-full px-3 py-1 mb-6">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
-                </span>
-                <span className="text-xs font-bold text-teal-800 uppercase tracking-wide">Growing Now</span>
-              </div>
+          {/* Left Content */}
+          <div className="space-y-8 relative z-10">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-emerald-100 rounded-full pl-2 pr-4 py-1.5 shadow-sm"
+            >
+              <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">New</span>
+              <span className="text-sm font-medium text-slate-600">Fresh batch harvesting this Friday</span>
             </motion.div>
-            
-            <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 leading-[1.1] mb-6">
-              Small Scale. <br />
-              <motion.span 
-                className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600 inline-block"
-                animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-                style={{ backgroundSize: "200% auto" }}
-              >
+
+            <motion.h1 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-6xl md:text-8xl font-bold tracking-tighter text-slate-900 leading-[0.95]"
+            >
+              Small Scale.<br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-emerald-500 to-teal-600 bg-[length:200%_auto] animate-gradient">
                 Big Flavor.
-              </motion.span>
+              </span>
             </motion.h1>
-            
-            <motion.p variants={itemVariants} className="text-lg text-slate-600 leading-relaxed max-w-lg mx-auto md:mx-0">
-              We are a micro-urban farm located in the heart of Galway. Operating out of a highly efficient <strong>2x2 meter shed</strong>, we supply local chefs and households with ultra-fresh, sustainable microgreens harvested weekly.
+
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-xl text-slate-600 max-w-lg leading-relaxed"
+            >
+              Galway's premium urban microgreens farm. We grow nutrient-dense superfoods in a high-tech 2x2m vertical farm, delivered fresh to local chefs and households.
             </motion.p>
 
-            {/* Compact Info Row */}
-            <motion.div variants={itemVariants} className="flex flex-wrap justify-center md:justify-start gap-4 text-sm font-bold text-slate-500">
-               {[
-                 { icon: MapPin, text: 'Galway City' },
-                 { icon: Sprout, text: '100% Organic Seeds' },
-                 { icon: ArrowRight, text: 'Harvested on Demand' }
-               ].map((item, idx) => (
-                  <motion.div 
-                    key={idx}
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    className="flex items-center bg-slate-50 px-3 py-2 rounded-lg border border-slate-100 cursor-default"
-                  >
-                    <item.icon className="w-4 h-4 mr-2 text-teal-500" />
-                    {item.text}
-                  </motion.div>
-               ))}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="flex flex-wrap gap-4"
+            >
+              <a href="mailto:hello@galwaysunsprouts.com" className="group relative px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold overflow-hidden shadow-xl shadow-slate-900/20 hover:shadow-2xl hover:shadow-slate-900/30 transition-all hover:-translate-y-1">
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                <span className="relative flex items-center gap-2">
+                  <Mail className="w-5 h-5" />
+                  Order Fresh
+                </span>
+              </a>
+              <a href="#" className="px-8 py-4 bg-white text-slate-700 border border-slate-200 rounded-2xl font-bold hover:bg-slate-50 transition-all hover:border-slate-300 flex items-center gap-2">
+                <Instagram className="w-5 h-5 text-pink-600" />
+                Follow Us
+              </a>
             </motion.div>
-
-            <motion.div variants={itemVariants} className="flex items-center justify-center md:justify-start space-x-4 pt-2">
-              <motion.a 
-                href="mailto:hello@galwaysunsprouts.com" 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all flex items-center"
-              >
-                <Mail className="w-4 h-4 mr-2" />
-                Get in Touch
-              </motion.a>
-              <motion.a 
-                href="#" 
-                whileHover={{ scale: 1.05, color: '#db2777', borderColor: '#fbcfe8' }}
-                whileTap={{ scale: 0.95 }}
-                className="p-4 bg-white border border-slate-200 rounded-2xl text-slate-600 transition-colors shadow-sm"
-              >
-                 <Instagram className="w-5 h-5" />
-              </motion.a>
-            </motion.div>
-          </motion.div>
-
-          {/* Right Visual */}
-          <div className="flex-1 w-full max-w-md relative">
-             <motion.div 
-                className="relative aspect-[4/5] md:aspect-square"
-                initial={{ opacity: 0, scale: 0.8, rotate: 10 }}
-                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-             >
-                <motion.div 
-                  animate={{ rotate: [3, 0, 3] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-0 bg-gradient-to-br from-teal-100 to-emerald-50 rounded-[2.5rem] transform"
-                ></motion.div>
-                
-                <motion.img 
-                  src="https://images.unsplash.com/photo-1536636730397-5b62b083c74c?auto=format&fit=crop&q=80&w=800" 
-                  alt="Fresh Microgreens" 
-                  className="absolute inset-0 w-full h-full object-cover rounded-[2.5rem] shadow-2xl z-10"
-                  crossOrigin="anonymous"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.5 }}
-                />
-                
-                {/* Floating Card */}
-                <motion.div 
-                   initial={{ opacity: 0, x: -50 }}
-                   animate={{ opacity: 1, x: 0, y: [0, -10, 0] }}
-                   transition={{ 
-                     opacity: { delay: 0.8, duration: 0.5 },
-                     x: { delay: 0.8, duration: 0.5 },
-                     y: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 } 
-                   }}
-                   className="absolute -bottom-6 -left-6 bg-white p-5 rounded-2xl shadow-xl border border-slate-100 max-w-[200px] z-20"
-                >
-                   <p className="text-xs font-bold text-slate-400 uppercase mb-1">Current Batch</p>
-                   <p className="font-bold text-slate-800">Sunflower Shoots</p>
-                   <p className="text-xs text-teal-600 font-medium mt-1">Harvesting Friday</p>
-                </motion.div>
-             </motion.div>
           </div>
 
-        </div>
-      </main>
+          {/* Right Visual - Parallax Cards */}
+          <motion.div style={{ y }} className="relative h-[600px] hidden lg:block">
+            {/* Card 1: Main Image */}
+            <motion.div 
+              initial={{ opacity: 0, rotate: 6, scale: 0.9 }}
+              animate={{ opacity: 1, rotate: 3, scale: 1 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+              className="absolute top-10 right-10 w-96 h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-teal-900/20 border-[8px] border-white z-10"
+            >
+               <img src="https://images.unsplash.com/photo-1536636730397-5b62b083c74c?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover" alt="Microgreens" crossOrigin="anonymous" />
+               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+               <div className="absolute bottom-8 left-8 text-white">
+                 <p className="text-sm font-bold opacity-80 uppercase tracking-widest mb-1">Variety</p>
+                 <h3 className="text-3xl font-bold">Sunflower Shoots</h3>
+               </div>
+            </motion.div>
 
-      {/* Minimal Footer */}
-      <motion.footer 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 1 }}
-        className="py-6 text-center text-xs text-slate-400 font-medium"
-      >
-         © {new Date().getFullYear()} Galway Sun Sprouts. Urban Microgreens.
-      </motion.footer>
+            {/* Card 2: Floating Stat */}
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0, y: [0, -10, 0] }}
+              transition={{ delay: 0.8, y: { duration: 4, repeat: Infinity, ease: "easeInOut" } }}
+              className="absolute top-40 left-10 bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 z-20 max-w-[240px]"
+            >
+               <div className="flex items-center gap-3 mb-3">
+                 <div className="p-2 bg-teal-50 rounded-xl text-teal-600">
+                    <Leaf className="w-6 h-6" />
+                 </div>
+                 <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase">Nutrients</p>
+                    <p className="font-bold text-slate-800">40x More</p>
+                 </div>
+               </div>
+               <p className="text-xs text-slate-500 leading-relaxed">Microgreens contain up to 40x more vitamins than their mature counterparts.</p>
+            </motion.div>
+            
+            {/* Card 3: Location */}
+             <motion.div 
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1, duration: 0.5 }}
+              className="absolute bottom-20 left-0 bg-slate-900 text-white p-6 rounded-3xl shadow-xl z-30"
+            >
+               <div className="flex items-center gap-3">
+                 <MapPin className="w-5 h-5 text-teal-400" />
+                 <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase">Location</p>
+                    <p className="font-bold">Galway City, IE</p>
+                 </div>
+               </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Bento Grid Features */}
+      <section className="py-20 px-6 bg-white relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-slate-900 mb-4">Why Microgreens?</h2>
+            <p className="text-slate-500 max-w-2xl mx-auto">More than just a garnish. These tiny plants are packed with flavor, nutrition, and sustainability benefits.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((feature, idx) => (
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                whileHover={{ y: -5 }}
+                className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 hover:border-teal-100 hover:shadow-lg hover:shadow-teal-100/50 transition-all group cursor-default"
+              >
+                <div className={`w-14 h-14 ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <feature.icon className="w-7 h-7" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">{feature.title}</h3>
+                <p className="text-slate-500 leading-relaxed">{feature.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Large Feature Block */}
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <motion.div 
+               initial={{ opacity: 0, x: -20 }}
+               whileInView={{ opacity: 1, x: 0 }}
+               viewport={{ once: true }}
+               className="md:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2.5rem] p-10 text-white relative overflow-hidden"
+            >
+               <div className="relative z-10">
+                 <h3 className="text-3xl font-bold mb-4">Sustainable Urban Farming</h3>
+                 <p className="text-slate-300 max-w-md leading-relaxed mb-8">We use 95% less water than traditional farming and zero pesticides. Our vertical growing system maximizes space in an urban environment.</p>
+                 <div className="flex items-center gap-4">
+                    <div className="flex -space-x-3">
+                       {[1,2,3].map((_, i) => (
+                         <div key={i} className="w-10 h-10 rounded-full bg-slate-700 border-2 border-slate-800 flex items-center justify-center text-xs font-bold">
+                            <Sprout className="w-4 h-4 text-teal-400" />
+                         </div>
+                       ))}
+                    </div>
+                    <span className="text-sm font-medium text-slate-400">Join 50+ local customers</span>
+                 </div>
+               </div>
+               
+               {/* Decorative Circle */}
+               <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+               <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-teal-50 rounded-[2.5rem] p-10 flex flex-col justify-center items-center text-center border border-teal-100"
+            >
+               <h3 className="text-2xl font-bold text-teal-900 mb-2">Weekly Box</h3>
+               <p className="text-teal-700/80 mb-6 text-sm">Subscribe & Save 15%</p>
+               <div className="text-5xl font-bold text-teal-600 mb-2">€15</div>
+               <p className="text-sm text-teal-600/60 mb-8">per month</p>
+               <button className="w-full py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors shadow-lg shadow-teal-200">
+                  Join Waitlist
+               </button>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-slate-100 py-12 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center text-white">
+              <Sprout className="w-5 h-5" />
+            </div>
+            <span className="font-bold text-slate-900">Galway Sun Sprouts</span>
+          </div>
+          <p className="text-slate-400 text-sm">© {new Date().getFullYear()} Urban Vertical Farm. Galway, Ireland.</p>
+        </div>
+      </footer>
     </div>
   );
 };
