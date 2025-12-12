@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { AppState } from '../types';
 import { Calculator, Euro, Sprout, Zap, Box, Droplets, TrendingUp, AlertCircle, RefreshCw, Scale } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import CustomSelect from './CustomSelect';
 
 interface ProfitCalculatorProps {
   state: AppState;
@@ -86,17 +87,15 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
 
       {/* 1. Crop Selector */}
       <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
-         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Select Variety</label>
-         <select
+         <CustomSelect 
+            label="Select Variety"
             value={selectedCropId}
-            onChange={(e) => setSelectedCropId(e.target.value)}
-            className="w-full p-4 bg-slate-50 border-r-[16px] border-slate-50 rounded-2xl text-slate-800 font-bold focus:ring-2 focus:ring-teal-500 outline-none transition-all cursor-pointer"
-         >
-            <option value="">-- Choose a Crop to Auto-Fill --</option>
-            {state.crops.map(crop => (
-                <option key={crop.id} value={crop.id}>{crop.name}</option>
-            ))}
-         </select>
+            onChange={(val) => setSelectedCropId(val)}
+            options={[
+               { value: "", label: "-- Choose a Crop to Auto-Fill --" },
+               ...state.crops.map(crop => ({ value: crop.id, label: crop.name }))
+            ]}
+         />
          <div className="mt-3 flex items-center space-x-2 text-xs text-slate-400">
             <RefreshCw className="w-3 h-3" />
             <span>Selecting a crop automatically updates Yield, Seed Cost and Price estimates.</span>
@@ -106,7 +105,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* 2. Costs Input Section */}
-        <div className="space-y-4">
+        <div className="space-y-4 order-2 lg:order-1">
             {/* Revenue Input */}
             <div className="bg-teal-50 p-5 rounded-3xl border border-teal-100">
                 <div className="flex items-center space-x-2 mb-4">
@@ -267,7 +266,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
         </div>
 
         {/* 3. Results Section */}
-        <div className="space-y-6">
+        <div className="space-y-6 order-1 lg:order-2">
             {/* Net Profit Card */}
             <div className="bg-slate-900 text-white p-6 rounded-3xl shadow-xl shadow-slate-200 relative overflow-hidden flex flex-col justify-between min-h-[160px]">
                <div className="absolute top-0 right-0 p-6 opacity-10">
@@ -313,8 +312,9 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
             <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 h-64 relative">
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider absolute top-5 left-5">Cost Breakdown</h4>
                 {totalVariableCost > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
+                  <div style={{ width: '100%', height: '100%', minHeight: 200, paddingTop: '24px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
                       <Pie
                         data={chartData}
                         cx="50%"
@@ -340,8 +340,9 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                         iconSize={8}
                         wrapperStyle={{ fontSize: '11px', fontWeight: 600, color: '#64748b' }}
                       />
-                    </PieChart>
-                  </ResponsiveContainer>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
                 ) : (
                   <div className="flex items-center justify-center h-full text-slate-300 text-sm">
                       No costs to display

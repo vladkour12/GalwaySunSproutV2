@@ -1,9 +1,11 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { AppState, CropType, Stage, Tray, Customer } from '../types';
+import { AppState, CropType, Stage, Tray, Customer, Alert } from '../types';
+import { getFarmAlerts } from '../services/alertService';
 import { STAGE_FLOW } from '../constants';
-import { Plus, X, Sprout, Calendar, CheckCircle, Trash2, ArrowRight, Droplet, Sun, Moon, Archive, MoreHorizontal, Scale, Palette, AlertCircle, Euro, ChevronRight, Edit2, Info, Package, Repeat, ShoppingBag, Truck } from 'lucide-react';
+import { Plus, X, Sprout, Calendar, CheckCircle, Trash2, ArrowRight, Droplet, Sun, Moon, Archive, MoreHorizontal, Scale, Palette, AlertCircle, Euro, ChevronRight, Edit2, Info, Package, Repeat, ShoppingBag, Truck, MapPin, Clock, Anchor, User, CheckSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CustomSelect from './CustomSelect';
 
 interface CropManagerProps {
   state: AppState;
@@ -170,7 +172,10 @@ const CropManager: React.FC<CropManagerProps> = ({
     const saved = localStorage.getItem('galway_orders');
     if (saved) {
       try {
-        setRecurringOrders(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+           setRecurringOrders(parsed);
+        }
       } catch (e) { console.error("Failed to load orders"); }
     }
   }, []);
@@ -203,17 +208,19 @@ const CropManager: React.FC<CropManagerProps> = ({
      if (!crop) return null;
 
      const target = new Date(plannerDate);
-     const totalDays = crop.germinationDays + crop.blackoutDays + crop.lightDays;
+     if (isNaN(target.getTime())) return null;
+
+     const totalDays = (crop.germinationDays || 0) + (crop.blackoutDays || 0) + (crop.lightDays || 0);
      
      // Plant Date = Target - Total Days
      const plantDate = new Date(target);
      plantDate.setDate(target.getDate() - totalDays);
      
      const germEnd = new Date(plantDate);
-     germEnd.setDate(plantDate.getDate() + crop.germinationDays);
+     germEnd.setDate(plantDate.getDate() + (crop.germinationDays || 0));
      
      const blackoutEnd = new Date(germEnd);
-     blackoutEnd.setDate(germEnd.getDate() + crop.blackoutDays);
+     blackoutEnd.setDate(germEnd.getDate() + (crop.blackoutDays || 0));
      
      return { crop, plantDate, germEnd, blackoutEnd, harvestDate: target };
   }, [plannerCropId, plannerDate, state.crops]);
@@ -228,33 +235,119 @@ const CropManager: React.FC<CropManagerProps> = ({
 
     const yieldPerTray = crop.estimatedYieldPerTray || 1;
     const traysNeeded = Math.ceil(target / yieldPerTray);
-    const totalGrowingDays = crop.germinationDays + crop.blackoutDays + crop.lightDays;
+    const totalGrowingDays = (crop.germinationDays || 0) + (crop.blackoutDays || 0) + (crop.lightDays || 0);
     
     // Calculate Plant Day Index (0-6)
+    // Handle potential negative result from modulo operator correctly
     const plantDayIndex = (recurringHarvestDay - (totalGrowingDays % 7) + 7) % 7;
     
+    // --- New Calculations ---
+    // 1. Weekly Seed Usage
+    const weeklySeedGrams = traysNeeded * (crop.seedingRate || 0);
+    
+    // 2. Weekly Seed Cost (Best Price Logic: 1kg -> 500g -> fallback)
+    let seedCost = 0;
+    if (crop.price1kg) seedCost = (weeklySeedGrams / 1000) * crop.price1kg;
+    else if (crop.price500g) seedCost = (weeklySeedGrams / 500) * crop.price500g;
+    
+    // 3. Weekly Revenue
+    const weeklyRevenue = (target / 100) * (crop.revenuePer100g || 6.00);
+
+    // 4. Shelf Capacity Used (Peak Active Trays under lights)
+    // Since we plant in weekly batches, we need to handle the overlap.
+    // e.g., if Light Stage is 8 days, for 1 day a week we have 2 batches under lights.
+    // We must plan for that peak usage (2 batches), not the average.
+    const lightBatches = Math.ceil((crop.lightDays || 0) / 7); 
+    const shelfSpace = lightBatches * traysNeeded;
+
+    // 5. Schedule Flow
+    const plantDayName = DAYS_OF_WEEK[plantDayIndex];
+    const blackoutStartDayIndex = (plantDayIndex + (crop.germinationDays || 0)) % 7;
+    const lightStartDayIndex = (blackoutStartDayIndex + (crop.blackoutDays || 0)) % 7;
+
+    // 6. Upcoming Schedule (Calendar Dates)
+    const today = new Date();
+    const currentDayIndex = today.getDay(); // 0-6
+    let daysUntilNextPlant = (plantDayIndex - currentDayIndex + 7) % 7;
+    // If today is the planting day, assume next one is today if not already passed, else next week?
+    // Let's assume if it's today, we show today.
+    
+    const upcomingDates = [];
+    const nextPlantDate = new Date(today);
+    nextPlantDate.setDate(today.getDate() + daysUntilNextPlant);
+
+    for (let i = 0; i < 4; i++) {
+        const d = new Date(nextPlantDate);
+        d.setDate(nextPlantDate.getDate() + (i * 7));
+        upcomingDates.push(d);
+    }
+
     return {
       crop,
       traysNeeded,
       yieldPerTray,
-      plantDayName: DAYS_OF_WEEK[plantDayIndex],
-      harvestDayName: DAYS_OF_WEEK[recurringHarvestDay],
-      totalGrowingDays
+      plantDayName,
+      harvestDayName: DAYS_OF_WEEK[recurringHarvestDay] || 'Unknown',
+      totalGrowingDays,
+      weeklySeedGrams,
+      seedCost,
+      weeklyRevenue,
+      shelfSpace,
+      lightBatches,
+      upcomingDates,
+      timeline: {
+          plant: plantDayName,
+          blackout: DAYS_OF_WEEK[blackoutStartDayIndex],
+          light: DAYS_OF_WEEK[lightStartDayIndex],
+          harvest: DAYS_OF_WEEK[recurringHarvestDay]
+      }
     };
   }, [recurringCropId, recurringTargetAmount, recurringHarvestDay, state.crops]);
 
   // --- Calendar Data Generation ---
   const calendarDays = useMemo(() => {
-    const days = [];
-    const today = new Date();
+      const days = [];
+      const today = new Date();
+  
+      for (let i = 0; i < 7; i++) {
+        const currentDay = new Date(today);
+        currentDay.setDate(today.getDate() + i);
+        const dayOfWeek = currentDay.getDay(); // 0-6
+  
+        const tasks: { type: string, text: string, sub?: string, icon: any, color: string, trayId?: string, estYield?: number }[] = [];
+  
+        // 0. Overdue / Action Needed (Only for Today) - Sync with Dashboard Alerts
+      if (i === 0) {
+         const alerts = getFarmAlerts(state);
+         alerts.forEach(alert => {
+            let icon = AlertCircle;
+            let color = "text-red-600 bg-red-50";
+            let type = 'alert'; // Default to alert style
+            
+            if (alert.type === 'urgent') {
+               icon = AlertCircle;
+               color = "text-red-600 bg-red-50";
+            } else if (alert.type === 'warning') {
+               icon = AlertCircle;
+               color = "text-amber-600 bg-amber-50"; 
+            } else if (alert.type === 'routine') {
+               icon = Droplet;
+               color = "text-blue-500 bg-blue-50";
+               type = 'routine';
+            }
 
-    for (let i = 0; i < 7; i++) {
-      const currentDay = new Date(today);
-      currentDay.setDate(today.getDate() + i);
-      const dayOfWeek = currentDay.getDay(); // 0-6
+            tasks.push({
+               type: type,
+               text: alert.title,
+               sub: alert.message,
+               icon: icon,
+               color: color,
+               trayId: alert.trayId
+            });
+         });
+      }
 
       // 1. Existing Tasks from Active Trays
-      const tasks = [];
       
       activeTrays.forEach(tray => {
          const crop = state.crops.find(c => c.id === tray.cropTypeId);
@@ -280,20 +373,24 @@ const CropManager: React.FC<CropManagerProps> = ({
          } else if (tray.stage === Stage.GERMINATION) {
              stageDuration = crop.germinationDays;
              stageEndDate = addDays(startDate, stageDuration);
-             if (stageEndDate.toDateString() === currentDay.toDateString()) {
-                tasks.push({ type: 'task', text: `Blackout ${crop.name} (${tray.location})`, icon: Moon, color: 'text-purple-600 bg-purple-50' });
+             // Don't show scheduled task if it's already shown as overdue action today
+             const isOverdue = (new Date().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) > crop.germinationDays + 0.5;
+             if (stageEndDate.toDateString() === currentDay.toDateString() && !(i === 0 && isOverdue)) {
+                tasks.push({ type: 'task', text: `Blackout ${crop.name} (${tray.location})`, icon: Moon, color: 'text-purple-600 bg-purple-50', trayId: tray.id });
              }
          } else if (tray.stage === Stage.BLACKOUT) {
              stageDuration = crop.blackoutDays;
              stageEndDate = addDays(startDate, stageDuration);
-             if (stageEndDate.toDateString() === currentDay.toDateString()) {
-                tasks.push({ type: 'task', text: `Uncover ${crop.name} (${tray.location})`, icon: Sun, color: 'text-amber-600 bg-amber-50' });
+             const isOverdue = (new Date().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) > crop.blackoutDays + 0.5;
+             if (stageEndDate.toDateString() === currentDay.toDateString() && !(i === 0 && isOverdue)) {
+                tasks.push({ type: 'task', text: `Uncover ${crop.name} (${tray.location})`, icon: Sun, color: 'text-amber-600 bg-amber-50', trayId: tray.id });
              }
          } else if (tray.stage === Stage.LIGHT) {
              stageDuration = crop.lightDays;
              stageEndDate = addDays(startDate, stageDuration);
-             if (stageEndDate.toDateString() === currentDay.toDateString()) {
-                tasks.push({ type: 'harvest', text: `Harvest ${crop.name}`, sub: tray.location, icon: CheckCircle, color: 'text-teal-600 bg-teal-50' });
+             const isOverdue = (new Date().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) > crop.lightDays + 2;
+             if (stageEndDate.toDateString() === currentDay.toDateString() && !(i === 0 && isOverdue)) {
+                tasks.push({ type: 'harvest', text: `Harvest ${crop.name}`, sub: tray.location, icon: CheckCircle, color: 'text-teal-600 bg-teal-50', trayId: tray.id, estYield: crop.estimatedYieldPerTray });
              }
          }
       });
@@ -338,10 +435,9 @@ const CropManager: React.FC<CropManagerProps> = ({
          }
       });
 
-      // 4. General Tasks
-      if (activeTrays.length > 0) {
-         tasks.push({ type: 'routine', text: 'Check Water & Airflow', sub: `${activeTrays.length} active trays`, icon: Droplet, color: 'text-blue-500 bg-blue-50' });
-      }
+      // 4. General Tasks (handled by getFarmAlerts for Today)
+      // Future days don't show generic routines to keep calendar clean.
+
 
       days.push({ date: currentDay, dayOfWeek, tasks });
     }
@@ -525,37 +621,81 @@ const CropManager: React.FC<CropManagerProps> = ({
 
          {/* --- CALENDAR TAB --- */}
          {activeTab === 'calendar' && (
-            <div className="space-y-6">
+            <div className="space-y-8">
                
-               {/* Daily Schedule */}
-               <div className="space-y-4">
-                  {calendarDays.map((day, idx) => (
-                     <div key={idx} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                        <h4 className={`text-sm font-bold mb-3 flex items-center ${idx === 0 ? 'text-teal-600' : 'text-slate-800'}`}>
-                           {idx === 0 ? 'Today' : idx === 1 ? 'Tomorrow' : day.date.toLocaleDateString(undefined, {weekday: 'long'})}
-                           <span className="text-xs font-normal text-slate-400 ml-2">{day.date.toLocaleDateString(undefined, {month:'short', day:'numeric'})}</span>
-                        </h4>
+               {/* Daily Schedule - Timeline View */}
+               <div className="relative pl-4 space-y-8 before:absolute before:left-4 before:top-2 before:bottom-0 before:w-0.5 before:bg-slate-100">
+                  {calendarDays.map((day, idx) => {
+                     const dailyHarvest = day.tasks.reduce((sum, t) => sum + (t.estYield || 0), 0);
+                     const isToday = idx === 0;
+
+                     return (
+                     <div key={idx} className="relative pl-8">
+                        {/* Timeline Node */}
+                        <div className={`absolute left-0 top-0 w-8 h-8 rounded-full flex items-center justify-center border-4 border-white ${isToday ? 'bg-teal-500 shadow-lg shadow-teal-200 scale-110' : 'bg-slate-200'}`}>
+                           {isToday && <div className="w-2.5 h-2.5 bg-white rounded-full animate-pulse" />}
+                        </div>
+
+                        {/* Date Header */}
+                        <div className="flex items-baseline justify-between mb-3">
+                           <div>
+                              <span className={`text-2xl font-bold ${isToday ? 'text-slate-800' : 'text-slate-400'}`}>
+                                 {day.date.getDate()}
+                              </span>
+                              <span className={`ml-2 text-sm font-bold uppercase tracking-wider ${isToday ? 'text-teal-600' : 'text-slate-400'}`}>
+                                 {isToday ? 'Today' : idx === 1 ? 'Tomorrow' : day.date.toLocaleDateString(undefined, {weekday: 'long'})}
+                              </span>
+                           </div>
+                           {dailyHarvest > 0 && (
+                              <div className="flex items-center text-xs font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded-lg">
+                                 <Scale className="w-3.5 h-3.5 mr-1.5" />
+                                 {dailyHarvest >= 1000 ? `${(dailyHarvest/1000).toFixed(1)}kg` : `${dailyHarvest}g`}
+                              </div>
+                           )}
+                        </div>
                         
+                        {/* Tasks List */}
                         {day.tasks.length === 0 ? (
-                           <div className="text-xs text-slate-400 italic pl-2">No tasks scheduled.</div>
+                           <div className="p-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-slate-400 text-xs italic">
+                              No tasks scheduled.
+                           </div>
                         ) : (
                            <div className="space-y-2">
                               {day.tasks.map((task, tIdx) => {
                                  const Icon = task.icon;
                                  return (
-                                    <div key={tIdx} className={`flex items-start space-x-3 p-2.5 rounded-xl ${task.color}`}>
-                                       <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                                       <div className="flex-1 min-w-0">
-                                          <p className="text-xs font-bold leading-tight">{task.text}</p>
-                                          {task.sub && <p className="text-[10px] opacity-80 mt-0.5 leading-tight">{task.sub}</p>}
+                                    <div 
+                                       key={tIdx} 
+                                       onClick={() => { if (task.trayId) { const t = state.trays.find(x => x.id === task.trayId); if (t) setSelectedTray(t); } }}
+                                       className={`flex items-start space-x-3 p-3 rounded-2xl border transition-all ${task.trayId ? 'cursor-pointer active:scale-[0.98] hover:shadow-md' : ''} ${
+                                          task.type === 'alert' ? 'bg-red-50 border-red-100' : 
+                                          task.type === 'harvest' ? 'bg-teal-50 border-teal-100' : 
+                                          'bg-white border-slate-100'
+                                       }`}
+                                    >
+                                       <div className={`p-2 rounded-xl flex-shrink-0 ${task.color.replace('text-', 'bg-').replace('bg-', 'text-opacity-20 ')}`}>
+                                          <Icon className={`w-5 h-5 ${task.color.split(' ')[0]}`} />
                                        </div>
+                                       <div className="flex-1 min-w-0 pt-0.5">
+                                          <div className="flex justify-between items-start">
+                                             <p className={`text-sm font-bold leading-tight ${task.type === 'alert' ? 'text-red-800' : 'text-slate-700'}`}>{task.text}</p>
+                                             {task.estYield && (
+                                                <span className="text-[10px] font-bold text-teal-600 bg-white px-1.5 py-0.5 rounded-md shadow-sm border border-teal-100 ml-2">
+                                                   {task.estYield}g
+                                                </span>
+                                             )}
+                                          </div>
+                                          {task.sub && <p className={`text-xs mt-0.5 leading-tight ${task.type === 'alert' ? 'text-red-500' : 'text-slate-400'}`}>{task.sub}</p>}
+                                       </div>
+                                       {task.trayId && <ChevronRight className="w-4 h-4 text-slate-300 self-center" />}
                                     </div>
                                  );
                               })}
                            </div>
                         )}
                      </div>
-                  ))}
+                     );
+                  })}
                </div>
 
                {/* Recurring Orders Section */}
@@ -574,21 +714,34 @@ const CropManager: React.FC<CropManagerProps> = ({
                   {isAddingOrder && (
                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="mb-4 overflow-hidden">
                         <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                           <select value={newOrderCustId} onChange={e => setNewOrderCustId(e.target.value)} className="w-full p-2 bg-slate-50 rounded-lg text-xs font-bold text-slate-700 outline-none">
-                              <option value="">Select Customer...</option>
-                              {state.customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                           </select>
+                           <CustomSelect 
+                              value={newOrderCustId}
+                              onChange={(val) => setNewOrderCustId(val)}
+                              options={[
+                                 { value: "", label: "Select Customer..." },
+                                 ...state.customers.map(c => ({ value: c.id, label: c.name }))
+                              ]}
+                              className="w-full"
+                           />
                            <div className="flex gap-2">
-                              <select value={newOrderCropId} onChange={e => setNewOrderCropId(e.target.value)} className="flex-[2] p-2 bg-slate-50 rounded-lg text-xs font-bold text-slate-700 outline-none">
-                                 <option value="">Select Crop...</option>
-                                 {state.crops.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                              </select>
-                              <input type="number" placeholder="g" value={newOrderAmount} onChange={e => setNewOrderAmount(e.target.value)} className="flex-1 p-2 bg-slate-50 rounded-lg text-xs font-bold text-slate-700 outline-none" />
+                              <div className="flex-[2]">
+                                 <CustomSelect 
+                                    value={newOrderCropId}
+                                    onChange={(val) => setNewOrderCropId(val)}
+                                    options={[
+                                       { value: "", label: "Select Crop..." },
+                                       ...state.crops.map(c => ({ value: c.id, label: c.name }))
+                                    ]}
+                                 />
+                              </div>
+                              <input type="number" placeholder="g" value={newOrderAmount} onChange={e => setNewOrderAmount(e.target.value)} className="flex-1 p-2 bg-slate-50 border border-slate-100 rounded-xl font-bold text-slate-700 outline-none" />
                            </div>
-                           <select value={newOrderDay} onChange={e => setNewOrderDay(parseInt(e.target.value))} className="w-full p-2 bg-slate-50 rounded-lg text-xs font-bold text-slate-700 outline-none">
-                              {DAYS_OF_WEEK.map((d, i) => <option key={i} value={i}>Deliver on {d}</option>)}
-                           </select>
-                           <button onClick={addRecurringOrder} className="w-full py-2 bg-slate-800 text-white text-xs font-bold rounded-lg">Save Order</button>
+                           <CustomSelect 
+                              value={newOrderDay}
+                              onChange={(val) => setNewOrderDay(parseInt(val))}
+                              options={DAYS_OF_WEEK.map((d, i) => ({ value: i, label: `Deliver on ${d}` }))}
+                           />
+                           <button onClick={addRecurringOrder} className="w-full py-3 bg-slate-800 text-white text-xs font-bold rounded-xl mt-2">Save Order</button>
                         </div>
                      </motion.div>
                   )}
@@ -718,15 +871,15 @@ const CropManager: React.FC<CropManagerProps> = ({
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                        <div>
-                          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 block">Crop Variety</label>
-                          <select 
+                          <CustomSelect 
+                             label="Crop Variety"
                              value={plannerCropId} 
-                             onChange={(e) => setPlannerCropId(e.target.value)}
-                             className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl font-bold text-slate-700 outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
-                          >
-                             <option value="">Select Crop...</option>
-                             {state.crops.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                          </select>
+                             onChange={(val) => setPlannerCropId(val)}
+                             options={[
+                                { value: "", label: "Select Crop..." },
+                                ...state.crops.map(c => ({ value: c.id, label: c.name }))
+                             ]}
+                          />
                        </div>
                        <div>
                           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 block">Target Harvest Date</label>
@@ -827,15 +980,15 @@ const CropManager: React.FC<CropManagerProps> = ({
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                        <div>
-                          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 block">Crop Variety</label>
-                          <select 
+                          <CustomSelect 
+                             label="Crop Variety"
                              value={recurringCropId} 
-                             onChange={(e) => setRecurringCropId(e.target.value)}
-                             className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl font-bold text-slate-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                          >
-                             <option value="">Select Crop...</option>
-                             {state.crops.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                          </select>
+                             onChange={(val) => setRecurringCropId(val)}
+                             options={[
+                                { value: "", label: "Select Crop..." },
+                                ...state.crops.map(c => ({ value: c.id, label: c.name }))
+                             ]}
+                          />
                        </div>
                        <div className="flex gap-2">
                            <div className="flex-1">
@@ -849,14 +1002,12 @@ const CropManager: React.FC<CropManagerProps> = ({
                              />
                            </div>
                            <div className="flex-1">
-                              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 block">Harvest Day</label>
-                              <select 
+                              <CustomSelect 
+                                 label="Harvest Day"
                                  value={recurringHarvestDay}
-                                 onChange={(e) => setRecurringHarvestDay(parseInt(e.target.value))}
-                                 className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl font-bold text-slate-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                              >
-                                 {DAYS_OF_WEEK.map((day, idx) => <option key={day} value={idx}>{day}</option>)}
-                              </select>
+                                 onChange={(val) => setRecurringHarvestDay(parseInt(val))}
+                                 options={DAYS_OF_WEEK.map((day, idx) => ({ value: idx, label: day }))}
+                              />
                            </div>
                        </div>
                     </div>
@@ -874,21 +1025,105 @@ const CropManager: React.FC<CropManagerProps> = ({
                               </p>
                           </div>
 
-                          <div className="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm flex items-start space-x-4">
-                              <div className="bg-indigo-50 p-2.5 rounded-lg text-indigo-600 mt-1">
-                                 <Calendar className="w-5 h-5" />
-                              </div>
-                              <div>
-                                 <h4 className="font-bold text-slate-800 text-sm">Your Weekly Routine</h4>
-                                 <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                                    To harvest fresh <strong>{recurringSchedule.crop.name}</strong> every <strong>{recurringSchedule.harvestDayName}</strong>:
-                                 </p>
-                                 <div className="mt-3 inline-block bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">
-                                    Plant {recurringSchedule.traysNeeded} trays every {recurringSchedule.plantDayName}
+                          <div className="bg-white p-5 rounded-xl border border-indigo-100 shadow-sm space-y-5">
+                              {/* 1. Header & Primary Instruction */}
+                              <div className="flex items-start space-x-4 pb-4 border-b border-indigo-50">
+                                 <div className="bg-indigo-50 p-2.5 rounded-xl text-indigo-600 mt-1">
+                                    <Calendar className="w-6 h-6" />
                                  </div>
-                                 <p className="text-[10px] text-slate-400 mt-2">
-                                    Total growing cycle: {recurringSchedule.totalGrowingDays} days
-                                 </p>
+                                 <div className="flex-1">
+                                    <h4 className="font-bold text-slate-800 text-sm mb-1">Weekly Cycle</h4>
+                                    <div className="inline-block bg-indigo-600 text-white text-sm font-bold px-3 py-1.5 rounded-lg shadow-sm shadow-indigo-200">
+                                       Plant {recurringSchedule.traysNeeded} trays every {recurringSchedule.plantDayName}
+                                    </div>
+                                    <p className="text-xs text-slate-500 mt-2">
+                                       To harvest fresh <strong>{recurringSchedule.crop.name}</strong> every <strong>{recurringSchedule.harvestDayName}</strong>.
+                                    </p>
+                                 </div>
+                              </div>
+
+                              {/* 2. Detailed Timeline Flow */}
+                              <div>
+                                 <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Routine Schedule</h5>
+                                 <div className="grid grid-cols-4 gap-2 text-center">
+                                    <div className="bg-slate-50 rounded-lg p-2 border border-slate-100">
+                                       <span className="block text-[10px] text-slate-400 uppercase font-bold">Plant</span>
+                                       <span className="text-xs font-bold text-indigo-600">{recurringSchedule.timeline.plant.substring(0,3)}</span>
+                                    </div>
+                                    <div className="bg-slate-50 rounded-lg p-2 border border-slate-100">
+                                       <span className="block text-[10px] text-slate-400 uppercase font-bold">Dark</span>
+                                       <span className="text-xs font-bold text-slate-700">{recurringSchedule.timeline.blackout.substring(0,3)}</span>
+                                    </div>
+                                    <div className="bg-slate-50 rounded-lg p-2 border border-slate-100">
+                                       <span className="block text-[10px] text-slate-400 uppercase font-bold">Light</span>
+                                       <span className="text-xs font-bold text-amber-500">{recurringSchedule.timeline.light.substring(0,3)}</span>
+                                    </div>
+                                    <div className="bg-slate-50 rounded-lg p-2 border border-slate-100">
+                                       <span className="block text-[10px] text-slate-400 uppercase font-bold">Cut</span>
+                                       <span className="text-xs font-bold text-teal-600">{recurringSchedule.timeline.harvest.substring(0,3)}</span>
+                                    </div>
+                                 </div>
+                              </div>
+
+                              {/* 3. Business Stats Grid */}
+                              <div className="grid grid-cols-2 gap-4 pt-2">
+                                 {/* Revenue */}
+                                 <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                                    <span className="text-[10px] font-bold text-emerald-600/70 uppercase block mb-0.5">Wk Revenue</span>
+                                    <div className="text-lg font-bold text-emerald-700">€{recurringSchedule.weeklyRevenue.toFixed(2)}</div>
+                                 </div>
+                                 
+                                 {/* Seed Cost */}
+                                 <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase block mb-0.5">Seed Cost</span>
+                                    <div className="text-lg font-bold text-slate-700">€{recurringSchedule.seedCost.toFixed(2)}</div>
+                                    <span className="text-[10px] text-slate-400 font-medium">{recurringSchedule.weeklySeedGrams}g / week</span>
+                                 </div>
+
+                                 {/* Shelf Capacity */}
+                                 <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase block mb-0.5">Shelf Space</span>
+                                    <div className="text-lg font-bold text-slate-700">{recurringSchedule.shelfSpace} <span className="text-xs font-medium text-slate-400">trays</span></div>
+                                    <span className="text-[10px] text-slate-400 font-medium">Max ({recurringSchedule.lightBatches} wk cycle)</span>
+                                 </div>
+
+                                 {/* Profit Margin (Simple) */}
+                                 <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
+                                    <span className="text-[10px] font-bold text-indigo-600/70 uppercase block mb-0.5">Est. Profit</span>
+                                    <div className="text-lg font-bold text-indigo-700">€{(recurringSchedule.weeklyRevenue - recurringSchedule.seedCost).toFixed(2)}</div>
+                                 </div>
+                              </div>
+
+                              {/* 4. Upcoming Schedule */}
+                              <div className="pt-2 border-t border-slate-100">
+                                 <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Upcoming Plantings</h5>
+                                 <div className="bg-slate-50 rounded-xl border border-slate-100 divide-y divide-slate-100">
+                                    {recurringSchedule.upcomingDates.map((date, idx) => (
+                                       <div key={idx} className="flex justify-between items-center p-3">
+                                          <div className="flex items-center">
+                                             <div className="w-8 text-center mr-3">
+                                                <span className="block text-[9px] font-bold text-slate-400 uppercase">{date.toLocaleDateString(undefined, {month:'short'})}</span>
+                                                <span className="block text-sm font-bold text-slate-700">{date.getDate()}</span>
+                                             </div>
+                                             <div>
+                                                <p className="text-xs font-bold text-slate-700">Plant {recurringSchedule.traysNeeded}x Trays</p>
+                                                <p className="text-[10px] text-slate-400">Target harvest: {new Date(date.getTime() + (recurringSchedule.totalGrowingDays * 24 * 60 * 60 * 1000)).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</p>
+                                             </div>
+                                          </div>
+                                          <button 
+                                             onClick={() => {
+                                                setPlantCropId(recurringSchedule.crop.id);
+                                                setPlantCount(recurringSchedule.traysNeeded);
+                                                setPlantLocation('Shelf 1'); // Default
+                                                setIsAdding(true);
+                                             }}
+                                             className="text-[10px] font-bold text-white bg-slate-800 px-2.5 py-1.5 rounded-lg hover:bg-slate-700"
+                                          >
+                                             Plant
+                                          </button>
+                                       </div>
+                                    ))}
+                                 </div>
                               </div>
                           </div>
                        </div>
@@ -914,7 +1149,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                animate={{ scale: 1 }} 
                exit={{ scale: 0 }}
                onClick={() => setIsAdding(true)}
-               className="fixed bottom-24 right-6 w-14 h-14 bg-slate-900 text-white rounded-full shadow-xl shadow-slate-300 flex items-center justify-center z-30"
+               className="fixed bottom-28 right-6 w-14 h-14 bg-slate-900 text-white rounded-full shadow-xl shadow-slate-300 flex items-center justify-center z-30 active:scale-95 transition-transform"
             >
                <Plus className="w-7 h-7" />
             </motion.button>
@@ -931,13 +1166,15 @@ const CropManager: React.FC<CropManagerProps> = ({
                <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto">
                   <div className="flex justify-between items-center">
                      <h3 className="text-lg font-bold text-slate-800">Plant New</h3>
-                     <button onClick={() => setIsAdding(false)} className="p-2 bg-slate-100 rounded-full"><X className="w-4 h-4" /></button>
+                     <button onClick={() => setIsAdding(false)} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5" /></button>
                   </div>
                   <div>
-                     <label className="text-xs font-bold text-slate-400 uppercase">Crop</label>
-                     <select value={plantCropId} onChange={e => setPlantCropId(e.target.value)} className="w-full mt-1 p-3 bg-slate-50 rounded-xl font-bold outline-none border border-slate-100">
-                        {state.crops.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                     </select>
+                     <CustomSelect 
+                        label="Crop"
+                        value={plantCropId}
+                        onChange={(val) => setPlantCropId(val)}
+                        options={state.crops.map(c => ({ value: c.id, label: c.name }))}
+                     />
                   </div>
                   <div className="flex gap-4">
                      <div className="flex-1">
@@ -991,7 +1228,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                         <h3 className="text-xl font-bold text-slate-800">{state.crops.find(c => c.id === selectedTray.cropTypeId)?.name}</h3>
                         <p className="text-sm text-slate-500 font-medium">{selectedTray.location}</p>
                      </div>
-                     <button onClick={() => setSelectedTray(null)} className="p-2 bg-slate-100 rounded-full"><X className="w-4 h-4" /></button>
+                     <button onClick={() => setSelectedTray(null)} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5" /></button>
                   </div>
 
                   {/* Status Card */}
@@ -1054,7 +1291,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                           </button>
                        )}
                      </div>
-                     <button onClick={() => setSelectedCrop(null)} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"><X className="w-4 h-4" /></button>
+                     <button onClick={() => setSelectedCrop(null)} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5" /></button>
                   </div>
 
                   {/* VIEW MODE */}

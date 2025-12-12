@@ -1,9 +1,10 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { AppState, Customer, Transaction } from '../types';
-import { ArrowDownLeft, ArrowUpRight, Plus, LayoutGrid, Users, User, Mail, Trash2, Edit2, Calendar, Store, ShoppingBag, Utensils, Zap, Package, Sprout, Layers, Megaphone, Download, X } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Plus, LayoutGrid, Users, User, Mail, Trash2, Edit2, Calendar, Store, ShoppingBag, Utensils, Zap, Package, Sprout, Layers, Megaphone, Download, X, DollarSign } from 'lucide-react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
+import CustomSelect from './CustomSelect';
 
 interface FinanceTrackerProps {
   state: AppState;
@@ -86,6 +87,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
     
     return state.transactions.filter(t => {
       const d = new Date(t.date);
+      if (isNaN(d.getTime())) return false; // Skip invalid dates
       if (timeRange === 'month') return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
       if (timeRange === 'last_month') {
         const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
@@ -112,7 +114,9 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
   const cashFlowData = useMemo(() => {
     const dailyMap = new Map<string, { date: string; income: number; expense: number }>();
     filteredTransactions.forEach(t => {
-       const dateKey = new Date(t.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+       const d = new Date(t.date);
+       if (isNaN(d.getTime())) return;
+       const dateKey = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
        if (!dailyMap.has(dateKey)) dailyMap.set(dateKey, { date: dateKey, income: 0, expense: 0 });
        const entry = dailyMap.get(dateKey)!;
        t.type === 'income' ? entry.income += t.amount : entry.expense += t.amount;
@@ -154,9 +158,17 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
   const handleExportCSV = () => {
      if (filteredTransactions.length === 0) return;
      const headers = ['Date', 'Type', 'Category', 'Payee', 'Description', 'Amount (€)'];
-     const rows = filteredTransactions.map(t => [
-        new Date(t.date).toLocaleDateString(), t.type, t.category, t.payee || '', `"${t.description.replace(/"/g, '""')}"`, t.amount.toFixed(2)
-     ]);
+     const rows = filteredTransactions.map(t => {
+        const d = new Date(t.date);
+        return [
+          isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString(), 
+          t.type, 
+          t.category, 
+          t.payee || '', 
+          `"${t.description.replace(/"/g, '""')}"`, 
+          t.amount.toFixed(2)
+        ];
+     });
      const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
      const link = document.createElement("a");
      link.setAttribute("href", encodeURI(csvContent));
@@ -217,18 +229,41 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <div className="relative">
                        {type === 'income' && <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] text-teal-600 font-bold z-10">Sales Channel</label>}
-                       <select value={category} onChange={e => setCategory(e.target.value)} className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-teal-100 outline-none appearance-none" required>
-                         <option value="">{type === 'income' ? 'Select Sales Channel...' : 'Select Category...'}</option>
-                         {type === 'income' ? (<><option value="Sales">Direct Sales</option><option value="Restaurant">Restaurant Delivery</option><option value="Market">Farmers Market</option><option value="Subscription">Subscription</option></>) : (<><option value="Seeds">Seeds</option><option value="Soil">Soil/Medium</option><option value="Utilities">Utilities</option><option value="Packaging">Packaging</option><option value="Marketing">Marketing</option><option value="Equipment">Equipment</option></>)}
-                       </select>
+                       <CustomSelect 
+                          value={category} 
+                          onChange={(val) => setCategory(val)} 
+                          options={
+                            type === 'income' 
+                              ? [
+                                  { value: "", label: 'Select Sales Channel...' },
+                                  { value: "Sales", label: 'Direct Sales' },
+                                  { value: "Restaurant", label: 'Restaurant Delivery' },
+                                  { value: "Market", label: 'Farmers Market' },
+                                  { value: "Subscription", label: 'Subscription' }
+                                ]
+                              : [
+                                  { value: "", label: 'Select Category...' },
+                                  { value: "Seeds", label: 'Seeds' },
+                                  { value: "Soil", label: 'Soil/Medium' },
+                                  { value: "Utilities", label: 'Utilities' },
+                                  { value: "Packaging", label: 'Packaging' },
+                                  { value: "Marketing", label: 'Marketing' },
+                                  { value: "Equipment", label: 'Equipment' }
+                                ]
+                          }
+                       />
                      </div>
                      {type === 'income' ? (
                        <div className="relative">
                           <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] text-teal-600 font-bold z-10">Customer (Optional)</label>
-                          <select value={selectedCustomerId} onChange={e => setSelectedCustomerId(e.target.value)} className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-teal-100 outline-none appearance-none">
-                            <option value="">Guest / General Sales</option>
-                            {state.customers.map(c => (<option key={c.id} value={c.id}>{c.name}</option>))}
-                          </select>
+                          <CustomSelect 
+                             value={selectedCustomerId} 
+                             onChange={(val) => setSelectedCustomerId(val)} 
+                             options={[
+                                { value: "", label: "Guest / General Sales" },
+                                ...state.customers.map(c => ({ value: c.id, label: c.name }))
+                             ]}
+                          />
                        </div>
                      ) : (
                         <div className="relative"><input type="text" value={payee} onChange={e => setPayee(e.target.value)} list="payee-suggestions" placeholder="Payee / Vendor" className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-teal-100 outline-none" /><datalist id="payee-suggestions">{payeeSuggestions.map((p, i) => <option key={i} value={p} />)}</datalist></div>
@@ -253,21 +288,37 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
              <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 h-64">
                 <h4 className="text-sm font-bold text-slate-800 mb-4">Cash Flow (Last 7 Days)</h4>
-                <ResponsiveContainer width="100%" height="100%">
-                   <BarChart data={cashFlowData}><XAxis dataKey="date" hide /><Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} /><Bar dataKey="income" fill="#0d9488" radius={[4, 4, 0, 0]} animationDuration={1000} /><Bar dataKey="expense" fill="#ef4444" radius={[4, 4, 0, 0]} animationDuration={1000} /></BarChart>
-                </ResponsiveContainer>
+                <div style={{ width: '100%', height: '100%', minHeight: 200 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                     <BarChart data={cashFlowData}><XAxis dataKey="date" hide /><Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} /><Bar dataKey="income" fill="#0d9488" radius={[4, 4, 0, 0]} animationDuration={1000} /><Bar dataKey="expense" fill="#ef4444" radius={[4, 4, 0, 0]} animationDuration={1000} /></BarChart>
+                  </ResponsiveContainer>
+                </div>
              </div>
              <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 h-64">
                 <h4 className="text-sm font-bold text-slate-800 mb-4">Expenses by Category</h4>
-                <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={expenseCategoryData} innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value" animationDuration={1000}>{expenseCategoryData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}</Pie><Tooltip /><Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} /></PieChart></ResponsiveContainer>
+                <div style={{ width: '100%', height: '100%', minHeight: 200 }}>
+                  <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={expenseCategoryData} innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value" animationDuration={1000}>{expenseCategoryData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}</Pie><Tooltip /><Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} /></PieChart></ResponsiveContainer>
+                </div>
              </div>
           </motion.div>
 
           <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
              <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                 <h3 className="font-bold text-slate-800">Recent Transactions</h3>
-                <div className="flex space-x-2">
-                   <select value={timeRange} onChange={(e) => setTimeRange(e.target.value as any)} className="text-xs bg-white border border-slate-200 rounded-lg px-2 py-1 outline-none focus:border-teal-500"><option value="month">This Month</option><option value="last_month">Last Month</option><option value="year">This Year</option><option value="all">All Time</option></select>
+                <div className="flex space-x-2 items-center">
+                   <div className="w-40">
+                      <CustomSelect 
+                         value={timeRange}
+                         onChange={(val) => setTimeRange(val as any)}
+                         options={[
+                            { value: "month", label: "This Month" },
+                            { value: "last_month", label: "Last Month" },
+                            { value: "year", label: "This Year" },
+                            { value: "all", label: "All Time" }
+                         ]}
+                         className="text-xs"
+                      />
+                   </div>
                    <button onClick={handleExportCSV} className="p-1 text-slate-400 hover:text-teal-600"><Download className="w-4 h-4" /></button>
                 </div>
              </div>
@@ -276,9 +327,9 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                    <motion.div key={tx.id} variants={{ hidden: { opacity: 0, x: -10 }, visible: { opacity: 1, x: 0 } }} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors group">
                       <div className="flex items-center space-x-3">
                          <div className={`p-2.5 rounded-xl ${tx.type === 'income' ? 'bg-teal-50 text-teal-600' : 'bg-red-50 text-red-600'}`}>{getCategoryIcon(tx.category, tx.type)}</div>
-                         <div><div className="font-bold text-slate-800 text-sm">{tx.description || tx.category}</div><div className="text-[10px] text-slate-400 font-medium">{new Date(tx.date).toLocaleDateString()} • {tx.payee || tx.customerId ? (tx.payee || state.customers.find(c => c.id === tx.customerId)?.name) : 'General'}</div></div>
+                         <div><div className="font-bold text-slate-800 text-sm">{tx.description || tx.category}</div><div className="text-[10px] text-slate-400 font-medium">{(() => { const d = new Date(tx.date); return isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString(); })()} • {tx.payee || tx.customerId ? (tx.payee || state.customers.find(c => c.id === tx.customerId)?.name) : 'General'}</div></div>
                       </div>
-                      <div className="flex items-center space-x-3"><span className={`font-bold text-sm ${tx.type === 'income' ? 'text-teal-600' : 'text-slate-900'}`}>{tx.type === 'income' ? '+' : '-'}€{tx.amount.toFixed(2)}</span><div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1"><button onClick={() => setEditingTx(tx)} className="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg"><Edit2 className="w-3.5 h-3.5" /></button><button onClick={() => onDeleteTransaction(tx.id)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button></div></div>
+                      <div className="flex items-center space-x-3"><span className={`font-bold text-sm ${tx.type === 'income' ? 'text-teal-600' : 'text-slate-900'}`}>{tx.type === 'income' ? '+' : '-'}€{tx.amount.toFixed(2)}</span><div className="flex space-x-1"><button onClick={() => setEditingTx(tx)} className="p-2 text-slate-400 hover:text-blue-500 bg-slate-50 rounded-lg active:bg-blue-50"><Edit2 className="w-4 h-4" /></button><button onClick={() => onDeleteTransaction(tx.id)} className="p-2 text-slate-400 hover:text-red-500 bg-slate-50 rounded-lg active:bg-red-50"><Trash2 className="w-4 h-4" /></button></div></div>
                    </motion.div>
                 ))}
                 {filteredTransactions.length === 0 && <div className="p-8 text-center text-slate-400 text-sm">No transactions found for this period.</div>}
@@ -291,7 +342,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {state.customers.map(cust => (
                <motion.div key={cust.id} whileHover={{ scale: 1.01 }} className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-all group relative">
-                  <div className="absolute top-4 right-4 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => openEditCustomerModal(cust)} className="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg"><Edit2 className="w-4 h-4" /></button><button onClick={() => onDeleteCustomer(cust.id)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button></div>
+                  <div className="absolute top-4 right-4 flex space-x-1"><button onClick={() => openEditCustomerModal(cust)} className="p-2 text-slate-400 hover:text-blue-500 bg-slate-50 rounded-lg active:bg-blue-50"><Edit2 className="w-4 h-4" /></button><button onClick={() => onDeleteCustomer(cust.id)} className="p-2 text-slate-400 hover:text-red-500 bg-slate-50 rounded-lg active:bg-red-50"><Trash2 className="w-4 h-4" /></button></div>
                   <div className="flex items-center space-x-3 mb-4"><div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-lg font-bold">{cust.name.charAt(0)}</div><div><h3 className="font-bold text-slate-800">{cust.name}</h3><span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full border border-slate-200">{cust.type}</span></div></div>
                   <div className="space-y-2 mb-4"><div className="flex items-center text-xs text-slate-500"><User className="w-3.5 h-3.5 mr-2" />{cust.contact}</div><div className="flex items-center text-xs text-slate-500"><Mail className="w-3.5 h-3.5 mr-2" />{cust.email}</div>{cust.notes && <div className="text-[10px] text-slate-400 italic mt-2 bg-yellow-50 p-2 rounded-lg border border-yellow-100">"{cust.notes}"</div>}</div>
                </motion.div>
@@ -306,11 +357,22 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
             <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden p-6 space-y-4 max-h-[85vh] overflow-y-auto">
                <div className="flex justify-between items-center">
                    <h3 className="text-lg font-bold text-slate-800">{editingCustomer.id ? 'Edit Customer' : 'Add New Customer'}</h3>
-                   <button onClick={() => setShowCustomerModal(false)} className="p-1 rounded-full hover:bg-slate-100"><X className="w-5 h-5 text-slate-500" /></button>
+                   <button onClick={() => setShowCustomerModal(false)} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5 text-slate-500" /></button>
                </div>
                <div className="space-y-3">
                   <div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Name</label><input type="text" value={editingCustomer.name} onChange={e => setEditingCustomer({...editingCustomer, name: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none" /></div>
-                  <div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Type</label><select value={editingCustomer.type} onChange={e => setEditingCustomer({...editingCustomer, type: e.target.value as any})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"><option value="Restaurant">Restaurant</option><option value="Wholesaler">Wholesaler</option><option value="Individual">Individual</option></select></div>
+                  <div>
+                     <CustomSelect 
+                        label="Type"
+                        value={editingCustomer.type || 'Restaurant'}
+                        onChange={(val) => setEditingCustomer({...editingCustomer, type: val as any})}
+                        options={[
+                           { value: "Restaurant", label: "Restaurant" },
+                           { value: "Wholesaler", label: "Wholesaler" },
+                           { value: "Individual", label: "Individual" }
+                        ]}
+                     />
+                  </div>
                   <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Contact Person</label><input type="text" value={editingCustomer.contact} onChange={e => setEditingCustomer({...editingCustomer, contact: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none" /></div><div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Email</label><input type="email" value={editingCustomer.email} onChange={e => setEditingCustomer({...editingCustomer, email: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none" /></div></div>
                   <div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Notes</label><textarea value={editingCustomer.notes} onChange={e => setEditingCustomer({...editingCustomer, notes: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none resize-none h-20" /></div>
                </div>

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { AppState, Tray, Transaction, Customer, CropType } from '../types';
 import { clearDB, getStorageEstimate, getDatabaseStats, DbStats } from '../services/storage';
-import { Database, Download, Upload, Trash2, HardDrive, AlertTriangle, CheckCircle, Image as ImageIcon, Sprout, ShoppingBag, Users, X, DollarSign, Scale } from 'lucide-react';
+import { Database, Download, Upload, Trash2, HardDrive, AlertTriangle, CheckCircle, Image as ImageIcon, Sprout, ShoppingBag, Users, X, DollarSign, Scale, Calendar } from 'lucide-react';
 
 interface DataManagerProps {
   state: AppState;

@@ -171,6 +171,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                   src="https://images.unsplash.com/photo-1536636730397-5b62b083c74c?auto=format&fit=crop&q=80&w=800" 
                   alt="Fresh Microgreens" 
                   className="absolute inset-0 w-full h-full object-cover rounded-[2.5rem] shadow-2xl z-10"
+                  crossOrigin="anonymous"
                   whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.5 }}
                 />

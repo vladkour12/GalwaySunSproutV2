@@ -9,9 +9,10 @@ interface LayoutProps {
   currentView: View;
   onNavigate: (view: View) => void;
   onLogout: () => void;
+  alertCount?: number;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLogout }) => {
+const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLogout, alertCount = 0 }) => {
   const navItems = [
     { id: 'dashboard', label: 'Overview', icon: Leaf },
     { id: 'crops', label: 'My Crops', icon: Sprout },
@@ -62,34 +63,55 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
         </div>
       </main>
 
-      {/* Bottom Navigation - Docked */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-t border-white/10 pb-safe">
-        <div className="max-w-md mx-auto flex justify-between items-center px-4 py-2 overflow-x-auto no-scrollbar">
+      {/* Bottom Navigation - Modern Animated Dock */}
+      <nav className="fixed bottom-6 left-6 right-6 z-50">
+        <div className="max-w-md mx-auto bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-2xl shadow-slate-900/50 p-2 flex justify-between items-center">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentView === item.id;
+            
             return (
               <button
                 key={item.id}
                 onClick={() => onNavigate(item.id as View)}
-                className={`relative flex flex-col items-center justify-center w-14 h-14 min-w-[3.5rem] transition-all duration-150 group ${
-                  isActive ? 'text-white' : 'hover:text-slate-200 text-slate-500'
-                }`}
+                className="relative flex items-center justify-center outline-none focus:outline-none"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
               >
+                {/* Active Pill Background */}
                 {isActive && (
-                   <motion.span 
+                   <motion.div 
                       layoutId="nav-pill"
-                      className="absolute -top-2 w-10 h-1 bg-teal-500 rounded-b-full shadow-[0_0_10px_rgba(20,184,166,0.5)]"
-                      transition={{ type: "spring", stiffness: 600, damping: 30 }}
+                      className="absolute inset-0 bg-teal-500 rounded-full shadow-[0_0_15px_rgba(20,184,166,0.4)]"
+                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
                    />
                 )}
-                <Icon 
-                  className={`w-5 h-5 transition-transform duration-150 ${isActive ? 'scale-110' : 'group-hover:scale-105'}`} 
-                  strokeWidth={isActive ? 2.5 : 2} 
-                />
-                <span className={`text-[9px] font-medium mt-1 transition-opacity duration-150 ${isActive ? 'opacity-100' : 'opacity-80'}`}>
-                  {item.label}
-                </span>
+                
+                <div className={`relative z-10 flex items-center px-3 py-2.5 transition-colors duration-200 ${isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'}`}>
+                    <Icon 
+                      className="w-5 h-5" 
+                      strokeWidth={isActive ? 2.5 : 2}
+                    />
+                    
+                    {/* Animated Label */}
+                    <AnimatePresence initial={false}>
+                      {isActive && (
+                        <motion.span 
+                            initial={{ width: 0, opacity: 0, marginLeft: 0 }}
+                            animate={{ width: 'auto', opacity: 1, marginLeft: 8 }}
+                            exit={{ width: 0, opacity: 0, marginLeft: 0 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
+                            className="text-xs font-bold whitespace-nowrap overflow-hidden"
+                        >
+                            {item.label}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                </div>
+
+                {/* Alert Badge */}
+                {!isActive && alertCount > 0 && (item.id === 'dashboard' || item.id === 'crops') && (
+                   <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-slate-900"></span>
+                )}
               </button>
             );
           })}

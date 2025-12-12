@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorFallback } from './components/ErrorFallback';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import CropManager from './components/CropManager';
@@ -12,6 +14,7 @@ import LoginPage from './components/LoginPage';
 import { AppState, View, Stage, Transaction, CropType, Customer, Tray } from './types';
 import { INITIAL_CROPS, MOCK_TRANSACTIONS, INITIAL_CUSTOMERS } from './constants';
 import { loadState, saveState } from './services/storage';
+import { getFarmAlerts } from './services/alertService';
 import { Sprout } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -177,6 +180,17 @@ const App: React.FC = () => {
     setAppState({ crops: INITIAL_CROPS, trays: [], transactions: [...MOCK_TRANSACTIONS], customers: INITIAL_CUSTOMERS });
   }, []);
 
+  // --- Alert Calculation for Badge ---
+  const alertCount = React.useMemo(() => {
+     try {
+        if (!Array.isArray(appState.trays) || !Array.isArray(appState.crops)) return 0;
+        return getFarmAlerts(appState).length;
+     } catch (e) {
+        console.error("Alert calc error", e);
+        return 0;
+     }
+  }, [appState]);
+
   // --- Rendering ---
 
   if (isLoading) {
@@ -229,8 +243,10 @@ const App: React.FC = () => {
   };
 
   return (
-    <Layout currentView={currentView} onNavigate={setCurrentView} onLogout={() => setAuthStatus('landing')}>
-      {renderView()}
+    <Layout currentView={currentView} onNavigate={setCurrentView} onLogout={() => setAuthStatus('landing')} alertCount={alertCount}>
+      <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => setCurrentView('dashboard')}>
+        {renderView()}
+      </ErrorBoundary>
     </Layout>
   );
 };

@@ -1,6 +1,7 @@
 
 import React, { useMemo } from 'react';
 import { AppState, Stage } from '../types';
+import { getFarmAlerts } from '../services/alertService';
 import { 
   ArrowUpRight, 
   Droplets, 
@@ -12,6 +13,7 @@ import {
   DollarSign, 
   Bell, 
   ChevronRight,
+  ArrowRight,
   Clock
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -77,66 +79,8 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
 
   // --- Smart Alerts Logic ---
   const smartAlerts = useMemo(() => {
-    const list: { id: string, type: 'urgent' | 'warning' | 'info', message: string, subtext: string }[] = [];
-    const now = new Date();
-
-    state.trays.forEach(tray => {
-      if (tray.stage === Stage.HARVESTED || tray.stage === Stage.COMPOST || tray.stage === Stage.MAINTENANCE) return;
-      
-      const crop = state.crops.find(c => c.id === tray.cropTypeId);
-      if (!crop) return;
-
-      const startDate = new Date(tray.startDate);
-      const diffMs = now.getTime() - startDate.getTime();
-      const diffHours = diffMs / (1000 * 60 * 60);
-      const diffDays = diffMs / (1000 * 60 * 60 * 24);
-
-      // Check Overdue Stages
-      if (tray.stage === Stage.SOAK) {
-         const threshold = crop.soakHours;
-         if (threshold > 0 && diffHours > threshold + 2) {
-            list.push({ 
-               id: tray.id, 
-               type: 'urgent', 
-               message: `${crop.name} Over-soaking`, 
-               subtext: `${Math.round(diffHours)}h (Target: ${threshold}h)` 
-            });
-         }
-      } else if (tray.stage === Stage.GERMINATION) {
-         const threshold = crop.germinationDays;
-         if (diffDays > threshold + 0.5) {
-            list.push({ 
-               id: tray.id, 
-               type: 'warning', 
-               message: `Move ${crop.name} to Blackout`, 
-               subtext: `Germination done (${Math.round(diffDays)}d)` 
-            });
-         }
-      } else if (tray.stage === Stage.BLACKOUT) {
-         const threshold = crop.blackoutDays;
-         if (diffDays > threshold + 0.5) {
-            list.push({ 
-               id: tray.id, 
-               type: 'warning', 
-               message: `Uncover ${crop.name}`, 
-               subtext: `Blackout done (${Math.round(diffDays)}d)` 
-            });
-         }
-      } else if (tray.stage === Stage.LIGHT) {
-         const threshold = crop.lightDays;
-         if (diffDays > threshold + 2) {
-             list.push({
-                id: tray.id,
-                type: 'urgent',
-                message: `${crop.name} Overdue`, 
-                subtext: `Growing for ${Math.round(diffDays)} days`
-             });
-         }
-      }
-    });
-    
-    return list.sort((a, b) => (a.type === 'urgent' ? -1 : 1)).slice(0, 5); // Priority sort, top 5
-  }, [state.trays, state.crops]);
+    return getFarmAlerts(state);
+  }, [state]);
 
   // --- Recent Activity Logic ---
   const recentActivity = useMemo(() => {
@@ -148,6 +92,9 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
        const updateDate = new Date(tray.updatedAt);
        const plantDate = tray.plantedAt ? new Date(tray.plantedAt) : new Date(tray.startDate);
        
+       // Safety check for invalid dates
+       if (isNaN(updateDate.getTime()) || isNaN(plantDate.getTime())) return;
+
        // Add Planting event if recent (within 7 days)
        if ((new Date().getTime() - plantDate.getTime()) < 7 * 24 * 60 * 60 * 1000) {
           activities.push({
@@ -177,9 +124,12 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
 
     // 2. Transactions
     state.transactions.forEach(tx => {
+       const txDate = new Date(tx.date);
+       if (isNaN(txDate.getTime())) return;
+
        activities.push({
           id: `tx-${tx.id}`,
-          date: new Date(tx.date),
+          date: txDate,
           type: 'finance',
           title: tx.type === 'income' ? 'Sale Recorded' : 'Expense Logged',
           subtitle: `${tx.category} • €${tx.amount.toFixed(2)}`,
@@ -300,11 +250,11 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
 
               <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-white/10">
                  <div>
-                    <span className="text-[10px] text-slate-400 block mb-0.5">Ready Now</span>
+                    <span className="text-xs text-slate-400 block mb-0.5">Ready Now</span>
                     <span className="text-lg font-bold text-teal-400">€{financialStats.readyValue.toFixed(0)}</span>
                  </div>
                  <div>
-                    <span className="text-[10px] text-slate-400 block mb-0.5">Maturing</span>
+                    <span className="text-xs text-slate-400 block mb-0.5">Maturing</span>
                     <span className="text-lg font-bold text-blue-300">€{financialStats.maturingValue.toFixed(0)}</span>
                  </div>
               </div>
@@ -329,18 +279,44 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
                      <p className="text-sm font-medium text-slate-500">Everything looks good!</p>
                   </div>
                ) : (
-                  smartAlerts.map(alert => (
-                     <div key={alert.id} className={`p-4 rounded-2xl border flex items-center justify-between transition-transform hover:scale-[1.02] cursor-pointer ${alert.type === 'urgent' ? 'bg-red-50 border-red-100' : 'bg-amber-50 border-amber-100'}`} onClick={() => onNavigate('crops')}>
-                        <div className="flex items-center space-x-3">
-                           <AlertCircle className={`w-5 h-5 ${alert.type === 'urgent' ? 'text-red-500' : 'text-amber-500'}`} />
-                           <div>
-                              <p className={`text-sm font-bold ${alert.type === 'urgent' ? 'text-red-800' : 'text-amber-800'}`}>{alert.message}</p>
-                              <p className={`text-xs ${alert.type === 'urgent' ? 'text-red-600' : 'text-amber-600'}`}>{alert.subtext}</p>
+                  smartAlerts.map(alert => {
+                     let styles = "bg-slate-50 border-slate-100";
+                     let iconColor = "text-slate-500";
+                     let titleColor = "text-slate-800";
+                     let msgColor = "text-slate-600";
+                     let Icon = AlertCircle;
+
+                     if (alert.type === 'urgent') {
+                        styles = "bg-red-50 border-red-100";
+                        iconColor = "text-red-500";
+                        titleColor = "text-red-800";
+                        msgColor = "text-red-600";
+                     } else if (alert.type === 'warning') {
+                        styles = "bg-amber-50 border-amber-100";
+                        iconColor = "text-amber-500";
+                        titleColor = "text-amber-800";
+                        msgColor = "text-amber-600";
+                     } else if (alert.type === 'routine') {
+                        styles = "bg-blue-50 border-blue-100";
+                        iconColor = "text-blue-500";
+                        titleColor = "text-blue-800";
+                        msgColor = "text-blue-600";
+                        Icon = Droplets;
+                     }
+
+                     return (
+                        <div key={alert.id} className={`p-4 rounded-2xl border flex items-center justify-between transition-transform hover:scale-[1.02] cursor-pointer ${styles}`} onClick={() => onNavigate(alert.linkTo || 'crops')}>
+                           <div className="flex items-center space-x-3">
+                              <Icon className={`w-5 h-5 ${iconColor}`} />
+                              <div>
+                                 <p className={`text-sm font-bold ${titleColor}`}>{alert.title}</p>
+                                 <p className={`text-xs ${msgColor}`}>{alert.message}</p>
+                              </div>
                            </div>
+                           <ChevronRight className={`w-4 h-4 opacity-50 ${iconColor}`} />
                         </div>
-                        <ChevronRight className={`w-4 h-4 ${alert.type === 'urgent' ? 'text-red-400' : 'text-amber-400'}`} />
-                     </div>
-                  ))
+                     );
+                  })
                )}
             </div>
          </motion.div>
@@ -413,8 +389,9 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
               )}
               
               {activeTrays.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
+                <div style={{ width: '100%', height: 192 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
                     <Pie
                       data={chartData}
                       cx="50%"
@@ -433,8 +410,9 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
                     <Tooltip 
                       contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px', fontWeight: 600 }}
                     />
-                  </PieChart>
-                </ResponsiveContainer>
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
               ) : (
                 <div className="h-full w-full rounded-full border-4 border-dashed border-slate-100 flex items-center justify-center">
                    <Sprout className="w-8 h-8 text-slate-300" />
@@ -448,7 +426,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
                   <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
                   <div className="flex flex-col">
                      <span className="text-xs font-bold text-slate-700">{entry.name}</span>
-                     <span className="text-[10px] text-slate-400">{entry.value} Trays</span>
+                     <span className="text-xs text-slate-400">{entry.value} Trays</span>
                   </div>
                 </div>
               ))}

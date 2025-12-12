@@ -74,3 +74,12 @@ export interface AppState {
 }
 
 export type View = 'dashboard' | 'crops' | 'finance' | 'ai' | 'data' | 'calculator';
+
+export interface Alert {
+  id: string;
+  type: 'urgent' | 'warning' | 'info' | 'routine';
+  title: string;
+  message: string;
+  linkTo?: View;
+  trayId?: string;
+}
