@@ -117,7 +117,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       </motion.nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-6 overflow-hidden z-10">
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden z-10 min-h-screen flex items-center">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           
           {/* Left Content */}
@@ -166,7 +166,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                   Get in Touch
                 </span>
               </a>
-              <a href="#" className="px-8 py-4 bg-white text-slate-700 border border-slate-200 rounded-2xl font-bold hover:bg-slate-50 transition-all hover:border-slate-300 flex items-center gap-2 group">
+              <a href="#" className="px-8 py-4 bg-white/50 backdrop-blur-sm text-slate-700 border border-slate-200 rounded-2xl font-bold hover:bg-white/80 transition-all hover:border-slate-300 flex items-center gap-2 group">
                 <Instagram className="w-5 h-5 text-pink-600 group-hover:scale-110 transition-transform" />
                 Follow Us
               </a>
