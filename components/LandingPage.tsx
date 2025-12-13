@@ -16,7 +16,8 @@ const LetterPullUp = ({ text, className = "", delayStr = 0 }: { text: string, cl
         <motion.span
           key={i}
           initial={{ y: "100%" }}
-          animate={{ y: 0 }}
+          whileInView={{ y: 0 }}
+          viewport={{ once: true }}
           transition={{
             delay: delayStr + i * 0.03,
             type: "spring",
@@ -62,6 +63,48 @@ const SpotlightCard = ({ children, className = "", spotlightColor = "rgba(20, 18
       {children}
     </div>
   );
+};
+
+const SpotlightButton = ({ children, className = "", onClick, href, spotlightColor = "rgba(255, 255, 255, 0.25)" }: { children: React.ReactNode, className?: string, onClick?: () => void, href?: string, spotlightColor?: string }) => {
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
+  
+    function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
+      const { left, top } = currentTarget.getBoundingClientRect();
+      mouseX.set(clientX - left);
+      mouseY.set(clientY - top);
+    }
+    
+    const Component = href ? motion.a : motion.button;
+    
+    // @ts-ignore
+    return (
+      <Component
+        href={href}
+        onClick={onClick}
+        className={`relative overflow-hidden group cursor-pointer ${className}`}
+        onMouseMove={handleMouseMove}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        {/* Spotlight Effect */}
+        <motion.div
+          className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100"
+          style={{
+            background: useMotionTemplate`
+              radial-gradient(
+                150px circle at ${mouseX}px ${mouseY}px,
+                ${spotlightColor},
+                transparent 80%
+              )
+            `,
+          }}
+        />
+        <div className="relative z-10 flex items-center justify-center gap-2">
+          {children}
+        </div>
+      </Component>
+    );
 };
 
 // --- Main Component ---
@@ -186,13 +229,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             </div>
             <span className="text-xl font-bold tracking-tight text-slate-900">Galway Sun Sprouts</span>
           </div>
-          <button 
+          <SpotlightButton 
             onClick={onLoginClick}
-            className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-full text-sm font-bold transition-all shadow-lg shadow-slate-900/20 hover:shadow-slate-900/40 hover:-translate-y-0.5"
+            className="bg-slate-900 text-white rounded-full px-5 py-2.5 text-sm font-bold shadow-lg shadow-slate-900/20"
           >
             <Lock className="w-4 h-4" />
             <span>Farmer Login</span>
-          </button>
+          </SpotlightButton>
         </div>
       </motion.nav>
 
@@ -200,15 +243,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       <section className="relative pt-32 pb-20 px-6 overflow-hidden z-10 min-h-screen flex items-center">
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center perspective-[1000px]">
           
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-emerald-100 rounded-full pl-2 pr-4 py-1.5 shadow-sm hover:shadow-md transition-shadow cursor-default mb-8"
+          <SpotlightCard 
+            className="inline-flex items-center bg-white/80 backdrop-blur-sm border border-emerald-100 rounded-full mb-8 shadow-sm"
           >
-            <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">Fresh</span>
-            <span className="text-sm font-medium text-slate-600">Harvesting every week</span>
-          </motion.div>
+             <div className="flex items-center gap-2 px-2 py-1.5 pr-4">
+                <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">Fresh</span>
+                <span className="text-sm font-medium text-slate-600">Harvesting every week</span>
+             </div>
+          </SpotlightCard>
 
           <div className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-slate-900 leading-[0.95] mb-8">
             <LetterPullUp text="Small Scale." delayStr={0.1} />
@@ -233,17 +275,23 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             transition={{ delay: 1 }}
             className="flex flex-wrap justify-center gap-4"
           >
-            <a href="mailto:hello@galwaysunsprouts.com" className="group relative px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold overflow-hidden shadow-xl shadow-slate-900/20 hover:shadow-2xl hover:shadow-slate-900/30 transition-all hover:-translate-y-1">
-              <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-              <span className="relative flex items-center gap-2">
+            <SpotlightButton 
+              href="mailto:hello@galwaysunsprouts.com" 
+              className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl shadow-slate-900/20"
+              spotlightColor="rgba(20, 184, 166, 0.4)"
+            >
                 <Mail className="w-5 h-5" />
                 Get in Touch
-              </span>
-            </a>
-            <a href="#" className="px-8 py-4 bg-white/50 backdrop-blur-sm text-slate-700 border border-slate-200 rounded-2xl font-bold hover:bg-white/80 transition-all hover:border-slate-300 flex items-center gap-2 group">
+            </SpotlightButton>
+
+            <SpotlightButton 
+              href="#" 
+              className="px-8 py-4 bg-white/50 backdrop-blur-sm text-slate-700 border border-slate-200 rounded-2xl font-bold hover:border-slate-300 shadow-sm"
+              spotlightColor="rgba(20, 184, 166, 0.15)"
+            >
               <Instagram className="w-5 h-5 text-pink-600 group-hover:scale-110 transition-transform" />
               Follow Us
-            </a>
+            </SpotlightButton>
           </motion.div>
 
           {/* Mobile Hero Image - Visible only on small screens */}
@@ -287,8 +335,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
         
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">Why Microgreens?</h2>
-            <p className="text-slate-500 max-w-2xl mx-auto">More than just a garnish. These tiny plants are packed with flavor, nutrition, and sustainability benefits.</p>
+            <h2 className="text-4xl font-bold text-slate-900 mb-4">
+               <LetterPullUp text="Why Microgreens?" delayStr={0.2} />
+            </h2>
+            <motion.p 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="text-slate-500 max-w-2xl mx-auto"
+            >
+              More than just a garnish. These tiny plants are packed with flavor, nutrition, and sustainability benefits.
+            </motion.p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -318,7 +376,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                        <ChefHat className="w-3.5 h-3.5" />
                        <span>Chef Partnership Program</span>
                     </div>
-                    <h3 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">Curated for Culinary Excellence.</h3>
+                    <div className="text-3xl md:text-4xl font-bold mb-6 leading-tight">
+                        <LetterPullUp text="Curated for Culinary Excellence." delayStr={0.2} />
+                    </div>
                     <p className="text-slate-300 max-w-lg leading-relaxed mb-8 text-lg">
                       From seed to harvest, every tray is monitored for optimal flavor and texture. We work directly with chefs to grow exactly what your menu needs, when you need it.
                     </p>
