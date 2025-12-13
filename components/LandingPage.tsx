@@ -160,7 +160,7 @@ const TiltSpotlightCard = ({ children, className = "", spotlightColor = "rgba(45
 
 // Magnetic Button with Spotlight
 const MagneticSpotlightButton = ({ children, className = "", onClick, href, spotlightColor = "rgba(255, 255, 255, 0.15)" }: { children: React.ReactNode, className?: string, onClick?: () => void, href?: string, spotlightColor?: string }) => {
-    const ref = useRef<HTMLDivElement>(null);
+    const ref = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
     const [isHovered, setIsHovered] = useState(false);
 
     const mouseX = useMotionValue(0);
@@ -231,20 +231,17 @@ const MagneticSpotlightButton = ({ children, className = "", onClick, href, spot
         y.set(0);
     }
     
-    const Component = href ? motion.a : motion.button;
-    
-    // @ts-ignore
-    return (
-      <Component
-        ref={ref}
-        href={href}
-        onClick={onClick}
-        className={`relative group cursor-pointer touch-pan-y ${className}`}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{ x: springX, y: springY }}
-        whileTap={{ scale: 0.95 }}
-      >
+    const commonProps = {
+      className: `relative group cursor-pointer touch-pan-y ${className}`,
+      onClick,
+      onMouseMove: handleMouseMove,
+      onMouseLeave: handleMouseLeave,
+      style: { x: springX, y: springY },
+      whileTap: { scale: 0.95 } as const,
+    };
+
+    return href ? (
+      <motion.a ref={ref as React.Ref<HTMLAnchorElement>} href={href} {...commonProps}>
         <div className="absolute inset-0 rounded-full overflow-hidden">
             <motion.div
                 className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100"
@@ -256,7 +253,21 @@ const MagneticSpotlightButton = ({ children, className = "", onClick, href, spot
         <div className="relative z-10 flex items-center justify-center gap-2">
           {children}
         </div>
-      </Component>
+      </motion.a>
+    ) : (
+      <motion.button ref={ref as React.Ref<HTMLButtonElement>} type="button" {...commonProps}>
+        <div className="absolute inset-0 rounded-full overflow-hidden">
+          <motion.div
+            className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100"
+            animate={{ opacity: isHovered ? 1 : 0.6 }}
+            style={{ background }}
+          />
+        </div>
+
+        <div className="relative z-10 flex items-center justify-center gap-2">
+          {children}
+        </div>
+      </motion.button>
     );
 };
 

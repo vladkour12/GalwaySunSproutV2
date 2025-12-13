@@ -1,13 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { Suspense, useState, useEffect, useCallback } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorFallback } from './components/ErrorFallback';
 import Layout from './components/Layout';
-import Dashboard from './components/Dashboard';
-import CropManager from './components/CropManager';
-import FinanceTracker from './components/FinanceTracker';
-import AIAssistant from './components/AIAssistant';
-import DataManager from './components/DataManager';
-import ProfitCalculator from './components/ProfitCalculator';
 import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
 import NotificationManager from './components/NotificationManager';
@@ -17,6 +11,19 @@ import { getFarmAlerts } from './services/alertService';
 import { Sprout } from 'lucide-react';
 import { getLocalStateSnapshot, saveState, upsertLocalEntity, deleteLocalEntity } from './services/storage';
 import { flushSyncQueueOnce, refreshLocalFromRemote, queueUpsert, queueDelete } from './services/syncService';
+
+const Dashboard = React.lazy(() => import('./components/Dashboard'));
+const CropManager = React.lazy(() => import('./components/CropManager'));
+const FinanceTracker = React.lazy(() => import('./components/FinanceTracker'));
+const AIAssistant = React.lazy(() => import('./components/AIAssistant'));
+const DataManager = React.lazy(() => import('./components/DataManager'));
+const ProfitCalculator = React.lazy(() => import('./components/ProfitCalculator'));
+
+const ViewLoading: React.FC = () => (
+  <div className="min-h-[240px] flex items-center justify-center text-slate-400 text-sm font-bold">
+    Loading…
+  </div>
+);
 
 const App: React.FC = () => {
   // --- Auth & Routing State ---
@@ -700,7 +707,7 @@ const App: React.FC = () => {
           setFatalError({ message: error.message || 'Render error', stack: error.stack, source: 'ErrorBoundary' });
         }}
       >
-        {renderView()}
+        <Suspense fallback={<ViewLoading />}>{renderView()}</Suspense>
       </ErrorBoundary>
     </Layout>
   );

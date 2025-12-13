@@ -1,5 +1,5 @@
 
-import { CropType, Stage, Customer } from './types';
+import { CropType, Stage, Customer, Transaction } from './types';
 
 export const INITIAL_CROPS: CropType[] = [
   {
@@ -557,9 +557,9 @@ export const STAGE_FLOW = [
   Stage.HARVESTED
 ];
 
-export const MOCK_TRANSACTIONS = [
+export const MOCK_TRANSACTIONS: Transaction[] = [
   { id: 't1', date: '2023-10-01', type: 'expense', category: 'Seeds', amount: 150, description: 'Bulk Sunflower Seeds' },
   { id: 't2', date: '2023-10-02', type: 'expense', category: 'Supplies', amount: 45, description: 'Coco Coir Bricks' },
   { id: 't3', date: '2023-10-10', type: 'income', category: 'Sales', amount: 200, description: 'Farmers Market Weekend', customerId: 'cust2' },
   { id: 't4', date: '2023-10-15', type: 'income', category: 'Restaurant', amount: 120, description: 'Weekly Order', customerId: 'cust1' },
-] as const;
+];

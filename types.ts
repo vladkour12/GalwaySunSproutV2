@@ -44,6 +44,7 @@ export interface Tray {
   capacity?: number; // Target yield/capacity in grams
   yield?: number; // Actual harvested yield in grams
   updatedAt: string;
+  stageUpdateAt?: string; // ISO string (when stage last changed)
 }
 
 export interface Customer {

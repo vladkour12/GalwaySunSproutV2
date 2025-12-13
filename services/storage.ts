@@ -124,15 +124,6 @@ const initDB = (): Promise<IDBDatabase> => {
   });
 };
 
-// Helper to clear a store
-const clearStore = (store: IDBObjectStore): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const req = store.clear();
-    req.onsuccess = () => resolve();
-    req.onerror = () => reject(req.error);
-  });
-};
-
 // Save the entire application state into separated stores
 export const saveState = async (state: AppState): Promise<void> => {
   try {
