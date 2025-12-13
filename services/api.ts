@@ -21,7 +21,16 @@ const fetchWithTimeout = async (input: RequestInfo | URL, init?: RequestInit, ti
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    return await fetch(input, { ...init, signal: controller.signal });
+    // AbortController isn't perfectly reliable in all browsers/environments.
+    // We still race with a timeout to ensure the caller never hangs indefinitely.
+    const timeoutPromise = new Promise<Response>((_, reject) => {
+      setTimeout(() => reject(new ApiError(`Request timed out after ${timeoutMs}ms`, { url: String(input) })), timeoutMs);
+    });
+
+    return await Promise.race([
+      fetch(input, { ...init, signal: controller.signal }),
+      timeoutPromise,
+    ]);
   } catch (err) {
     if ((err as any)?.name === 'AbortError') {
       throw new ApiError(`Request timed out after ${timeoutMs}ms`, { url: String(input) });

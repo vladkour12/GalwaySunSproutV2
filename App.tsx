@@ -38,6 +38,19 @@ const App: React.FC = () => {
     if (authStatus !== 'admin') return;
 
     let isCancelled = false;
+    const HARD_TIMEOUT_MS = 25_000;
+    const hardTimeoutId = window.setTimeout(() => {
+      if (isCancelled) return;
+      console.error(`Farm data load timed out after ${HARD_TIMEOUT_MS}ms; falling back to offline defaults.`);
+      setLoadError('Farm data is taking too long to load from the database. Loaded offline defaults instead.');
+      setAppState({
+        crops: INITIAL_CROPS,
+        trays: [],
+        transactions: MOCK_TRANSACTIONS ?? [],
+        customers: INITIAL_CUSTOMERS,
+      });
+      setIsLoading(false);
+    }, HARD_TIMEOUT_MS);
 
     const init = async () => {
       setIsLoading(true);
@@ -47,13 +60,18 @@ const App: React.FC = () => {
         // Ensure DB is setup
         await api.setup();
         
-        // Parallel Fetch
-        const [crops, trays, transactions, customers] = await Promise.all([
-            api.getCrops(),
-            api.getTrays(),
-            api.getTransactions(),
-            api.getCustomers()
+        // Parallel Fetch (use allSettled so one failing endpoint doesn't block the app)
+        const [cropsRes, traysRes, transactionsRes, customersRes] = await Promise.allSettled([
+          api.getCrops(),
+          api.getTrays(),
+          api.getTransactions(),
+          api.getCustomers(),
         ]);
+
+        const crops = cropsRes.status === 'fulfilled' ? cropsRes.value : [];
+        const trays = traysRes.status === 'fulfilled' ? traysRes.value : [];
+        const transactions = transactionsRes.status === 'fulfilled' ? transactionsRes.value : (MOCK_TRANSACTIONS ?? []);
+        const customers = customersRes.status === 'fulfilled' ? customersRes.value : [];
 
         let loadedCrops = crops;
         let loadedCustomers = customers;
@@ -85,13 +103,17 @@ const App: React.FC = () => {
           });
         }
       } finally {
-        if (!isCancelled) setIsLoading(false);
+        if (!isCancelled) {
+          window.clearTimeout(hardTimeoutId);
+          setIsLoading(false);
+        }
       }
     };
     init();
 
     return () => {
       isCancelled = true;
+      window.clearTimeout(hardTimeoutId);
     };
   }, [authStatus]);
 
