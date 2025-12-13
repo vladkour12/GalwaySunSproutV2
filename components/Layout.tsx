@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View } from '../types';
 import { Leaf, Sprout, Euro, Sparkles, Database, Calculator, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +13,15 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLogout, alertCount = 0 }) => {
+  const mainRef = useRef<HTMLElement | null>(null);
+
+  // Ensure view changes don't preserve an old scroll offset (common after using Crops).
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    el.scrollTop = 0;
+  }, [currentView]);
+
   const navItems = [
     { id: 'dashboard', label: 'Overview', icon: Leaf },
     { id: 'crops', label: 'My Crops', icon: Sprout },
@@ -47,7 +56,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
       </header>
 
       {/* Main Content with Transition */}
-      <main className="flex-1 overflow-y-auto pb-32 overflow-x-hidden">
+      <main ref={mainRef} className="flex-1 overflow-y-auto pb-32 overflow-x-hidden">
         <div className="max-w-4xl mx-auto p-4 sm:p-6">
           {/* Avoid mode="wait" deadlocks that can leave the UI blank on mobile */}
           <AnimatePresence initial={false} mode="sync">
