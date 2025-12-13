@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sprout, MapPin, Mail, Lock, Instagram, ArrowRight, Leaf, Truck, Sun, Clock, ChevronDown, CheckCircle2, ChefHat, Droplets, Sparkles } from 'lucide-react';
-import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, useSpring, useMotionTemplate } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, useSpring, useMotionTemplate, useAnimationFrame } from 'framer-motion';
 
 interface LandingPageProps {
   onLoginClick: () => void;
@@ -33,9 +33,36 @@ const LetterPullUp = ({ text, className = "", delayStr = 0 }: { text: string, cl
   );
 };
 
-const SpotlightCard = ({ children, className = "", spotlightColor = "rgba(20, 184, 166, 0.2)" }: { children: React.ReactNode, className?: string, spotlightColor?: string }) => {
+// Continuous floating animation (up and down)
+const FloatingElement = ({ children, delay = 0, duration = 4, yOffset = 10, className = "" }: { children: React.ReactNode, delay?: number, duration?: number, yOffset?: number, className?: string }) => {
+    return (
+        <motion.div
+            animate={{ y: [0, -yOffset, 0] }}
+            transition={{
+                duration: duration,
+                repeat: Infinity,
+                repeatType: "reverse",
+                ease: "easeInOut",
+                delay: delay
+            }}
+            className={className}
+        >
+            {children}
+        </motion.div>
+    );
+}
+
+// 3D Tilt Card with Spotlight
+const TiltSpotlightCard = ({ children, className = "", spotlightColor = "rgba(20, 184, 166, 0.2)" }: { children: React.ReactNode, className?: string, spotlightColor?: string }) => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [15, -15]), { stiffness: 150, damping: 20 });
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-15, 15]), { stiffness: 150, damping: 20 });
+  const scale = useSpring(useTransform(x, [-0.5, 0.5], [1, 1]), { stiffness: 150, damping: 20 }); // Placeholder for scale if needed
 
   const background = useMotionTemplate`
     radial-gradient(
@@ -46,28 +73,66 @@ const SpotlightCard = ({ children, className = "", spotlightColor = "rgba(20, 18
   `;
 
   function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
-    const { left, top } = currentTarget.getBoundingClientRect();
-    mouseX.set(clientX - left);
-    mouseY.set(clientY - top);
+    const { left, top, width, height } = currentTarget.getBoundingClientRect();
+    const localX = clientX - left;
+    const localY = clientY - top;
+    
+    mouseX.set(localX);
+    mouseY.set(localY);
+    
+    // Calculate normalized position (-0.5 to 0.5)
+    x.set(localX / width - 0.5);
+    y.set(localY / height - 0.5);
+  }
+
+  function handleMouseLeave() {
+    x.set(0);
+    y.set(0);
+    // Optional: reset spotlight position or fade it out, but keeping it is fine
   }
 
   return (
-    <div 
-      className={`relative overflow-hidden group ${className}`}
+    <motion.div 
+      className={`relative group perspective-1000 ${className}`} // Add perspective class or style
+      style={{ perspective: 1000 }}
       onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
     >
       <motion.div
-        className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
-        style={{ background }}
-      />
-      {children}
-    </div>
+        className="h-full w-full relative overflow-hidden transform-gpu"
+        style={{ 
+            rotateX, 
+            rotateY,
+            transformStyle: "preserve-3d"
+        }}
+        whileHover={{ scale: 1.02 }}
+      >
+        {/* Spotlight Overlay */}
+        <motion.div
+            className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100 z-20"
+            style={{ background }}
+        />
+        {/* Content */}
+        <div className="h-full w-full transform-gpu" style={{ transform: "translateZ(20px)" }}>
+            {children}
+        </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
-const SpotlightButton = ({ children, className = "", onClick, href, spotlightColor = "rgba(255, 255, 255, 0.25)" }: { children: React.ReactNode, className?: string, onClick?: () => void, href?: string, spotlightColor?: string }) => {
+// Magnetic Button with Spotlight
+const MagneticSpotlightButton = ({ children, className = "", onClick, href, spotlightColor = "rgba(255, 255, 255, 0.25)" }: { children: React.ReactNode, className?: string, onClick?: () => void, href?: string, spotlightColor?: string }) => {
+    const ref = useRef<HTMLDivElement>(null);
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
+    
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+    
+    // Smooth spring animation for magnetic effect
+    const springX = useSpring(x, { stiffness: 150, damping: 15 });
+    const springY = useSpring(y, { stiffness: 150, damping: 15 });
 
     const background = useMotionTemplate`
       radial-gradient(
@@ -77,10 +142,26 @@ const SpotlightButton = ({ children, className = "", onClick, href, spotlightCol
       )
     `;
   
-    function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
-      const { left, top } = currentTarget.getBoundingClientRect();
-      mouseX.set(clientX - left);
-      mouseY.set(clientY - top);
+    function handleMouseMove({ clientX, clientY }: React.MouseEvent) {
+      if (!ref.current) return;
+      const { left, top, width, height } = ref.current.getBoundingClientRect();
+      const localX = clientX - left;
+      const localY = clientY - top;
+      
+      mouseX.set(localX);
+      mouseY.set(localY);
+      
+      const centerX = width / 2;
+      const centerY = height / 2;
+      
+      // Magnetic pull strength
+      x.set((localX - centerX) * 0.3);
+      y.set((localY - centerY) * 0.3);
+    }
+    
+    function handleMouseLeave() {
+        x.set(0);
+        y.set(0);
     }
     
     const Component = href ? motion.a : motion.button;
@@ -88,18 +169,24 @@ const SpotlightButton = ({ children, className = "", onClick, href, spotlightCol
     // @ts-ignore
     return (
       <Component
+        ref={ref}
         href={href}
         onClick={onClick}
-        className={`relative overflow-hidden group cursor-pointer ${className}`}
+        className={`relative group cursor-pointer ${className}`}
         onMouseMove={handleMouseMove}
-        whileHover={{ scale: 1.05 }}
+        onMouseLeave={handleMouseLeave}
+        style={{ x: springX, y: springY }}
         whileTap={{ scale: 0.95 }}
       >
-        {/* Spotlight Effect */}
-        <motion.div
-          className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100"
-          style={{ background }}
-        />
+        {/* Button Background & Border - hidden but shapes the button */}
+        <div className="absolute inset-0 rounded-full overflow-hidden">
+             {/* Spotlight Effect */}
+            <motion.div
+            className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100"
+            style={{ background }}
+            />
+        </div>
+
         <div className="relative z-10 flex items-center justify-center gap-2">
           {children}
         </div>
@@ -186,7 +273,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
          />
 
          {/* Floating Particles */}
-         {[...Array(15)].map((_, i) => (
+         {[...Array(20)].map((_, i) => (
            <motion.div
              key={i}
              className="absolute bg-teal-400/30 rounded-full blur-sm"
@@ -224,18 +311,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       >
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2 group cursor-pointer">
-            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-500/20 group-hover:scale-110 transition-transform duration-300">
+            <motion.div 
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
+                className="w-10 h-10 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-500/20"
+            >
               <Sprout className="w-6 h-6" />
-            </div>
+            </motion.div>
             <span className="text-xl font-bold tracking-tight text-slate-900">Galway Sun Sprouts</span>
           </div>
-          <SpotlightButton 
+          <MagneticSpotlightButton 
             onClick={onLoginClick}
-            className="bg-slate-900 text-white rounded-full px-5 py-2.5 text-sm font-bold shadow-lg shadow-slate-900/20"
+            className="bg-slate-900 text-white rounded-full px-5 py-2.5 text-sm font-bold shadow-lg shadow-slate-900/20 overflow-hidden"
           >
             <Lock className="w-4 h-4" />
             <span>Farmer Login</span>
-          </SpotlightButton>
+          </MagneticSpotlightButton>
         </div>
       </motion.nav>
 
@@ -243,14 +334,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       <section className="relative pt-32 pb-20 px-6 overflow-hidden z-10 min-h-screen flex items-center">
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center perspective-[1000px]">
           
-          <SpotlightCard 
-            className="inline-flex items-center bg-white/80 backdrop-blur-sm border border-emerald-100 rounded-full mb-8 shadow-sm"
-          >
-             <div className="flex items-center gap-2 px-2 py-1.5 pr-4">
-                <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">Fresh</span>
-                <span className="text-sm font-medium text-slate-600">Harvesting every week</span>
-             </div>
-          </SpotlightCard>
+          <FloatingElement delay={0} duration={6}>
+            <TiltSpotlightCard 
+                className="inline-flex items-center bg-white/80 backdrop-blur-sm border border-emerald-100 rounded-full mb-8 shadow-sm"
+            >
+                <div className="flex items-center gap-2 px-2 py-1.5 pr-4">
+                    <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">Fresh</span>
+                    <span className="text-sm font-medium text-slate-600">Harvesting every week</span>
+                </div>
+            </TiltSpotlightCard>
+          </FloatingElement>
 
           <div className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-slate-900 leading-[0.95] mb-8">
             <LetterPullUp text="Small Scale." delayStr={0.1} />
@@ -275,23 +368,23 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             transition={{ delay: 1 }}
             className="flex flex-wrap justify-center gap-4"
           >
-            <SpotlightButton 
+            <MagneticSpotlightButton 
               href="mailto:hello@galwaysunsprouts.com" 
-              className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl shadow-slate-900/20"
+              className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl shadow-slate-900/20 overflow-hidden"
               spotlightColor="rgba(20, 184, 166, 0.4)"
             >
                 <Mail className="w-5 h-5" />
                 Get in Touch
-            </SpotlightButton>
+            </MagneticSpotlightButton>
 
-            <SpotlightButton 
+            <MagneticSpotlightButton 
               href="#" 
-              className="px-8 py-4 bg-white/50 backdrop-blur-sm text-slate-700 border border-slate-200 rounded-2xl font-bold hover:border-slate-300 shadow-sm"
+              className="px-8 py-4 bg-white/50 backdrop-blur-sm text-slate-700 border border-slate-200 rounded-2xl font-bold hover:border-slate-300 shadow-sm overflow-hidden"
               spotlightColor="rgba(20, 184, 166, 0.15)"
             >
               <Instagram className="w-5 h-5 text-pink-600 group-hover:scale-110 transition-transform" />
               Follow Us
-            </SpotlightButton>
+            </MagneticSpotlightButton>
           </motion.div>
 
           {/* Mobile Hero Image - Visible only on small screens */}
@@ -351,31 +444,35 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, idx) => (
-              <SpotlightCard 
+              <TiltSpotlightCard 
                 key={idx}
                 className="bg-white/80 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-sm hover:shadow-lg transition-all cursor-default"
               >
-                <div className={`w-14 h-14 ${feature.color} rounded-2xl flex items-center justify-center mb-6 relative z-10`}>
-                  <feature.icon className="w-7 h-7" />
-                </div>
+                <FloatingElement delay={idx * 0.5} duration={3} yOffset={5}>
+                    <div className={`w-14 h-14 ${feature.color} rounded-2xl flex items-center justify-center mb-6 relative z-10`}>
+                    <feature.icon className="w-7 h-7" />
+                    </div>
+                </FloatingElement>
                 <h3 className="text-xl font-bold text-slate-900 mb-2 relative z-10">{feature.title}</h3>
                 <p className="text-slate-500 leading-relaxed relative z-10">{feature.desc}</p>
-              </SpotlightCard>
+              </TiltSpotlightCard>
             ))}
           </div>
 
           {/* Large Feature Block */}
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <SpotlightCard 
+            <TiltSpotlightCard 
                className="md:col-span-3 bg-gradient-to-br from-emerald-900 to-teal-900 rounded-[2.5rem] p-8 md:p-12 text-white border border-white/10"
                spotlightColor="rgba(255, 255, 255, 0.1)"
             >
                <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
                  <div className="flex-1">
-                    <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-teal-300 mb-6 border border-white/10">
-                       <ChefHat className="w-3.5 h-3.5" />
-                       <span>Chef Partnership Program</span>
-                    </div>
+                    <FloatingElement delay={0} duration={4} yOffset={5}>
+                        <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-teal-300 mb-6 border border-white/10">
+                        <ChefHat className="w-3.5 h-3.5" />
+                        <span>Chef Partnership Program</span>
+                        </div>
+                    </FloatingElement>
                     <div className="text-3xl md:text-4xl font-bold mb-6 leading-tight">
                         <LetterPullUp text="Curated for Culinary Excellence." delayStr={0.2} />
                     </div>
@@ -385,9 +482,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                     <div className="flex items-center gap-4">
                         <div className="flex -space-x-3">
                           {[1,2,3].map((_, i) => (
-                            <div key={i} className="w-10 h-10 rounded-full bg-slate-700 border-2 border-slate-800 flex items-center justify-center text-xs font-bold shadow-lg">
-                                <Sprout className="w-4 h-4 text-teal-400" />
-                            </div>
+                            <FloatingElement key={i} delay={i * 0.2} duration={2 + i} yOffset={3}>
+                                <div className="w-10 h-10 rounded-full bg-slate-700 border-2 border-slate-800 flex items-center justify-center text-xs font-bold shadow-lg">
+                                    <Sprout className="w-4 h-4 text-teal-400" />
+                                </div>
+                            </FloatingElement>
                           ))}
                         </div>
                         <span className="text-sm font-medium text-slate-400">Growing custom orders</span>
@@ -396,7 +495,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                  
                  <div className="flex-1 w-full max-w-sm">
                     <motion.div 
-                       whileHover={{ scale: 1.02, rotate: 1 }}
+                       whileHover={{ scale: 1.02 }}
                        transition={{ type: "spring", stiffness: 300 }}
                        className="aspect-square bg-white/5 rounded-3xl border border-white/10 p-6 backdrop-blur-sm relative overflow-hidden"
                     >
@@ -410,9 +509,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                         </div>
 
                         <div className="h-full w-full bg-slate-800/80 rounded-2xl flex flex-col items-center justify-center text-center p-6 border border-white/5 relative z-10 shadow-2xl">
-                            <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-teal-500/30">
-                               <Sparkles className="w-8 h-8 text-white" />
-                            </div>
+                            <FloatingElement delay={1} duration={5}>
+                                <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-teal-500/30">
+                                <Sparkles className="w-8 h-8 text-white" />
+                                </div>
+                            </FloatingElement>
                             <h4 className="text-xl font-bold text-white mb-2">Made to Order</h4>
                             <p className="text-sm text-slate-400">Specify your preferred harvest stage and variety mix for the perfect plate garnish.</p>
                         </div>
@@ -423,7 +524,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                {/* Decorative Circle */}
                <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-            </SpotlightCard>
+            </TiltSpotlightCard>
           </div>
         </div>
       </section>
