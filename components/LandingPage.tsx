@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sprout, MapPin, Mail, Lock, Instagram, ArrowRight, Leaf, Truck, Sun, Clock, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { Sprout, MapPin, Mail, Lock, Instagram, ArrowRight, Leaf, Truck, Sun, Clock, ChevronDown, CheckCircle2, ChefHat, Droplets, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 
 interface LandingPageProps {
@@ -13,10 +13,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
   const [activeFeature, setActiveFeature] = useState(0);
 
   const features = [
-    { title: "Ultra Fresh", desc: "Harvested < 24h before delivery", icon: Clock, color: "bg-amber-100 text-amber-700" },
+    { title: "Ultra Fresh", desc: "Harvested < 24h before delivery", icon: Sparkles, color: "bg-amber-100 text-amber-700" },
     { title: "Zero Miles", desc: "Grown right here in Galway City", icon: MapPin, color: "bg-teal-100 text-teal-700" },
-    { title: "100% Organic", desc: "No pesticides, just water & light", icon: Leaf, color: "bg-emerald-100 text-emerald-700" },
-    { title: "Chef Grade", desc: "Supplying top local restaurants", icon: Sun, color: "bg-rose-100 text-rose-700" },
+    { title: "100% Organic", desc: "No pesticides, just water & light", icon: Droplets, color: "bg-emerald-100 text-emerald-700" },
+    { title: "Chef Grade", desc: "Supplying top local restaurants", icon: ChefHat, color: "bg-rose-100 text-rose-700" },
   ];
 
   // Varieties ticker
@@ -54,18 +54,43 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-6 overflow-hidden">
-        {/* Animated Background Blobs */}
+        {/* Animated Background Blobs & Particles */}
         <div className="absolute inset-0 overflow-hidden -z-10 pointer-events-none">
            <motion.div 
-             animate={{ scale: [1, 1.2, 1], x: [0, 50, 0], y: [0, 30, 0] }}
+             animate={{ scale: [1, 1.2, 1], x: [0, 50, 0], y: [0, 30, 0], rotate: [0, 20, 0] }}
              transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
              className="absolute top-0 right-0 w-[800px] h-[800px] bg-teal-200/20 rounded-full blur-[120px]" 
            />
            <motion.div 
-             animate={{ scale: [1, 1.1, 1], x: [0, -30, 0], y: [0, -50, 0] }}
+             animate={{ scale: [1, 1.1, 1], x: [0, -30, 0], y: [0, -50, 0], rotate: [0, -15, 0] }}
              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
              className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-200/20 rounded-full blur-[100px]" 
            />
+           {/* Floating Particles */}
+           {[...Array(6)].map((_, i) => (
+             <motion.div
+               key={i}
+               className="absolute bg-teal-400/20 rounded-full blur-xl"
+               style={{
+                 width: Math.random() * 100 + 50,
+                 height: Math.random() * 100 + 50,
+                 top: `${Math.random() * 100}%`,
+                 left: `${Math.random() * 100}%`,
+               }}
+               animate={{
+                 y: [0, Math.random() * -100 - 50, 0],
+                 x: [0, Math.random() * 100 - 50, 0],
+                 opacity: [0.3, 0.6, 0.3],
+                 scale: [1, 1.2, 1],
+               }}
+               transition={{
+                 duration: Math.random() * 10 + 10,
+                 repeat: Infinity,
+                 ease: "easeInOut",
+                 delay: Math.random() * 5,
+               }}
+             />
+           ))}
         </div>
 
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -140,25 +165,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                     <p className="text-sm font-bold opacity-80 uppercase tracking-widest mb-1">Variety</p>
                     <h3 className="text-3xl font-bold">Sunflower Shoots</h3>
                   </div>
-               </motion.div>
-
-               {/* Card 2: Floating Stat */}
-               <motion.div 
-                 initial={{ opacity: 0, x: -50 }}
-                 animate={{ opacity: 1, x: 0, y: [0, -10, 0] }}
-                 transition={{ delay: 0.8, y: { duration: 4, repeat: Infinity, ease: "easeInOut" } }}
-                 className="absolute top-40 left-10 bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 z-20 max-w-[240px]"
-               >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-teal-50 rounded-xl text-teal-600">
-                       <Leaf className="w-6 h-6" />
-                    </div>
-                    <div>
-                       <p className="text-xs font-bold text-slate-400 uppercase">Nutrients</p>
-                       <p className="font-bold text-slate-800">40x More</p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-500 leading-relaxed">Microgreens contain up to 40x more vitamins than their mature counterparts.</p>
                </motion.div>
                
                {/* Card 3: Location */}
