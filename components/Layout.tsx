@@ -29,15 +29,16 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
     const dockEl = dockRef.current;
     if (!dockEl) return;
 
-    const BASE_GUTTER_PX = 24; // corresponds to `bottom-6`
     const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 
     const measure = () => {
       const rect = dockEl.getBoundingClientRect();
-      // Height of dock + its bottom gutter, plus a small buffer.
-      const next = Math.ceil(rect.height + BASE_GUTTER_PX + 8);
+      // Padding needed so content can scroll above the dock.
+      // Use the dock's on-screen position instead of its height to avoid over-padding on mobile.
+      const viewportH = window.innerHeight || 0;
+      const needed = Math.ceil((viewportH - rect.top) + 12);
       // Defensive clamp: prevents weird mobile layout bugs from creating huge empty space.
-      setBottomPadPx(clamp(next, 72, 160));
+      setBottomPadPx(clamp(needed, 56, 128));
     };
 
     measure();
@@ -47,9 +48,11 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
 
     // Fallback for browsers where layout settles late (mobile).
     const settleId = window.setTimeout(measure, 250);
+    const settleId2 = window.setTimeout(measure, 800);
 
     return () => {
       window.clearTimeout(settleId);
+      window.clearTimeout(settleId2);
       ro?.disconnect();
       window.removeEventListener('resize', measure);
     };

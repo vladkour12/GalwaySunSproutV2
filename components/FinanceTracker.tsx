@@ -256,12 +256,12 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
           <AnimatePresence>
           {showTxForm && (
             <motion.form initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: 'easeInOut' }} onSubmit={handleTxSubmit} className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 space-y-5 relative overflow-hidden">
-               <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${editingTx ? 'from-amber-400 to-orange-500' : 'from-teal-400 to-blue-500'}`}></div>
+               <div className={`pointer-events-none absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${editingTx ? 'from-amber-400 to-orange-500' : 'from-teal-400 to-blue-500'}`}></div>
                <h3 className="text-sm font-bold text-slate-800">{editingTx ? 'Edit Transaction' : 'New Transaction'}</h3>
                <div className="bg-slate-100 p-1.5 rounded-2xl flex relative">
-                 <motion.div className="absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-white rounded-xl shadow-sm" animate={{ x: type === 'expense' ? '100%' : '0%' }} transition={{ type: "spring", stiffness: 500, damping: 30 }} />
-                 <button type="button" onClick={() => setType('income')} className={`relative flex-1 py-2.5 text-sm font-bold rounded-xl transition-colors z-10 ${type === 'income' ? 'text-teal-700' : 'text-slate-500'}`}>Income</button>
-                 <button type="button" onClick={() => setType('expense')} className={`relative flex-1 py-2.5 text-sm font-bold rounded-xl transition-colors z-10 ${type === 'expense' ? 'text-red-700' : 'text-slate-500'}`}>Expense</button>
+                 <motion.div className="pointer-events-none absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-white rounded-xl shadow-sm" animate={{ x: type === 'expense' ? '100%' : '0%' }} transition={{ type: "spring", stiffness: 500, damping: 30 }} />
+                 <button type="button" onClick={() => setType('income')} onPointerUp={() => setType('income')} style={{ touchAction: 'manipulation' }} className={`relative flex-1 py-2.5 text-sm font-bold rounded-xl transition-colors z-10 ${type === 'income' ? 'text-teal-700' : 'text-slate-500'}`}>Income</button>
+                 <button type="button" onClick={() => setType('expense')} onPointerUp={() => setType('expense')} style={{ touchAction: 'manipulation' }} className={`relative flex-1 py-2.5 text-sm font-bold rounded-xl transition-colors z-10 ${type === 'expense' ? 'text-red-700' : 'text-slate-500'}`}>Expense</button>
                </div>
                <div className="space-y-4">
                   <div className="relative"><span className="absolute left-4 top-3.5 text-slate-400 font-medium">€</span><input type="number" value={amount} onChange={e => setAmount(e.target.value)} onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()} className="w-full pl-8 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-lg font-bold text-slate-800 focus:ring-2 focus:ring-teal-100 placeholder:text-slate-300 transition-all" placeholder="0.00" required /></div>
