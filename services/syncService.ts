@@ -1,5 +1,6 @@
 import { api } from './api';
 import type { AppState, CropType, Tray, Transaction, Customer } from '../types';
+import { INITIAL_CROPS, INITIAL_CUSTOMERS } from '../constants';
 import {
   enqueueSync,
   listSyncQueue,
@@ -99,6 +100,27 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
       api.getTransactions(),
       api.getCustomers(),
     ]);
+
+    // Local-first apps should not "erase" local defaults due to an empty remote DB.
+    // If the remote DB is empty, seed it with initial test data.
+    if (crops.length === 0) {
+      await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
+      const [seededCrops, seededTrays, seededTransactions, seededCustomers] = await Promise.all([
+        api.getCrops(),
+        api.getTrays(),
+        api.getTransactions(),
+        api.getCustomers(),
+      ]);
+      const seeded: AppState = {
+        crops: seededCrops,
+        trays: seededTrays,
+        transactions: seededTransactions,
+        customers: seededCustomers,
+      };
+      await saveState(seeded);
+      return seeded;
+    }
+
     const state: AppState = { crops, trays, transactions, customers };
     await saveState(state);
     return state;
@@ -113,6 +135,25 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
         api.getTransactions(),
         api.getCustomers(),
       ]);
+
+      if (crops.length === 0) {
+        await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
+        const [seededCrops, seededTrays, seededTransactions, seededCustomers] = await Promise.all([
+          api.getCrops(),
+          api.getTrays(),
+          api.getTransactions(),
+          api.getCustomers(),
+        ]);
+        const seeded: AppState = {
+          crops: seededCrops,
+          trays: seededTrays,
+          transactions: seededTransactions,
+          customers: seededCustomers,
+        };
+        await saveState(seeded);
+        return seeded;
+      }
+
       const state: AppState = { crops, trays, transactions, customers };
       await saveState(state);
       return state;
