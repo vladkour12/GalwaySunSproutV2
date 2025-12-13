@@ -32,6 +32,7 @@ const App: React.FC = () => {
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error'>('idle');
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const [syncKick, setSyncKick] = useState(0);
+  const [didForceBoot, setDidForceBoot] = useState(false);
   
   const [appState, setAppState] = useState<AppState>({
     crops: [],
@@ -53,11 +54,27 @@ const App: React.FC = () => {
       setLoadPhase('Loading local data…');
 
       try {
-        const local = await getLocalStateSnapshot();
+        // Never allow login to block on IndexedDB. If IDB is blocked/hanging, boot with defaults.
+        const local = await Promise.race<AppState>([
+          getLocalStateSnapshot(),
+          new Promise<AppState>((resolve) =>
+            window.setTimeout(
+              () =>
+                resolve({
+                  crops: INITIAL_CROPS,
+                  trays: [],
+                  transactions: [],
+                  customers: INITIAL_CUSTOMERS,
+                }),
+              1500
+            )
+          ),
+        ]);
         const hasLocalData =
           local.crops.length > 0 || local.trays.length > 0 || local.transactions.length > 0 || local.customers.length > 0;
 
         if (!isCancelled) {
+          if (!hasLocalData) setDidForceBoot(true);
           setAppState(
             hasLocalData
               ? local
@@ -104,6 +121,7 @@ const App: React.FC = () => {
         console.error("Failed to load local data", e);
         if (!isCancelled) {
           setLoadError('Could not load local farm data. Loaded defaults instead.');
+          setDidForceBoot(true);
           setAppState({
             crops: INITIAL_CROPS,
             trays: [],
@@ -517,7 +535,7 @@ const App: React.FC = () => {
                   Retry
                 </button>
               </div>
-              <p className="mt-4 text-slate-500 text-xs font-mono opacity-80">boot:v3</p>
+              <p className="mt-4 text-slate-500 text-xs font-mono opacity-80">boot:lf4</p>
            </div>
         </div>
      );
@@ -563,6 +581,13 @@ const App: React.FC = () => {
 
   return (
     <Layout currentView={currentView} onNavigate={setCurrentView} onLogout={() => setAuthStatus('landing')} alertCount={alertCount}>
+      {didForceBoot && (
+        <div className="px-4 pt-4">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700 text-sm font-semibold">
+            Local-first mode: started with defaults (local DB was empty or slow). Changes will sync when online.
+          </div>
+        </div>
+      )}
       {loadError && (
         <div className="px-4 pt-4">
           <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900 text-sm font-semibold">

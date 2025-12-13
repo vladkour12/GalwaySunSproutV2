@@ -26,15 +26,40 @@ export interface SyncQueueItem {
 // Initialize the database with schema migration
 const initDB = (): Promise<IDBDatabase> => {
   return new Promise((resolve, reject) => {
+    let isSettled = false;
+    const settleOnce = (fn: () => void) => {
+      if (isSettled) return;
+      isSettled = true;
+      fn();
+    };
+
+    const timeoutId = setTimeout(() => {
+      settleOnce(() => reject(new Error('IndexedDB open timed out (possible blocked upgrade).')));
+    }, 3_000);
+
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onerror = () => {
       console.error("IndexedDB error:", request.error);
-      reject(request.error);
+      clearTimeout(timeoutId);
+      settleOnce(() => reject(request.error));
+    };
+
+    request.onblocked = () => {
+      // Common cause: another tab has the DB open and needs a refresh/close to upgrade.
+      console.warn('IndexedDB open blocked (another tab may be using the database).');
+      clearTimeout(timeoutId);
+      settleOnce(() => reject(new Error('IndexedDB open blocked (close other tabs and reload).')));
     };
 
     request.onsuccess = () => {
-      resolve(request.result);
+      clearTimeout(timeoutId);
+      const db = request.result;
+      // Ensure future schema upgrades don't hang forever.
+      db.onversionchange = () => {
+        db.close();
+      };
+      settleOnce(() => resolve(db));
     };
 
     request.onupgradeneeded = (event) => {
