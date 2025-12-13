@@ -2,23 +2,64 @@
 import { AppState, CropType, Tray, Transaction, Customer } from '../types';
 
 const DB_NAME = 'GalwaySunSproutsDB';
-const DB_VERSION = 2; // Incremented for schema migration
-const STORES = ['crops', 'trays', 'transactions', 'customers', 'images'] as const;
+const DB_VERSION = 3; // Incremented for schema migration
+const DATA_STORES = ['crops', 'trays', 'transactions', 'customers', 'images'] as const;
+const SYNC_STORE = 'syncQueue' as const;
+const ALL_STORES = [...DATA_STORES, SYNC_STORE] as const;
 
-type StoreName = typeof STORES[number];
+type StoreName = typeof DATA_STORES[number];
+type AnyStoreName = typeof ALL_STORES[number];
+
+export type SyncEntity = 'crops' | 'trays' | 'transactions' | 'customers';
+export type SyncOp = 'upsert' | 'delete';
+
+export interface SyncQueueItem {
+  id: string;
+  entity: SyncEntity;
+  op: SyncOp;
+  payload: unknown;
+  createdAt: number;
+  attempts: number;
+  lastError?: string;
+}
 
 // Initialize the database with schema migration
 const initDB = (): Promise<IDBDatabase> => {
   return new Promise((resolve, reject) => {
+    let isSettled = false;
+    const settleOnce = (fn: () => void) => {
+      if (isSettled) return;
+      isSettled = true;
+      fn();
+    };
+
+    const timeoutId = setTimeout(() => {
+      settleOnce(() => reject(new Error('IndexedDB open timed out (possible blocked upgrade).')));
+    }, 3_000);
+
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onerror = () => {
       console.error("IndexedDB error:", request.error);
-      reject(request.error);
+      clearTimeout(timeoutId);
+      settleOnce(() => reject(request.error));
+    };
+
+    request.onblocked = () => {
+      // Common cause: another tab has the DB open and needs a refresh/close to upgrade.
+      console.warn('IndexedDB open blocked (another tab may be using the database).');
+      clearTimeout(timeoutId);
+      settleOnce(() => reject(new Error('IndexedDB open blocked (close other tabs and reload).')));
     };
 
     request.onsuccess = () => {
-      resolve(request.result);
+      clearTimeout(timeoutId);
+      const db = request.result;
+      // Ensure future schema upgrades don't hang forever.
+      db.onversionchange = () => {
+        db.close();
+      };
+      settleOnce(() => resolve(db));
     };
 
     request.onupgradeneeded = (event) => {
@@ -26,9 +67,9 @@ const initDB = (): Promise<IDBDatabase> => {
       const transaction = (event.target as IDBOpenDBRequest).transaction!;
 
       // 1. Create new stores if they don't exist
-      STORES.forEach(storeName => {
+      ALL_STORES.forEach((storeName) => {
         if (!db.objectStoreNames.contains(storeName)) {
-           db.createObjectStore(storeName, { keyPath: 'id' });
+          db.createObjectStore(storeName, { keyPath: 'id' });
         }
       });
 
@@ -97,7 +138,7 @@ export const saveState = async (state: AppState): Promise<void> => {
   try {
     const db = await initDB();
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction(STORES, 'readwrite');
+      const transaction = db.transaction(DATA_STORES, 'readwrite');
       
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error);
@@ -162,7 +203,7 @@ export const loadState = async (): Promise<AppState | null> => {
   try {
     const db = await initDB();
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction(STORES, 'readonly');
+      const transaction = db.transaction(DATA_STORES, 'readonly');
       const newState: Partial<AppState> = {};
       
       // Helpers to promisify requests
@@ -209,9 +250,9 @@ export const loadState = async (): Promise<AppState | null> => {
 export const clearDB = async (): Promise<void> => {
   const db = await initDB();
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORES, 'readwrite');
+    const transaction = db.transaction(ALL_STORES, 'readwrite');
     
-    STORES.forEach(name => transaction.objectStore(name).clear());
+    ALL_STORES.forEach(name => transaction.objectStore(name).clear());
 
     transaction.oncomplete = () => resolve();
     transaction.onerror = () => reject(transaction.error);
@@ -227,16 +268,16 @@ export interface DbStats {
 export const getDatabaseStats = async (): Promise<DbStats[]> => {
    const db = await initDB();
    return new Promise((resolve, reject) => {
-      const transaction = db.transaction(STORES, 'readonly');
+      const transaction = db.transaction(ALL_STORES, 'readonly');
       const stats: DbStats[] = [];
       let completed = 0;
 
-      STORES.forEach(name => {
+      ALL_STORES.forEach(name => {
          const req = transaction.objectStore(name).count();
          req.onsuccess = () => {
             stats.push({ store: name, count: req.result });
             completed++;
-            if (completed === STORES.length) resolve(stats);
+            if (completed === ALL_STORES.length) resolve(stats);
          };
          req.onerror = () => reject(req.error);
       });
@@ -253,4 +294,127 @@ export const getStorageEstimate = async (): Promise<{ usage: number; quota: numb
     };
   }
   return null;
+};
+
+const idbRequest = <T>(req: IDBRequest<T>): Promise<T> =>
+  new Promise((resolve, reject) => {
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+
+const toLocalCropRecord = async (db: IDBDatabase, crop: CropType, tx: IDBTransaction) => {
+  // If crop.imageUrl is base64, store it separately to keep crop records light.
+  if (crop.imageUrl && crop.imageUrl.startsWith('data:')) {
+    const imageStore = tx.objectStore('images');
+    await idbRequest(imageStore.put({ id: crop.id, data: crop.imageUrl }));
+    const { imageUrl, ...cropData } = crop;
+    return { ...cropData, hasLocalImage: true };
+  }
+  return crop;
+};
+
+export const upsertLocalEntity = async (entity: SyncEntity, value: any): Promise<void> => {
+  const db = await initDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction([entity, 'images'], 'readwrite');
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+
+    (async () => {
+      try {
+        if (entity === 'crops') {
+          const record = await toLocalCropRecord(db, value as CropType, tx);
+          await idbRequest(tx.objectStore('crops').put(record));
+        } else {
+          await idbRequest((tx.objectStore(entity as AnyStoreName) as IDBObjectStore).put(value));
+        }
+      } catch (e) {
+        reject(e);
+      }
+    })();
+  });
+};
+
+export const deleteLocalEntity = async (entity: SyncEntity, id: string): Promise<void> => {
+  const db = await initDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction([entity, 'images'], 'readwrite');
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    try {
+      tx.objectStore(entity as AnyStoreName).delete(id);
+      if (entity === 'crops') tx.objectStore('images').delete(id);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const getLocalStateSnapshot = async (): Promise<AppState> => {
+  const loaded = await loadState();
+  return (
+    loaded ?? {
+      crops: [],
+      trays: [],
+      transactions: [],
+      customers: [],
+    }
+  );
+};
+
+export const enqueueSync = async (item: Omit<SyncQueueItem, 'attempts'>): Promise<void> => {
+  const db = await initDB();
+  const fullItem: SyncQueueItem = { ...item, attempts: 0 };
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction([SYNC_STORE], 'readwrite');
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    try {
+      tx.objectStore(SYNC_STORE).put(fullItem);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const listSyncQueue = async (): Promise<SyncQueueItem[]> => {
+  const db = await initDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction([SYNC_STORE], 'readonly');
+    tx.onerror = () => reject(tx.error);
+    const req = tx.objectStore(SYNC_STORE).getAll();
+    req.onsuccess = () => {
+      const items = (req.result as SyncQueueItem[]).slice().sort((a, b) => a.createdAt - b.createdAt);
+      resolve(items);
+    };
+    req.onerror = () => reject(req.error);
+  });
+};
+
+export const removeSyncQueueItem = async (id: string): Promise<void> => {
+  const db = await initDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction([SYNC_STORE], 'readwrite');
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    try {
+      tx.objectStore(SYNC_STORE).delete(id);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const updateSyncQueueItem = async (item: SyncQueueItem): Promise<void> => {
+  const db = await initDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction([SYNC_STORE], 'readwrite');
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    try {
+      tx.objectStore(SYNC_STORE).put(item);
+    } catch (e) {
+      reject(e);
+    }
+  });
 };

@@ -1,6 +1,14 @@
 import { sql } from '@vercel/postgres';
 
+export const config = {
+  runtime: 'edge',
+};
+
 export default async function handler(request: Request) {
+  if (request.method !== 'GET') {
+    return new Response('Method not allowed', { status: 405 });
+  }
+
   try {
     // 1. Crops Table
     await sql`
