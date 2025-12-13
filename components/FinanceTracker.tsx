@@ -48,6 +48,22 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
   onUpdateCustomer,
   onDeleteCustomer
 }) => {
+  const [isTouchUI, setIsTouchUI] = useState(false);
+
+  useEffect(() => {
+    // Mobile browsers can feel "unresponsive" when heavy charts intercept touch events or run animations.
+    // Detect coarse pointer and optimize interactions accordingly.
+    try {
+      const mq = window.matchMedia?.('(pointer: coarse)');
+      const update = () => setIsTouchUI(Boolean(mq?.matches));
+      update();
+      mq?.addEventListener?.('change', update);
+      return () => mq?.removeEventListener?.('change', update);
+    } catch {
+      // no-op
+    }
+  }, []);
+
   const [viewMode, setViewMode] = useState<'transactions' | 'customers'>('transactions');
   const [showTxForm, setShowTxForm] = useState(false);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -201,11 +217,23 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
         </div>
 
         {viewMode === 'transactions' ? (
-          <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} onClick={() => { if (showTxForm) { setShowTxForm(false); resetForm(); } else { setShowTxForm(true); resetForm(); } }} className={`w-full py-3 rounded-2xl shadow-lg flex items-center justify-center text-sm font-bold transition-all ${showTxForm ? 'bg-slate-100 text-slate-600 shadow-none' : 'bg-slate-900 text-white shadow-slate-200'}`}>
+          <motion.button
+            whileHover={isTouchUI ? undefined : { scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            onClick={() => { if (showTxForm) { setShowTxForm(false); resetForm(); } else { setShowTxForm(true); resetForm(); } }}
+            style={{ touchAction: 'manipulation' }}
+            className={`w-full py-3 rounded-2xl shadow-lg flex items-center justify-center text-sm font-bold transition-all ${showTxForm ? 'bg-slate-100 text-slate-600 shadow-none' : 'bg-slate-900 text-white shadow-slate-200'}`}
+          >
             {showTxForm ? 'Cancel Entry' : <><Plus className="w-4 h-4 mr-2" /> Add Transaction</>}
           </motion.button>
         ) : (
-          <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} onClick={openNewCustomerModal} className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-2xl shadow-lg shadow-teal-200 flex items-center justify-center text-sm font-bold transition-all">
+          <motion.button
+            whileHover={isTouchUI ? undefined : { scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            onClick={openNewCustomerModal}
+            style={{ touchAction: 'manipulation' }}
+            className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-2xl shadow-lg shadow-teal-200 flex items-center justify-center text-sm font-bold transition-all"
+          >
             <Plus className="w-4 h-4 mr-2" /> Add Customer
           </motion.button>
         )}
@@ -285,19 +313,37 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
              <div className={`p-5 rounded-3xl border flex flex-col justify-between ${financials.netProfit >= 0 ? 'bg-slate-900 text-white border-slate-800' : 'bg-orange-50 text-orange-800 border-orange-100'}`}><span className={`text-xs font-bold uppercase tracking-wider ${financials.netProfit >= 0 ? 'text-slate-400' : 'text-orange-600'}`}>Net Profit</span><div className="text-2xl font-bold mt-1">€{financials.netProfit.toFixed(2)}</div></div>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${isTouchUI ? 'pointer-events-none' : ''}`}
+          >
              <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
                 <h4 className="text-sm font-bold text-slate-800 mb-4">Cash Flow (Last 7 Days)</h4>
                 <div className="h-48 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                     <BarChart data={cashFlowData}><XAxis dataKey="date" hide /><Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} /><Bar dataKey="income" fill="#0d9488" radius={[4, 4, 0, 0]} animationDuration={1000} /><Bar dataKey="expense" fill="#ef4444" radius={[4, 4, 0, 0]} animationDuration={1000} /></BarChart>
+                     <BarChart data={cashFlowData}>
+                       <XAxis dataKey="date" hide />
+                       <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                       <Bar dataKey="income" fill="#0d9488" radius={[4, 4, 0, 0]} isAnimationActive={!isTouchUI} animationDuration={1000} />
+                       <Bar dataKey="expense" fill="#ef4444" radius={[4, 4, 0, 0]} isAnimationActive={!isTouchUI} animationDuration={1000} />
+                     </BarChart>
                   </ResponsiveContainer>
                 </div>
              </div>
              <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
                 <h4 className="text-sm font-bold text-slate-800 mb-4">Expenses by Category</h4>
                 <div className="h-48 w-full">
-                  <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={expenseCategoryData} innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value" animationDuration={1000}>{expenseCategoryData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}</Pie><Tooltip /><Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} /></PieChart></ResponsiveContainer>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={expenseCategoryData} innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value" isAnimationActive={!isTouchUI} animationDuration={1000}>
+                        {expenseCategoryData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
              </div>
           </motion.div>
