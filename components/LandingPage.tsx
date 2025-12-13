@@ -203,7 +203,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       </section>
 
       {/* Infinite Scroll Ticker */}
-      <div className="bg-slate-900 py-6 overflow-hidden relative">
+      <div className="bg-slate-900 py-3 overflow-hidden relative">
          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-transparent to-slate-900 z-10 pointer-events-none" />
          <motion.div 
             className="flex whitespace-nowrap gap-8"
@@ -211,8 +211,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
          >
             {[...varieties, ...varieties, ...varieties].map((item, i) => (
-               <div key={i} className="flex items-center gap-2 text-white/50 font-bold text-xl uppercase tracking-widest">
-                  <Sprout className="w-5 h-5 text-teal-500" />
+               <div key={i} className="flex items-center gap-2 text-white/50 font-bold text-sm uppercase tracking-widest">
+                  <Sprout className="w-4 h-4 text-teal-500" />
                   {item}
                </div>
             ))}
