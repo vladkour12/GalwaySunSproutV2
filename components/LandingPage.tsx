@@ -247,7 +247,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       {/* Bento Grid Features */}
       <section className="py-20 px-6 relative z-10">
         {/* Subtle glass background for the section to separate it slightly from global background */}
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-3xl -z-10" />
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-3xl -z-10 pointer-events-none" />
         
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
