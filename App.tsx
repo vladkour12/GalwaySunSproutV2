@@ -25,6 +25,9 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadPhase, setLoadPhase] = useState<string>('Idle');
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const loadStartedAtRef = React.useRef<number>(0);
   
   const [appState, setAppState] = useState<AppState>({
     crops: [],
@@ -39,6 +42,8 @@ const App: React.FC = () => {
 
     let isCancelled = false;
     const HARD_TIMEOUT_MS = 25_000;
+    loadStartedAtRef.current = Date.now();
+
     const hardTimeoutId = window.setTimeout(() => {
       if (isCancelled) return;
       console.error(`Farm data load timed out after ${HARD_TIMEOUT_MS}ms; falling back to offline defaults.`);
@@ -55,10 +60,12 @@ const App: React.FC = () => {
     const init = async () => {
       setIsLoading(true);
       setLoadError(null);
+      setLoadPhase('Initializing database…');
 
       try {
         // Ensure DB is setup
         await api.setup();
+        setLoadPhase('Fetching farm data…');
         
         // Parallel Fetch (use allSettled so one failing endpoint doesn't block the app)
         const [cropsRes, traysRes, transactionsRes, customersRes] = await Promise.allSettled([
@@ -78,12 +85,14 @@ const App: React.FC = () => {
 
         // Seed if empty
         if (crops.length === 0) {
+            setLoadPhase('Seeding initial data…');
             console.log("Seeding initial data...");
             await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
             loadedCrops = INITIAL_CROPS;
             loadedCustomers = INITIAL_CUSTOMERS;
         }
 
+        setLoadPhase('Finalizing…');
         setAppState({
             crops: loadedCrops,
             trays,
@@ -105,6 +114,7 @@ const App: React.FC = () => {
       } finally {
         if (!isCancelled) {
           window.clearTimeout(hardTimeoutId);
+          setLoadPhase('Done');
           setIsLoading(false);
         }
       }
@@ -115,7 +125,7 @@ const App: React.FC = () => {
       isCancelled = true;
       window.clearTimeout(hardTimeoutId);
     };
-  }, [authStatus]);
+  }, [authStatus, loadAttempt]);
 
   // --- Handlers (Optimistic UI + API Calls) ---
 
@@ -375,11 +385,37 @@ const App: React.FC = () => {
   // --- Rendering ---
 
   if (isLoading && authStatus === 'admin') {
+     const elapsedSec = Math.max(0, Math.round((Date.now() - loadStartedAtRef.current) / 1000));
      return (
         <div className="min-h-screen flex items-center justify-center bg-slate-950">
            <div className="flex flex-col items-center">
               <div className="bg-teal-600 p-3 rounded-2xl mb-4 animate-bounce"><Sprout className="w-8 h-8 text-white" /></div>
               <h2 className="text-slate-100 font-bold text-lg">Loading Farm Data...</h2>
+              <p className="mt-2 text-slate-400 text-sm font-semibold">{loadPhase} · {elapsedSec}s</p>
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={() => {
+                    setLoadError('Loaded offline defaults (manual override).');
+                    setAppState({
+                      crops: INITIAL_CROPS,
+                      trays: [],
+                      transactions: MOCK_TRANSACTIONS ?? [],
+                      customers: INITIAL_CUSTOMERS,
+                    });
+                    setIsLoading(false);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-100 font-bold text-sm hover:bg-slate-700 transition"
+                >
+                  Continue offline
+                </button>
+                <button
+                  onClick={() => setLoadAttempt(v => v + 1)}
+                  className="px-4 py-2 rounded-xl bg-teal-600 text-white font-bold text-sm hover:bg-teal-700 transition"
+                >
+                  Retry
+                </button>
+              </div>
+              <p className="mt-4 text-slate-500 text-xs font-mono opacity-80">boot:v3</p>
            </div>
         </div>
      );

@@ -18,26 +18,25 @@ class ApiError extends Error {
 
 const fetchWithTimeout = async (input: RequestInfo | URL, init?: RequestInit, timeoutMs = DEFAULT_TIMEOUT_MS) => {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
   try {
-    // AbortController isn't perfectly reliable in all browsers/environments.
-    // We still race with a timeout to ensure the caller never hangs indefinitely.
-    const timeoutPromise = new Promise<Response>((_, reject) => {
-      setTimeout(() => reject(new ApiError(`Request timed out after ${timeoutMs}ms`, { url: String(input) })), timeoutMs);
+    // AbortController isn't perfectly reliable in all environments, so we also race.
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => {
+        controller.abort();
+        reject(new ApiError(`Request timed out after ${timeoutMs}ms`, { url: String(input) }));
+      }, timeoutMs);
     });
 
-    return await Promise.race([
-      fetch(input, { ...init, signal: controller.signal }),
-      timeoutPromise,
-    ]);
+    return (await Promise.race([fetch(input, { ...init, signal: controller.signal }), timeoutPromise])) as Response;
   } catch (err) {
     if ((err as any)?.name === 'AbortError') {
       throw new ApiError(`Request timed out after ${timeoutMs}ms`, { url: String(input) });
     }
     throw err;
   } finally {
-    clearTimeout(timeoutId);
+    if (timeoutId) clearTimeout(timeoutId);
   }
 };
 
