@@ -72,8 +72,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
               transition={{ delay: 0.2 }}
               className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-emerald-100 rounded-full pl-2 pr-4 py-1.5 shadow-sm"
             >
-              <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">New</span>
-              <span className="text-sm font-medium text-slate-600">Fresh batch harvesting this Friday</span>
+              <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">Fresh</span>
+              <span className="text-sm font-medium text-slate-600">Harvesting every week</span>
             </motion.div>
 
             <motion.h1 
@@ -94,7 +94,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
               transition={{ delay: 0.4 }}
               className="text-xl text-slate-600 max-w-lg leading-relaxed"
             >
-              Galway's premium urban microgreens farm. We grow nutrient-dense superfoods in a high-tech 2x2m vertical farm, delivered fresh to local chefs and households.
+              Galway's premium urban microgreens farm. We grow nutrient-dense superfoods in a precision tray-based system, delivered fresh to local chefs and households.
             </motion.p>
 
             <motion.div 
@@ -107,7 +107,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                 <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
                 <span className="relative flex items-center gap-2">
                   <Mail className="w-5 h-5" />
-                  Order Fresh
+                  Get in Touch
                 </span>
               </a>
               <a href="#" className="px-8 py-4 bg-white text-slate-700 border border-slate-200 rounded-2xl font-bold hover:bg-slate-50 transition-all hover:border-slate-300 flex items-center gap-2">
@@ -206,41 +206,39 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                initial={{ opacity: 0, x: -20 }}
                whileInView={{ opacity: 1, x: 0 }}
                viewport={{ once: true }}
-               className="md:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2.5rem] p-10 text-white relative overflow-hidden"
+               className="md:col-span-3 bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2.5rem] p-10 text-white relative overflow-hidden"
             >
-               <div className="relative z-10">
-                 <h3 className="text-3xl font-bold mb-4">Sustainable Urban Farming</h3>
-                 <p className="text-slate-300 max-w-md leading-relaxed mb-8">We use 95% less water than traditional farming and zero pesticides. Our vertical growing system maximizes space in an urban environment.</p>
-                 <div className="flex items-center gap-4">
-                    <div className="flex -space-x-3">
-                       {[1,2,3].map((_, i) => (
-                         <div key={i} className="w-10 h-10 rounded-full bg-slate-700 border-2 border-slate-800 flex items-center justify-center text-xs font-bold">
-                            <Sprout className="w-4 h-4 text-teal-400" />
-                         </div>
-                       ))}
+               <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
+                 <div className="flex-1">
+                    <h3 className="text-3xl font-bold mb-4">Sustainable Urban Farming</h3>
+                    <p className="text-slate-300 max-w-lg leading-relaxed mb-8">
+                      We use 95% less water than traditional farming and zero pesticides. Our efficient tray-based growing system maximizes space in an urban environment, bringing fresh food closer to where you live.
+                    </p>
+                    <div className="flex items-center gap-4">
+                        <div className="flex -space-x-3">
+                          {[1,2,3].map((_, i) => (
+                            <div key={i} className="w-10 h-10 rounded-full bg-slate-700 border-2 border-slate-800 flex items-center justify-center text-xs font-bold">
+                                <Sprout className="w-4 h-4 text-teal-400" />
+                            </div>
+                          ))}
+                        </div>
+                        <span className="text-sm font-medium text-slate-400">Growing for the community</span>
                     </div>
-                    <span className="text-sm font-medium text-slate-400">Join 50+ local customers</span>
+                 </div>
+                 <div className="flex-1 w-full max-w-sm">
+                    <div className="aspect-square bg-white/10 rounded-3xl border border-white/10 p-6 backdrop-blur-sm">
+                        <div className="h-full w-full bg-slate-800/50 rounded-2xl flex flex-col items-center justify-center text-center p-6 border border-white/5">
+                            <Leaf className="w-12 h-12 text-teal-400 mb-4" />
+                            <h4 className="text-xl font-bold text-white mb-2">Locally Grown</h4>
+                            <p className="text-sm text-slate-400">Harvested weekly in Galway City for maximum freshness and minimal carbon footprint.</p>
+                        </div>
+                    </div>
                  </div>
                </div>
                
                {/* Decorative Circle */}
-               <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-               <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="bg-teal-50 rounded-[2.5rem] p-10 flex flex-col justify-center items-center text-center border border-teal-100"
-            >
-               <h3 className="text-2xl font-bold text-teal-900 mb-2">Weekly Box</h3>
-               <p className="text-teal-700/80 mb-6 text-sm">Subscribe & Save 15%</p>
-               <div className="text-5xl font-bold text-teal-600 mb-2">€15</div>
-               <p className="text-sm text-teal-600/60 mb-8">per month</p>
-               <button className="w-full py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors shadow-lg shadow-teal-200">
-                  Join Waitlist
-               </button>
+               <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+               <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
             </motion.div>
           </div>
         </div>
@@ -255,7 +253,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             </div>
             <span className="font-bold text-slate-900">Galway Sun Sprouts</span>
           </div>
-          <p className="text-slate-400 text-sm">© {new Date().getFullYear()} Urban Vertical Farm. Galway, Ireland.</p>
+          <p className="text-slate-400 text-sm">© {new Date().getFullYear()} Urban Microgreens Farm. Galway, Ireland.</p>
         </div>
       </footer>
     </div>
