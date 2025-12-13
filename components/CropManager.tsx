@@ -568,7 +568,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                         className={`bg-white p-2.5 rounded-2xl border ${nextStageInfo.isOverdue ? 'border-red-200 bg-red-50/10' : 'border-slate-100'} shadow-sm flex items-center gap-3 active:scale-[0.98] transition-transform cursor-pointer relative overflow-hidden`}
                      >
                         {/* 1. Left: Small Picture (Reduced to w-10/40px) */}
-                        <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-xs font-bold shadow-inner relative overflow-hidden ${crop.color.split(' ')[0] || 'bg-slate-200'}`}>
+                        <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-xs font-bold shadow-inner relative overflow-hidden ${crop.color?.split(' ')[0] || 'bg-slate-200'}`}>
                            {crop.imageUrl ? (
                               <img src={crop.imageUrl} alt={crop.name} className="w-full h-full object-cover" />
                            ) : (
@@ -673,8 +673,8 @@ const CropManager: React.FC<CropManagerProps> = ({
                                           'bg-white border-slate-100'
                                        }`}
                                     >
-                                       <div className={`p-2 rounded-xl flex-shrink-0 ${task.color.replace('text-', 'bg-').replace('bg-', 'text-opacity-20 ')}`}>
-                                          <Icon className={`w-5 h-5 ${task.color.split(' ')[0]}`} />
+                                       <div className={`p-2 rounded-xl flex-shrink-0 ${task.color ? task.color.replace('text-', 'bg-').replace('bg-', 'text-opacity-20 ') : 'bg-slate-100'}`}>
+                                          <Icon className={`w-5 h-5 ${task.color?.split(' ')[0] || 'text-slate-500'}`} />
                                        </div>
                                        <div className="flex-1 min-w-0 pt-0.5">
                                           <div className="flex justify-between items-start">
@@ -792,7 +792,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                            className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden active:scale-[0.98] transition-transform flex items-center gap-4 cursor-pointer"
                         >
                            {/* Small Picture Left */}
-                           <div className={`w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center text-sm font-bold shadow-inner relative overflow-hidden ${crop.color.split(' ')[0] || 'bg-slate-200'}`}>
+                           <div className={`w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center text-sm font-bold shadow-inner relative overflow-hidden ${crop.color?.split(' ')[0] || 'bg-slate-200'}`}>
                               {crop.imageUrl ? (
                                  <img src={crop.imageUrl} alt={crop.name} className="w-full h-full object-cover" />
                               ) : (
@@ -1302,7 +1302,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                            {selectedCrop.imageUrl ? (
                               <img src={selectedCrop.imageUrl} alt={selectedCrop.name} className="w-full h-full object-cover" />
                            ) : (
-                              <div className={`w-full h-full flex items-center justify-center ${selectedCrop.color.split(' ')[0]}`}>
+                              <div className={`w-full h-full flex items-center justify-center ${selectedCrop.color?.split(' ')[0] || 'bg-slate-200'}`}>
                                  <Sprout className="w-16 h-16 opacity-50" />
                               </div>
                            )}
