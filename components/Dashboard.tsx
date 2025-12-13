@@ -164,7 +164,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
 
   return (
     <motion.div 
-      className="space-y-6 pb-20"
+      className="space-y-6"
       variants={container}
       initial="hidden"
       animate="show"
