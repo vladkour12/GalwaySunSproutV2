@@ -244,17 +244,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                initial={{ opacity: 0, x: -20 }}
                whileInView={{ opacity: 1, x: 0 }}
                viewport={{ once: true }}
-               className="md:col-span-3 bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden group"
+               className="md:col-span-3 bg-gradient-to-br from-emerald-900 to-teal-900 rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden group border border-white/10"
             >
                <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
                  <div className="flex-1">
                     <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-teal-300 mb-6 border border-white/10">
-                       <CheckCircle2 className="w-3.5 h-3.5" />
-                       <span>Sustainable Practice</span>
+                       <ChefHat className="w-3.5 h-3.5" />
+                       <span>Chef Partnership Program</span>
                     </div>
-                    <h3 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">Grown with Purpose.<br/>Harvested with Pride.</h3>
+                    <h3 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">Curated for Culinary Excellence.</h3>
                     <p className="text-slate-300 max-w-lg leading-relaxed mb-8 text-lg">
-                      We use 95% less water than traditional farming and zero pesticides. Our efficient tray-based growing system maximizes space in an urban environment, bringing fresh food closer to where you live.
+                      From seed to harvest, every tray is monitored for optimal flavor and texture. We work directly with chefs to grow exactly what your menu needs, when you need it.
                     </p>
                     <div className="flex items-center gap-4">
                         <div className="flex -space-x-3">
@@ -264,7 +264,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                             </div>
                           ))}
                         </div>
-                        <span className="text-sm font-medium text-slate-400">Growing for the community</span>
+                        <span className="text-sm font-medium text-slate-400">Growing custom orders</span>
                     </div>
                  </div>
                  
@@ -285,10 +285,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
 
                         <div className="h-full w-full bg-slate-800/80 rounded-2xl flex flex-col items-center justify-center text-center p-6 border border-white/5 relative z-10 shadow-2xl">
                             <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-teal-500/30">
-                               <Leaf className="w-8 h-8 text-white" />
+                               <Sparkles className="w-8 h-8 text-white" />
                             </div>
-                            <h4 className="text-xl font-bold text-white mb-2">Locally Grown</h4>
-                            <p className="text-sm text-slate-400">Harvested weekly in Galway City for maximum freshness and minimal carbon footprint.</p>
+                            <h4 className="text-xl font-bold text-white mb-2">Made to Order</h4>
+                            <p className="text-sm text-slate-400">Specify your preferred harvest stage and variety mix for the perfect plate garnish.</p>
                         </div>
                     </motion.div>
                  </div>
