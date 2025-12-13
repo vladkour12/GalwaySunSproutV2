@@ -1,15 +1,97 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Sprout, MapPin, Mail, Lock, Instagram, ArrowRight, Leaf, Truck, Sun, Clock, ChevronDown, CheckCircle2, ChefHat, Droplets, Sparkles } from 'lucide-react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, useSpring, useMotionTemplate } from 'framer-motion';
 
 interface LandingPageProps {
   onLoginClick: () => void;
 }
 
+// --- Sub-components for Animations ---
+
+const LetterPullUp = ({ text, className = "", delayStr = 0 }: { text: string, className?: string, delayStr?: number }) => {
+  const letters = text.split("");
+  return (
+    <span className={`inline-block overflow-hidden ${className}`}>
+      {letters.map((letter, i) => (
+        <motion.span
+          key={i}
+          initial={{ y: "100%" }}
+          animate={{ y: 0 }}
+          transition={{
+            delay: delayStr + i * 0.03,
+            type: "spring",
+            stiffness: 100,
+            damping: 10
+          }}
+          className="inline-block"
+        >
+          {letter === " " ? "\u00A0" : letter}
+        </motion.span>
+      ))}
+    </span>
+  );
+};
+
+const SpotlightCard = ({ children, className = "", spotlightColor = "rgba(20, 184, 166, 0.2)" }: { children: React.ReactNode, className?: string, spotlightColor?: string }) => {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
+    const { left, top } = currentTarget.getBoundingClientRect();
+    mouseX.set(clientX - left);
+    mouseY.set(clientY - top);
+  }
+
+  return (
+    <div 
+      className={`relative overflow-hidden group ${className}`}
+      onMouseMove={handleMouseMove}
+    >
+      <motion.div
+        className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
+        style={{
+          background: useMotionTemplate`
+            radial-gradient(
+              650px circle at ${mouseX}px ${mouseY}px,
+              ${spotlightColor},
+              transparent 80%
+            )
+          `,
+        }}
+      />
+      {children}
+    </div>
+  );
+};
+
+// --- Main Component ---
+
 const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
   
+  // Global Mouse tracking for background parallax
+  const globalMouseX = useMotionValue(0);
+  const globalMouseY = useMotionValue(0);
+  const springConfig = { damping: 25, stiffness: 50 };
+  const backgroundX = useSpring(globalMouseX, springConfig);
+  const backgroundY = useSpring(globalMouseY, springConfig);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      globalMouseX.set(e.clientX);
+      globalMouseY.set(e.clientY);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  // Parallax transforms for blobs
+  const blob1X = useTransform(backgroundX, [0, window.innerWidth], [0, 100]);
+  const blob1Y = useTransform(backgroundY, [0, window.innerHeight], [0, 50]);
+  const blob2X = useTransform(backgroundX, [0, window.innerWidth], [0, -100]);
+  const blob2Y = useTransform(backgroundY, [0, window.innerHeight], [0, -50]);
+
   const [activeFeature, setActiveFeature] = useState(0);
 
   const features = [
@@ -25,33 +107,31 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden selection:bg-teal-200 selection:text-teal-900 relative">
       
-      {/* Global Animated Background Elements (Fixed) */}
+      {/* Global Animated Background Elements (Fixed & Interactive) */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-         {/* Blob 1 - Top Right */}
+         {/* Blob 1 - Top Right - Follows Mouse */}
          <motion.div 
+           style={{ x: blob1X, y: blob1Y }}
            animate={{ 
              scale: [1, 1.2, 1], 
-             x: [0, 100, 0], 
-             y: [0, 50, 0], 
              rotate: [0, 20, 0] 
            }}
            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
            className="absolute -top-[10%] -right-[10%] w-[800px] h-[800px] bg-teal-200/20 rounded-full blur-[120px]" 
          />
          
-         {/* Blob 2 - Bottom Left */}
+         {/* Blob 2 - Bottom Left - Follows Mouse Inversely */}
          <motion.div 
+           style={{ x: blob2X, y: blob2Y }}
            animate={{ 
              scale: [1, 1.1, 1], 
-             x: [0, -50, 0], 
-             y: [0, -100, 0], 
              rotate: [0, -15, 0] 
            }}
            transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 2 }}
            className="absolute -bottom-[10%] -left-[10%] w-[700px] h-[700px] bg-emerald-200/20 rounded-full blur-[100px]" 
          />
 
-         {/* Blob 3 - Middle Center (New) */}
+         {/* Blob 3 - Middle Center */}
          <motion.div 
            animate={{ 
              scale: [0.8, 1, 0.8], 
@@ -62,25 +142,25 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
            className="absolute top-[40%] left-[30%] w-[600px] h-[600px] bg-lime-100/30 rounded-full blur-[150px]" 
          />
 
-         {/* Floating Particles - Distributed Globally */}
-         {[...Array(12)].map((_, i) => (
+         {/* Floating Particles */}
+         {[...Array(15)].map((_, i) => (
            <motion.div
              key={i}
-             className="absolute bg-teal-400/20 rounded-full blur-xl"
+             className="absolute bg-teal-400/30 rounded-full blur-sm"
              style={{
-               width: Math.random() * 100 + 50,
-               height: Math.random() * 100 + 50,
+               width: Math.random() * 6 + 2,
+               height: Math.random() * 6 + 2,
                top: `${Math.random() * 100}%`,
                left: `${Math.random() * 100}%`,
              }}
              animate={{
-               y: [0, Math.random() * -200 - 50, 0],
+               y: [0, Math.random() * -300 - 50, 0],
                x: [0, Math.random() * 100 - 50, 0],
-               opacity: [0.2, 0.5, 0.2],
-               scale: [1, 1.5, 1],
+               opacity: [0, 0.8, 0],
+               scale: [0, 1.5, 0],
              }}
              transition={{
-               duration: Math.random() * 20 + 15,
+               duration: Math.random() * 10 + 10,
                repeat: Infinity,
                ease: "easeInOut",
                delay: Math.random() * 10,
@@ -90,7 +170,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       </div>
 
       {/* Noise Texture Overlay */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-[60]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+      <div className="fixed inset-0 pointer-events-none opacity-[0.04] z-[60]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
 
       {/* Navbar */}
       <motion.nav 
@@ -118,7 +198,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-6 overflow-hidden z-10 min-h-screen flex items-center">
-        <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
+        <div className="max-w-7xl mx-auto flex flex-col items-center text-center perspective-[1000px]">
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -130,22 +210,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             <span className="text-sm font-medium text-slate-600">Harvesting every week</span>
           </motion.div>
 
-          <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-slate-900 leading-[0.95] mb-8"
-          >
-            Small Scale.<br/>
+          <div className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-slate-900 leading-[0.95] mb-8">
+            <LetterPullUp text="Small Scale." delayStr={0.1} />
+            <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-emerald-500 to-teal-600 bg-[length:200%_auto] animate-gradient">
-              Big Flavor.
+              <LetterPullUp text="Big Flavor." delayStr={0.5} />
             </span>
-          </motion.h1>
+          </div>
 
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.8 }}
             className="text-xl md:text-2xl text-slate-600 max-w-2xl leading-relaxed mb-12"
           >
             Galway's premier microgreens partner for chefs. We deliver ultra-fresh, precision-grown varieties tailored to your menu's unique flavor and aesthetic needs.
@@ -154,7 +230,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 1 }}
             className="flex flex-wrap justify-center gap-4"
           >
             <a href="mailto:hello@galwaysunsprouts.com" className="group relative px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold overflow-hidden shadow-xl shadow-slate-900/20 hover:shadow-2xl hover:shadow-slate-900/30 transition-all hover:-translate-y-1">
@@ -172,9 +248,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
 
           {/* Mobile Hero Image - Visible only on small screens */}
           <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
+            initial={{ opacity: 0, y: 40, rotateX: 20 }}
+            animate={{ opacity: 1, y: 0, rotateX: 0 }}
+            transition={{ delay: 1.2, type: "spring", stiffness: 50 }}
             className="w-full max-w-lg aspect-square rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white relative mt-16 lg:hidden"
           >
             <img src="https://images.unsplash.com/photo-1536636730397-5b62b083c74c?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover" alt="Microgreens" crossOrigin="anonymous" />
@@ -217,34 +293,24 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, idx) => (
-              <motion.div 
+              <SpotlightCard 
                 key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                whileHover={{ y: -5, borderColor: 'rgba(20, 184, 166, 0.3)' }}
-                className="bg-white/80 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-sm hover:shadow-lg hover:shadow-teal-100/50 transition-all group cursor-default relative overflow-hidden"
+                className="bg-white/80 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-sm hover:shadow-lg transition-all cursor-default"
               >
-                <div className={`w-14 h-14 ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10`}>
+                <div className={`w-14 h-14 ${feature.color} rounded-2xl flex items-center justify-center mb-6 relative z-10`}>
                   <feature.icon className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2 relative z-10">{feature.title}</h3>
                 <p className="text-slate-500 leading-relaxed relative z-10">{feature.desc}</p>
-                
-                {/* Subtle gradient blob on hover */}
-                <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-teal-100/50 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </motion.div>
+              </SpotlightCard>
             ))}
           </div>
 
           {/* Large Feature Block */}
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <motion.div 
-               initial={{ opacity: 0, x: -20 }}
-               whileInView={{ opacity: 1, x: 0 }}
-               viewport={{ once: true }}
-               className="md:col-span-3 bg-gradient-to-br from-emerald-900 to-teal-900 rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden group border border-white/10"
+            <SpotlightCard 
+               className="md:col-span-3 bg-gradient-to-br from-emerald-900 to-teal-900 rounded-[2.5rem] p-8 md:p-12 text-white border border-white/10"
+               spotlightColor="rgba(255, 255, 255, 0.1)"
             >
                <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
                  <div className="flex-1">
@@ -297,7 +363,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                {/* Decorative Circle */}
                <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-            </motion.div>
+            </SpotlightCard>
           </div>
         </div>
       </section>
