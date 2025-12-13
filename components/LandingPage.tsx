@@ -160,10 +160,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                  className="absolute top-10 right-10 w-96 h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-teal-900/20 border-[8px] border-white z-10"
                >
                   <img src="https://images.unsplash.com/photo-1536636730397-5b62b083c74c?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700" alt="Microgreens" crossOrigin="anonymous" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-8 left-8 text-white">
-                    <p className="text-sm font-bold opacity-80 uppercase tracking-widest mb-1">Variety</p>
-                    <h3 className="text-3xl font-bold">Sunflower Shoots</h3>
+                  {/* Glass card overlay instead of full gradient */}
+                  <div className="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-3xl">
+                    <p className="text-xs font-bold text-teal-300 uppercase tracking-widest mb-1">Variety</p>
+                    <h3 className="text-2xl font-bold text-white">Sunflower Shoots</h3>
                   </div>
                </motion.div>
                
