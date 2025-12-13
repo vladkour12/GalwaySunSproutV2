@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View } from '../types';
 import { Leaf, Sprout, Euro, Sparkles, Database, Calculator, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,6 +14,8 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLogout, alertCount = 0 }) => {
   const mainRef = useRef<HTMLElement | null>(null);
+  const navRef = useRef<HTMLElement | null>(null);
+  const [bottomPadPx, setBottomPadPx] = useState(0);
 
   // Ensure view changes don't preserve an old scroll offset (common after using Crops).
   useEffect(() => {
@@ -21,6 +23,30 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
     if (!el) return;
     el.scrollTop = 0;
   }, [currentView]);
+
+  // Make bottom padding match the fixed dock height (prevents excessive blank scroll space).
+  useEffect(() => {
+    const navEl = navRef.current;
+    if (!navEl) return;
+
+    const BASE_GUTTER_PX = 24; // corresponds to `bottom-6`
+
+    const measure = () => {
+      const rect = navEl.getBoundingClientRect();
+      // Height of dock + its bottom gutter, plus a small buffer.
+      const next = Math.max(0, Math.ceil(rect.height + BASE_GUTTER_PX + 8));
+      setBottomPadPx(next);
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(navEl);
+    window.addEventListener('resize', measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, []);
 
   const navItems = [
     { id: 'dashboard', label: 'Overview', icon: Leaf },
@@ -56,7 +82,11 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
       </header>
 
       {/* Main Content with Transition */}
-      <main ref={mainRef} className="flex-1 overflow-y-auto pb-20 overflow-x-hidden">
+      <main
+        ref={mainRef}
+        className="flex-1 overflow-y-auto overflow-x-hidden"
+        style={{ paddingBottom: `calc(${bottomPadPx}px + env(safe-area-inset-bottom))` }}
+      >
         <div className="max-w-4xl mx-auto p-4 sm:p-6">
           {/* Use popLayout so exiting views don't reserve layout space (prevents "blank spacing" after leaving Crops). */}
           <AnimatePresence initial={false} mode="popLayout">
@@ -74,7 +104,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
       </main>
 
       {/* Bottom Navigation - Modern Animated Dock */}
-      <nav className="fixed bottom-6 left-6 right-6 z-50">
+      <nav ref={navRef} className="fixed bottom-6 left-6 right-6 z-50">
         <div className="max-w-md mx-auto bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-2xl shadow-slate-900/50 p-2 flex justify-between items-center">
           {navItems.map((item) => {
             const Icon = item.icon;
