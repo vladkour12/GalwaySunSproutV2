@@ -23,8 +23,72 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
   const varieties = ["Sunflower", "Pea Shoots", "Radish Rambo", "Broccoli", "Red Amaranth", "Mustard", "Coriander", "Basil", "Arugula"];
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden selection:bg-teal-200 selection:text-teal-900">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden selection:bg-teal-200 selection:text-teal-900 relative">
       
+      {/* Global Animated Background Elements (Fixed) */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+         {/* Blob 1 - Top Right */}
+         <motion.div 
+           animate={{ 
+             scale: [1, 1.2, 1], 
+             x: [0, 100, 0], 
+             y: [0, 50, 0], 
+             rotate: [0, 20, 0] 
+           }}
+           transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+           className="absolute -top-[10%] -right-[10%] w-[800px] h-[800px] bg-teal-200/20 rounded-full blur-[120px]" 
+         />
+         
+         {/* Blob 2 - Bottom Left */}
+         <motion.div 
+           animate={{ 
+             scale: [1, 1.1, 1], 
+             x: [0, -50, 0], 
+             y: [0, -100, 0], 
+             rotate: [0, -15, 0] 
+           }}
+           transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+           className="absolute -bottom-[10%] -left-[10%] w-[700px] h-[700px] bg-emerald-200/20 rounded-full blur-[100px]" 
+         />
+
+         {/* Blob 3 - Middle Center (New) */}
+         <motion.div 
+           animate={{ 
+             scale: [0.8, 1, 0.8], 
+             opacity: [0.1, 0.3, 0.1],
+             x: [0, 30, 0],
+           }}
+           transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 5 }}
+           className="absolute top-[40%] left-[30%] w-[600px] h-[600px] bg-lime-100/30 rounded-full blur-[150px]" 
+         />
+
+         {/* Floating Particles - Distributed Globally */}
+         {[...Array(12)].map((_, i) => (
+           <motion.div
+             key={i}
+             className="absolute bg-teal-400/20 rounded-full blur-xl"
+             style={{
+               width: Math.random() * 100 + 50,
+               height: Math.random() * 100 + 50,
+               top: `${Math.random() * 100}%`,
+               left: `${Math.random() * 100}%`,
+             }}
+             animate={{
+               y: [0, Math.random() * -200 - 50, 0],
+               x: [0, Math.random() * 100 - 50, 0],
+               opacity: [0.2, 0.5, 0.2],
+               scale: [1, 1.5, 1],
+             }}
+             transition={{
+               duration: Math.random() * 20 + 15,
+               repeat: Infinity,
+               ease: "easeInOut",
+               delay: Math.random() * 10,
+             }}
+           />
+         ))}
+      </div>
+
       {/* Noise Texture Overlay */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-[60]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
 
@@ -33,7 +97,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 100, damping: 20 }}
-        className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-white/80 backdrop-blur-xl border-b border-white/20"
+        className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-white/70 backdrop-blur-xl border-b border-white/20"
       >
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2 group cursor-pointer">
@@ -53,46 +117,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       </motion.nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-6 overflow-hidden">
-        {/* Animated Background Blobs & Particles */}
-        <div className="absolute inset-0 overflow-hidden -z-10 pointer-events-none">
-           <motion.div 
-             animate={{ scale: [1, 1.2, 1], x: [0, 50, 0], y: [0, 30, 0], rotate: [0, 20, 0] }}
-             transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-             className="absolute top-0 right-0 w-[800px] h-[800px] bg-teal-200/20 rounded-full blur-[120px]" 
-           />
-           <motion.div 
-             animate={{ scale: [1, 1.1, 1], x: [0, -30, 0], y: [0, -50, 0], rotate: [0, -15, 0] }}
-             transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-             className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-200/20 rounded-full blur-[100px]" 
-           />
-           {/* Floating Particles */}
-           {[...Array(6)].map((_, i) => (
-             <motion.div
-               key={i}
-               className="absolute bg-teal-400/20 rounded-full blur-xl"
-               style={{
-                 width: Math.random() * 100 + 50,
-                 height: Math.random() * 100 + 50,
-                 top: `${Math.random() * 100}%`,
-                 left: `${Math.random() * 100}%`,
-               }}
-               animate={{
-                 y: [0, Math.random() * -100 - 50, 0],
-                 x: [0, Math.random() * 100 - 50, 0],
-                 opacity: [0.3, 0.6, 0.3],
-                 scale: [1, 1.2, 1],
-               }}
-               transition={{
-                 duration: Math.random() * 10 + 10,
-                 repeat: Infinity,
-                 ease: "easeInOut",
-                 delay: Math.random() * 5,
-               }}
-             />
-           ))}
-        </div>
-
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden z-10">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           
           {/* Left Content */}
@@ -203,7 +228,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       </section>
 
       {/* Infinite Scroll Ticker */}
-      <div className="bg-slate-900 py-3 overflow-hidden relative">
+      <div className="bg-slate-900 py-3 overflow-hidden relative z-10">
          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-transparent to-slate-900 z-10 pointer-events-none" />
          <motion.div 
             className="flex whitespace-nowrap gap-8"
@@ -220,7 +245,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       </div>
 
       {/* Bento Grid Features */}
-      <section className="py-20 px-6 bg-white relative">
+      <section className="py-20 px-6 relative z-10">
+        {/* Subtle glass background for the section to separate it slightly from global background */}
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-3xl -z-10" />
+        
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-slate-900 mb-4">Why Microgreens?</h2>
@@ -236,7 +264,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
                 whileHover={{ y: -5, borderColor: 'rgba(20, 184, 166, 0.3)' }}
-                className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 hover:shadow-lg hover:shadow-teal-100/50 transition-all group cursor-default relative overflow-hidden"
+                className="bg-white/80 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-sm hover:shadow-lg hover:shadow-teal-100/50 transition-all group cursor-default relative overflow-hidden"
               >
                 <div className={`w-14 h-14 ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10`}>
                   <feature.icon className="w-7 h-7" />
@@ -315,7 +343,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-100 py-12 px-6">
+      <footer className="bg-white/70 backdrop-blur-lg border-t border-slate-100 py-12 px-6 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center text-white shadow-md shadow-teal-200">
