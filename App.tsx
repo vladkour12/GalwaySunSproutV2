@@ -695,6 +695,10 @@ const App: React.FC = () => {
         // Important: if one view throws (e.g. CropManager), don't "brick" the whole app.
         // Reset the boundary whenever the user navigates to a different view.
         resetKeys={[currentView]}
+        onError={(error) => {
+          // React render errors won't always hit window.onerror, especially on mobile.
+          setFatalError({ message: error.message || 'Render error', stack: error.stack, source: 'ErrorBoundary' });
+        }}
       >
         {renderView()}
       </ErrorBoundary>
