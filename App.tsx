@@ -33,6 +33,7 @@ const App: React.FC = () => {
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const [syncKick, setSyncKick] = useState(0);
   const [didForceBoot, setDidForceBoot] = useState(false);
+  const [fatalError, setFatalError] = useState<{ message: string; stack?: string; source?: string } | null>(null);
   
   const [appState, setAppState] = useState<AppState>({
     crops: [],
@@ -40,6 +41,33 @@ const App: React.FC = () => {
     transactions: [],
     customers: []
   });
+
+  // --- Global crash capture (mobile-friendly debugging) ---
+  useEffect(() => {
+    const onError = (event: ErrorEvent) => {
+      const message = event.error?.message || event.message || 'Unknown error';
+      const stack = event.error?.stack;
+      setFatalError({
+        message,
+        stack,
+        source: event.filename ? `${event.filename}:${event.lineno}:${event.colno}` : undefined,
+      });
+    };
+
+    const onUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason as any;
+      const message = reason?.message ? String(reason.message) : String(reason ?? 'Unhandled rejection');
+      const stack = reason?.stack ? String(reason.stack) : undefined;
+      setFatalError({ message, stack, source: 'unhandledrejection' });
+    };
+
+    window.addEventListener('error', onError);
+    window.addEventListener('unhandledrejection', onUnhandledRejection);
+    return () => {
+      window.removeEventListener('error', onError);
+      window.removeEventListener('unhandledrejection', onUnhandledRejection);
+    };
+  }, []);
 
   // --- Local-first bootstrap (IndexedDB → UI immediately, remote sync in background) ---
   useEffect(() => {
@@ -504,6 +532,58 @@ const App: React.FC = () => {
 
   // --- Rendering ---
 
+  if (fatalError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 p-6">
+        <div className="w-full max-w-xl bg-white rounded-3xl border border-slate-100 shadow-2xl overflow-hidden">
+          <div className="p-6 border-b border-slate-100">
+            <h2 className="text-lg font-extrabold text-slate-900">App crashed</h2>
+            <p className="text-sm text-slate-500 mt-1">
+              View: <span className="font-mono text-xs">{currentView}</span>
+            </p>
+          </div>
+          <div className="p-6 space-y-3">
+            <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Error</div>
+              <div className="mt-1 font-mono text-xs text-slate-900 whitespace-pre-wrap break-words">{fatalError.message}</div>
+              {fatalError.source && (
+                <div className="mt-2 text-[10px] font-mono text-slate-500 whitespace-pre-wrap break-words">
+                  {fatalError.source}
+                </div>
+              )}
+            </div>
+            {fatalError.stack && (
+              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 max-h-52 overflow-auto">
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stack</div>
+                <div className="mt-1 font-mono text-[10px] text-slate-700 whitespace-pre-wrap break-words">
+                  {fatalError.stack}
+                </div>
+              </div>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setFatalError(null);
+                  setCurrentView('dashboard');
+                }}
+                className="flex-1 px-4 py-3 rounded-2xl bg-slate-900 text-white font-bold"
+              >
+                Recover
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className="flex-1 px-4 py-3 rounded-2xl bg-slate-100 text-slate-900 font-bold"
+              >
+                Reload
+              </button>
+            </div>
+            <p className="text-[10px] text-slate-400 font-mono">crash-capture:v1</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading && authStatus === 'admin') {
      const elapsedSec = Math.max(0, Math.round((Date.now() - loadStartedAtRef.current) / 1000));
      return (
@@ -535,7 +615,7 @@ const App: React.FC = () => {
                   Retry
                 </button>
               </div>
-              <p className="mt-4 text-slate-500 text-xs font-mono opacity-80">boot:lf4</p>
+              <p className="mt-4 text-slate-500 text-xs font-mono opacity-80">boot:lf4 crash-capture:v1</p>
            </div>
         </div>
      );
