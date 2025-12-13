@@ -13,9 +13,10 @@ import LoginPage from './components/LoginPage';
 import NotificationManager from './components/NotificationManager';
 import { AppState, View, Stage, Transaction, CropType, Customer, Tray } from './types';
 import { INITIAL_CROPS, MOCK_TRANSACTIONS, INITIAL_CUSTOMERS } from './constants';
-import { api } from './services/api';
 import { getFarmAlerts } from './services/alertService';
 import { Sprout } from 'lucide-react';
+import { getLocalStateSnapshot, saveState, upsertLocalEntity, deleteLocalEntity } from './services/storage';
+import { flushSyncQueueOnce, refreshLocalFromRemote, queueUpsert, queueDelete } from './services/syncService';
 
 const App: React.FC = () => {
   // --- Auth & Routing State ---
@@ -28,6 +29,9 @@ const App: React.FC = () => {
   const [loadPhase, setLoadPhase] = useState<string>('Idle');
   const [loadAttempt, setLoadAttempt] = useState(0);
   const loadStartedAtRef = React.useRef<number>(0);
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error'>('idle');
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [syncKick, setSyncKick] = useState(0);
   
   const [appState, setAppState] = useState<AppState>({
     crops: [],
@@ -36,96 +40,139 @@ const App: React.FC = () => {
     customers: []
   });
 
-  // --- Initial Load from API ---
+  // --- Local-first bootstrap (IndexedDB → UI immediately, remote sync in background) ---
   useEffect(() => {
     if (authStatus !== 'admin') return;
 
     let isCancelled = false;
-    const HARD_TIMEOUT_MS = 25_000;
     loadStartedAtRef.current = Date.now();
 
-    const hardTimeoutId = window.setTimeout(() => {
-      if (isCancelled) return;
-      console.error(`Farm data load timed out after ${HARD_TIMEOUT_MS}ms; falling back to offline defaults.`);
-      setLoadError('Farm data is taking too long to load from the database. Loaded offline defaults instead.');
-      setAppState({
-        crops: INITIAL_CROPS,
-        trays: [],
-        transactions: MOCK_TRANSACTIONS ?? [],
-        customers: INITIAL_CUSTOMERS,
-      });
-      setIsLoading(false);
-    }, HARD_TIMEOUT_MS);
-
-    const init = async () => {
+    const initLocalFirst = async () => {
       setIsLoading(true);
       setLoadError(null);
-      setLoadPhase('Initializing database…');
+      setLoadPhase('Loading local data…');
 
       try {
-        // Ensure DB is setup
-        await api.setup();
-        setLoadPhase('Fetching farm data…');
-        
-        // Parallel Fetch (use allSettled so one failing endpoint doesn't block the app)
-        const [cropsRes, traysRes, transactionsRes, customersRes] = await Promise.allSettled([
-          api.getCrops(),
-          api.getTrays(),
-          api.getTransactions(),
-          api.getCustomers(),
-        ]);
+        const local = await getLocalStateSnapshot();
+        const hasLocalData =
+          local.crops.length > 0 || local.trays.length > 0 || local.transactions.length > 0 || local.customers.length > 0;
 
-        const crops = cropsRes.status === 'fulfilled' ? cropsRes.value : [];
-        const trays = traysRes.status === 'fulfilled' ? traysRes.value : [];
-        const transactions = transactionsRes.status === 'fulfilled' ? transactionsRes.value : (MOCK_TRANSACTIONS ?? []);
-        const customers = customersRes.status === 'fulfilled' ? customersRes.value : [];
-
-        let loadedCrops = crops;
-        let loadedCustomers = customers;
-
-        // Seed if empty
-        if (crops.length === 0) {
-            setLoadPhase('Seeding initial data…');
-            console.log("Seeding initial data...");
-            await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
-            loadedCrops = INITIAL_CROPS;
-            loadedCustomers = INITIAL_CUSTOMERS;
+        if (!isCancelled) {
+          setAppState(
+            hasLocalData
+              ? local
+              : {
+                  crops: INITIAL_CROPS,
+                  trays: [],
+                  transactions: [],
+                  customers: INITIAL_CUSTOMERS,
+                }
+          );
+          setIsLoading(false);
+          setLoadPhase('Ready');
         }
 
-        setLoadPhase('Finalizing…');
-        setAppState({
-            crops: loadedCrops,
-            trays,
-            transactions,
-            customers: loadedCustomers
-        });
+        // Background: flush any pending changes, then refresh snapshot from remote.
+        (async () => {
+          if (isCancelled) return;
+          setSyncStatus('syncing');
+          setSyncMessage('Syncing…');
+
+          // Try a few small passes to drain the queue quickly.
+          for (let i = 0; i < 3; i++) {
+            const result = await flushSyncQueueOnce();
+            if (!result.didSync && result.processed === 0) break;
+            if (result.remaining === 0) break;
+          }
+
+          // Only overwrite local snapshot when queue is drained (avoid clobbering offline edits).
+          try {
+            setSyncMessage('Refreshing…');
+            const fresh = await refreshLocalFromRemote();
+            if (!isCancelled) setAppState(fresh);
+            setSyncStatus('idle');
+            setSyncMessage(null);
+          } catch (e) {
+            if (isCancelled) return;
+            setSyncStatus('error');
+            setSyncMessage('Offline mode (sync failed)');
+            setLoadError('Working offline. Database sync is currently unavailable.');
+          }
+        })();
 
       } catch (e) {
-        console.error("Failed to load data from API", e);
+        console.error("Failed to load local data", e);
         if (!isCancelled) {
-          setLoadError('Could not load farm data from the database. Loaded offline defaults instead.');
+          setLoadError('Could not load local farm data. Loaded defaults instead.');
           setAppState({
             crops: INITIAL_CROPS,
             trays: [],
-            transactions: MOCK_TRANSACTIONS ?? [],
+            transactions: [],
             customers: INITIAL_CUSTOMERS,
           });
         }
       } finally {
         if (!isCancelled) {
-          window.clearTimeout(hardTimeoutId);
           setLoadPhase('Done');
           setIsLoading(false);
         }
       }
     };
-    init();
+    initLocalFirst();
 
     return () => {
       isCancelled = true;
-      window.clearTimeout(hardTimeoutId);
     };
   }, [authStatus, loadAttempt]);
+
+  // --- Background sync loop ---
+  useEffect(() => {
+    if (authStatus !== 'admin') return;
+
+    let isCancelled = false;
+    let isRunning = false;
+
+    const run = async (reason: 'interval' | 'kick') => {
+      if (isCancelled || isRunning) return;
+      isRunning = true;
+      try {
+        setSyncStatus('syncing');
+        setSyncMessage(reason === 'kick' ? 'Syncing changes…' : 'Syncing…');
+
+        const result = await flushSyncQueueOnce();
+        if (!result.didSync) {
+          setSyncStatus('error');
+          setSyncMessage('Offline mode (sync failed)');
+          setLoadError('Working offline. Database sync is currently unavailable.');
+          return;
+        }
+
+        // If we actually pushed changes, refresh snapshot so other devices stay consistent.
+        if (result.processed > 0) {
+          setSyncMessage('Refreshing…');
+          const fresh = await refreshLocalFromRemote();
+          if (!isCancelled) setAppState(fresh);
+        }
+
+        setSyncStatus('idle');
+        setSyncMessage(null);
+      } catch (e) {
+        console.error('Background sync failed', e);
+        setSyncStatus('error');
+        setSyncMessage('Offline mode (sync failed)');
+      } finally {
+        isRunning = false;
+      }
+    };
+
+    // Initial kick (non-blocking)
+    run('kick');
+    const intervalId = window.setInterval(() => run('interval'), 15_000);
+    return () => {
+      isCancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [authStatus, syncKick]);
 
   // --- Handlers (Optimistic UI + API Calls) ---
 
@@ -146,7 +193,13 @@ const App: React.FC = () => {
     setAppState(prev => ({ ...prev, trays: [...prev.trays, ...newTrays] }));
     
     try {
-        await Promise.all(newTrays.map(t => api.saveTray(t)));
+      await Promise.all(
+        newTrays.map(async (t) => {
+          await upsertLocalEntity('trays', t);
+          await queueUpsert('trays', t);
+        })
+      );
+      setSyncKick((v) => v + 1);
     } catch (e) {
         console.error("Failed to save trays", e);
     }
@@ -176,7 +229,9 @@ const App: React.FC = () => {
 
     if (updatedTray) {
         try {
-            await api.saveTray(updatedTray);
+            await upsertLocalEntity('trays', updatedTray);
+            await queueUpsert('trays', updatedTray);
+            setSyncKick((v) => v + 1);
         } catch (e) {
             console.error("Failed to update tray stage", e);
         }
@@ -207,7 +262,13 @@ const App: React.FC = () => {
 
     if (updatedTrays.length > 0) {
         try {
-            await Promise.all(updatedTrays.map(t => api.saveTray(t)));
+            await Promise.all(
+              updatedTrays.map(async (t) => {
+                await upsertLocalEntity('trays', t);
+                await queueUpsert('trays', t);
+              })
+            );
+            setSyncKick((v) => v + 1);
         } catch (e) {
             console.error("Failed to bulk update trays", e);
         }
@@ -230,7 +291,9 @@ const App: React.FC = () => {
 
     if (fullUpdatedTray) {
         try {
-            await api.saveTray(fullUpdatedTray);
+            await upsertLocalEntity('trays', fullUpdatedTray);
+            await queueUpsert('trays', fullUpdatedTray);
+            setSyncKick((v) => v + 1);
         } catch (e) {
              console.error("Failed to update tray", e);
         }
@@ -241,7 +304,9 @@ const App: React.FC = () => {
     if (window.confirm("Are you sure you want to delete this tray?")) {
       setAppState(prev => ({ ...prev, trays: prev.trays.filter(t => t.id !== trayId) }));
       try {
-          await api.deleteTray(trayId);
+          await deleteLocalEntity('trays', trayId);
+          await queueDelete('trays', { id: trayId });
+          setSyncKick((v) => v + 1);
       } catch (e) {
           console.error("Failed to delete tray", e);
       }
@@ -252,8 +317,13 @@ const App: React.FC = () => {
     if (window.confirm(`Are you sure you want to delete ${trayIds.length} trays?`)) {
       setAppState(prev => ({ ...prev, trays: prev.trays.filter(t => !trayIds.includes(t.id)) }));
       try {
-          // Delete sequentially or parallel? Parallel is fine.
-          await Promise.all(trayIds.map(id => api.deleteTray(id)));
+          await Promise.all(
+            trayIds.map(async (id) => {
+              await deleteLocalEntity('trays', id);
+              await queueDelete('trays', { id });
+            })
+          );
+          setSyncKick((v) => v + 1);
       } catch (e) {
           console.error("Failed to bulk delete trays", e);
       }
@@ -269,7 +339,9 @@ const App: React.FC = () => {
     setAppState(prev => ({ ...prev, transactions: [...prev.transactions, newTx] }));
     
     try {
-        await api.saveTransaction(newTx);
+        await upsertLocalEntity('transactions', newTx);
+        await queueUpsert('transactions', newTx);
+        setSyncKick((v) => v + 1);
     } catch (e) {
         console.error("Failed to save transaction", e);
     }
@@ -278,7 +350,9 @@ const App: React.FC = () => {
   const handleUpdateTransaction = useCallback(async (updatedTx: Transaction) => {
     setAppState(prev => ({ ...prev, transactions: prev.transactions.map(t => t.id === updatedTx.id ? updatedTx : t) }));
     try {
-        await api.saveTransaction(updatedTx);
+        await upsertLocalEntity('transactions', updatedTx);
+        await queueUpsert('transactions', updatedTx);
+        setSyncKick((v) => v + 1);
     } catch (e) {
         console.error("Failed to update transaction", e);
     }
@@ -288,7 +362,9 @@ const App: React.FC = () => {
     if (window.confirm("Are you sure you want to delete this transaction record?")) {
       setAppState(prev => ({ ...prev, transactions: prev.transactions.filter(t => t.id !== txId) }));
       try {
-          await api.deleteTransaction(txId);
+          await deleteLocalEntity('transactions', txId);
+          await queueDelete('transactions', { id: txId });
+          setSyncKick((v) => v + 1);
       } catch (e) {
           console.error("Failed to delete transaction", e);
       }
@@ -299,7 +375,9 @@ const App: React.FC = () => {
     const newCustomer = { ...customer, id: Math.random().toString(36).substr(2, 9) };
     setAppState(prev => ({ ...prev, customers: [...prev.customers, newCustomer] }));
     try {
-        await api.saveCustomer(newCustomer);
+        await upsertLocalEntity('customers', newCustomer);
+        await queueUpsert('customers', newCustomer);
+        setSyncKick((v) => v + 1);
     } catch (e) {
         console.error("Failed to save customer", e);
     }
@@ -308,7 +386,9 @@ const App: React.FC = () => {
   const handleUpdateCustomer = useCallback(async (customer: Customer) => {
     setAppState(prev => ({ ...prev, customers: prev.customers.map(c => c.id === customer.id ? customer : c) }));
     try {
-        await api.saveCustomer(customer);
+        await upsertLocalEntity('customers', customer);
+        await queueUpsert('customers', customer);
+        setSyncKick((v) => v + 1);
     } catch (e) {
         console.error("Failed to update customer", e);
     }
@@ -318,7 +398,9 @@ const App: React.FC = () => {
     if (window.confirm("Are you sure you want to delete this customer?")) {
       setAppState(prev => ({ ...prev, customers: prev.customers.filter(c => c.id !== customerId) }));
       try {
-          await api.deleteCustomer(customerId);
+          await deleteLocalEntity('customers', customerId);
+          await queueDelete('customers', { id: customerId });
+          setSyncKick((v) => v + 1);
       } catch (e) {
           console.error("Failed to delete customer", e);
       }
@@ -328,7 +410,9 @@ const App: React.FC = () => {
   const handleAddCrop = useCallback(async (crop: CropType) => {
     setAppState(prev => ({ ...prev, crops: [...prev.crops, crop] }));
     try {
-        await api.saveCrop(crop);
+        await upsertLocalEntity('crops', crop);
+        await queueUpsert('crops', crop);
+        setSyncKick((v) => v + 1);
     } catch (e) {
         console.error("Failed to save crop", e);
     }
@@ -337,7 +421,9 @@ const App: React.FC = () => {
   const handleUpdateCrop = useCallback(async (updatedCrop: CropType) => {
     setAppState(prev => ({ ...prev, crops: prev.crops.map(c => c.id === updatedCrop.id ? updatedCrop : c) }));
     try {
-        await api.saveCrop(updatedCrop);
+        await upsertLocalEntity('crops', updatedCrop);
+        await queueUpsert('crops', updatedCrop);
+        setSyncKick((v) => v + 1);
     } catch (e) {
         console.error("Failed to update crop", e);
     }
@@ -347,7 +433,9 @@ const App: React.FC = () => {
     if (window.confirm("Are you sure you want to remove this crop?")) {
       setAppState(prev => ({ ...prev, crops: prev.crops.filter(c => c.id !== cropId) }));
       try {
-          await api.deleteCrop(cropId);
+          await deleteLocalEntity('crops', cropId);
+          await queueDelete('crops', { id: cropId });
+          setSyncKick((v) => v + 1);
       } catch (e) {
           console.error("Failed to delete crop", e);
       }
@@ -360,7 +448,21 @@ const App: React.FC = () => {
       // Pushing 1000 items is heavy. 
       // A "Restore" button should probably use the seed API.
       setAppState(newState);
-      alert("State loaded in memory. To persist, please use the Data Manager Restore function.");
+      try {
+        await saveState(newState);
+        // Queue upserts (best-effort); syncing happens in background.
+        await Promise.all([
+          ...newState.crops.map(async (c) => queueUpsert('crops', c)),
+          ...newState.trays.map(async (t) => queueUpsert('trays', t)),
+          ...newState.transactions.map(async (tx) => queueUpsert('transactions', tx)),
+          ...newState.customers.map(async (c) => queueUpsert('customers', c)),
+        ]);
+        setSyncKick((v) => v + 1);
+        alert("State loaded locally. Sync will push it to the database in the background.");
+      } catch (e) {
+        console.error('Failed to persist imported state locally', e);
+        alert("State loaded in memory, but failed to persist locally.");
+      }
   }, []);
   
   const handleResetState = useCallback(async () => {
@@ -465,6 +567,19 @@ const App: React.FC = () => {
         <div className="px-4 pt-4">
           <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900 text-sm font-semibold">
             {loadError}
+          </div>
+        </div>
+      )}
+      {syncMessage && (
+        <div className="px-4 pt-2">
+          <div
+            className={`rounded-2xl border px-4 py-2 text-xs font-bold ${
+              syncStatus === 'error'
+                ? 'border-red-200 bg-red-50 text-red-800'
+                : 'border-slate-200 bg-slate-50 text-slate-700'
+            }`}
+          >
+            {syncMessage}
           </div>
         </div>
       )}
