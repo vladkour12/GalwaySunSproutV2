@@ -14,7 +14,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLogout, alertCount = 0 }) => {
   const mainRef = useRef<HTMLElement | null>(null);
-  const navRef = useRef<HTMLElement | null>(null);
+  const dockRef = useRef<HTMLDivElement | null>(null);
   const [bottomPadPx, setBottomPadPx] = useState(0);
 
   // Ensure view changes don't preserve an old scroll offset (common after using Crops).
@@ -26,24 +26,31 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
 
   // Make bottom padding match the fixed dock height (prevents excessive blank scroll space).
   useEffect(() => {
-    const navEl = navRef.current;
-    if (!navEl) return;
+    const dockEl = dockRef.current;
+    if (!dockEl) return;
 
     const BASE_GUTTER_PX = 24; // corresponds to `bottom-6`
+    const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 
     const measure = () => {
-      const rect = navEl.getBoundingClientRect();
+      const rect = dockEl.getBoundingClientRect();
       // Height of dock + its bottom gutter, plus a small buffer.
-      const next = Math.max(0, Math.ceil(rect.height + BASE_GUTTER_PX + 8));
-      setBottomPadPx(next);
+      const next = Math.ceil(rect.height + BASE_GUTTER_PX + 8);
+      // Defensive clamp: prevents weird mobile layout bugs from creating huge empty space.
+      setBottomPadPx(clamp(next, 72, 160));
     };
 
     measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(navEl);
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    ro?.observe(dockEl);
     window.addEventListener('resize', measure);
+
+    // Fallback for browsers where layout settles late (mobile).
+    const settleId = window.setTimeout(measure, 250);
+
     return () => {
-      ro.disconnect();
+      window.clearTimeout(settleId);
+      ro?.disconnect();
       window.removeEventListener('resize', measure);
     };
   }, []);
@@ -104,8 +111,11 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
       </main>
 
       {/* Bottom Navigation - Modern Animated Dock */}
-      <nav ref={navRef} className="fixed bottom-6 left-6 right-6 z-50">
-        <div className="max-w-md mx-auto bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-2xl shadow-slate-900/50 p-2 flex justify-between items-center">
+      <nav className="fixed bottom-6 left-6 right-6 z-50">
+        <div
+          ref={dockRef}
+          className="max-w-md mx-auto bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-2xl shadow-slate-900/50 p-2 flex justify-between items-center"
+        >
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentView === item.id;
