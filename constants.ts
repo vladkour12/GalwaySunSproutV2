@@ -36,7 +36,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 15.00,
     color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     summary: 'Mild, fresh taste. High in vitamins.',
-    imageUrl: 'https://images.unsplash.com/photo-1596791242385-055f654b9d03?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1556786513-39322eb67e6c?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'amaranth',
@@ -198,7 +198,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 29.00,
     color: 'bg-green-100 text-green-800 border-green-200',
     summary: 'Sweet, savory, grassy lemon notes.',
-    imageUrl: 'https://images.unsplash.com/photo-1628186173070-d9d116c49987?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1523986390376-de784e86396d?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'fenugreek',
@@ -216,7 +216,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 30.00,
     color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     summary: 'Curry, garam masala taste.',
-    imageUrl: 'https://images.unsplash.com/photo-1628186172775-4d045231c26e?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'kale',
@@ -234,7 +234,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 40.00,
     color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     summary: 'Bitter, sweet taste. Purple stems.',
-    imageUrl: 'https://images.unsplash.com/photo-1599940824399-b87987ced72a?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1524179091875-bf99a9a6af57?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'kohlrabi',
