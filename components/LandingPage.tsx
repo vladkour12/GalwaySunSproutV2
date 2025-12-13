@@ -118,112 +118,72 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-6 overflow-hidden z-10 min-h-screen flex items-center">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
           
-          {/* Left Content */}
-          <div className="space-y-8 relative z-10">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-emerald-100 rounded-full pl-2 pr-4 py-1.5 shadow-sm hover:shadow-md transition-shadow cursor-default"
-            >
-              <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">Fresh</span>
-              <span className="text-sm font-medium text-slate-600">Harvesting every week</span>
-            </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-emerald-100 rounded-full pl-2 pr-4 py-1.5 shadow-sm hover:shadow-md transition-shadow cursor-default mb-8"
+          >
+            <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">Fresh</span>
+            <span className="text-sm font-medium text-slate-600">Harvesting every week</span>
+          </motion.div>
 
-            <motion.h1 
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-6xl md:text-8xl font-bold tracking-tighter text-slate-900 leading-[0.95]"
-            >
-              Small Scale.<br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-emerald-500 to-teal-600 bg-[length:200%_auto] animate-gradient">
-                Big Flavor.
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-slate-900 leading-[0.95] mb-8"
+          >
+            Small Scale.<br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-emerald-500 to-teal-600 bg-[length:200%_auto] animate-gradient">
+              Big Flavor.
+            </span>
+          </motion.h1>
+
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-xl md:text-2xl text-slate-600 max-w-2xl leading-relaxed mb-12"
+          >
+            Galway's premium urban microgreens farm. We grow nutrient-dense superfoods in a precision tray-based system, delivered fresh to local chefs and households.
+          </motion.p>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="flex flex-wrap justify-center gap-4"
+          >
+            <a href="mailto:hello@galwaysunsprouts.com" className="group relative px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold overflow-hidden shadow-xl shadow-slate-900/20 hover:shadow-2xl hover:shadow-slate-900/30 transition-all hover:-translate-y-1">
+              <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+              <span className="relative flex items-center gap-2">
+                <Mail className="w-5 h-5" />
+                Get in Touch
               </span>
-            </motion.h1>
+            </a>
+            <a href="#" className="px-8 py-4 bg-white/50 backdrop-blur-sm text-slate-700 border border-slate-200 rounded-2xl font-bold hover:bg-white/80 transition-all hover:border-slate-300 flex items-center gap-2 group">
+              <Instagram className="w-5 h-5 text-pink-600 group-hover:scale-110 transition-transform" />
+              Follow Us
+            </a>
+          </motion.div>
 
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-xl text-slate-600 max-w-lg leading-relaxed"
-            >
-              Galway's premium urban microgreens farm. We grow nutrient-dense superfoods in a precision tray-based system, delivered fresh to local chefs and households.
-            </motion.p>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="flex flex-wrap gap-4"
-            >
-              <a href="mailto:hello@galwaysunsprouts.com" className="group relative px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold overflow-hidden shadow-xl shadow-slate-900/20 hover:shadow-2xl hover:shadow-slate-900/30 transition-all hover:-translate-y-1">
-                <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-                <span className="relative flex items-center gap-2">
-                  <Mail className="w-5 h-5" />
-                  Get in Touch
-                </span>
-              </a>
-              <a href="#" className="px-8 py-4 bg-white/50 backdrop-blur-sm text-slate-700 border border-slate-200 rounded-2xl font-bold hover:bg-white/80 transition-all hover:border-slate-300 flex items-center gap-2 group">
-                <Instagram className="w-5 h-5 text-pink-600 group-hover:scale-110 transition-transform" />
-                Follow Us
-              </a>
-            </motion.div>
-          </div>
-
-          {/* Right Visual - Parallax Cards (Desktop) & Mobile Hero Image */}
-          <div className="relative">
-             {/* Desktop Parallax - hidden on mobile, visible on lg */}
-             <motion.div style={{ y }} className="relative h-[600px] hidden lg:block">
-               {/* Card 1: Main Image */}
-               <motion.div 
-                 initial={{ opacity: 0, rotate: 6, scale: 0.9 }}
-                 animate={{ opacity: 1, rotate: 3, scale: 1 }}
-                 transition={{ delay: 0.4, duration: 0.8 }}
-                 className="absolute top-10 right-10 w-96 h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-teal-900/20 border-[8px] border-white z-10"
-               >
-                  <img src="https://images.unsplash.com/photo-1536636730397-5b62b083c74c?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700" alt="Microgreens" crossOrigin="anonymous" />
-                  {/* Glass card overlay instead of full gradient */}
-                  <div className="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-3xl">
-                    <p className="text-xs font-bold text-teal-300 uppercase tracking-widest mb-1">Variety</p>
-                    <h3 className="text-2xl font-bold text-white">Sunflower Shoots</h3>
-                  </div>
-               </motion.div>
-               
-               {/* Card 3: Location */}
-                <motion.div 
-                 initial={{ opacity: 0, scale: 0.5 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 transition={{ delay: 1, duration: 0.5 }}
-                 className="absolute bottom-20 left-0 bg-slate-900 text-white p-6 rounded-3xl shadow-xl z-30"
-               >
-                  <div className="flex items-center gap-3">
-                    <MapPin className="w-5 h-5 text-teal-400" />
-                    <div>
-                       <p className="text-xs font-bold text-slate-400 uppercase">Location</p>
-                       <p className="font-bold">Galway City, IE</p>
-                    </div>
-                  </div>
-               </motion.div>
-             </motion.div>
-
-             {/* Mobile Hero Image - Visible only on small screens */}
-             <motion.div 
-               initial={{ opacity: 0, y: 20 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ delay: 0.6 }}
-               className="block lg:hidden w-full aspect-square rounded-[2rem] overflow-hidden shadow-xl border-4 border-white relative mt-8"
-             >
-                <img src="https://images.unsplash.com/photo-1536636730397-5b62b083c74c?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover" alt="Microgreens" crossOrigin="anonymous" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-6 left-6 text-white">
-                   <h3 className="text-2xl font-bold">Sunflower Shoots</h3>
-                   <p className="text-sm opacity-90">Grown locally in Galway</p>
-                </div>
-             </motion.div>
-          </div>
+          {/* Mobile Hero Image - Visible only on small screens */}
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="w-full max-w-lg aspect-square rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white relative mt-16 lg:hidden"
+          >
+            <img src="https://images.unsplash.com/photo-1536636730397-5b62b083c74c?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover" alt="Microgreens" crossOrigin="anonymous" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            <div className="absolute bottom-6 left-6 text-white text-left">
+                <h3 className="text-2xl font-bold">Sunflower Shoots</h3>
+                <p className="text-sm opacity-90">Grown locally in Galway</p>
+            </div>
+          </motion.div>
         </div>
       </section>
 
