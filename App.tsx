@@ -24,6 +24,7 @@ const App: React.FC = () => {
   // --- App State Management ---
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   
   const [appState, setAppState] = useState<AppState>({
     crops: [],
@@ -34,7 +35,14 @@ const App: React.FC = () => {
 
   // --- Initial Load from API ---
   useEffect(() => {
+    if (authStatus !== 'admin') return;
+
+    let isCancelled = false;
+
     const init = async () => {
+      setIsLoading(true);
+      setLoadError(null);
+
       try {
         // Ensure DB is setup
         await api.setup();
@@ -67,15 +75,24 @@ const App: React.FC = () => {
 
       } catch (e) {
         console.error("Failed to load data from API", e);
-        // Fallback to constants for critical data if API fails completely? 
-        // Or show error.
+        if (!isCancelled) {
+          setLoadError('Could not load farm data from the database. Loaded offline defaults instead.');
+          setAppState({
+            crops: INITIAL_CROPS,
+            trays: [],
+            transactions: MOCK_TRANSACTIONS ?? [],
+            customers: INITIAL_CUSTOMERS,
+          });
+        }
       } finally {
-        setIsLoading(false);
+        if (!isCancelled) setIsLoading(false);
       }
     };
-    if (authStatus === 'admin') {
-        init();
-    }
+    init();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [authStatus]);
 
   // --- Handlers (Optimistic UI + API Calls) ---
@@ -386,6 +403,13 @@ const App: React.FC = () => {
 
   return (
     <Layout currentView={currentView} onNavigate={setCurrentView} onLogout={() => setAuthStatus('landing')} alertCount={alertCount}>
+      {loadError && (
+        <div className="px-4 pt-4">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900 text-sm font-semibold">
+            {loadError}
+          </div>
+        </div>
+      )}
       <NotificationManager alerts={alerts} />
       <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => setCurrentView('dashboard')}>
         {renderView()}
