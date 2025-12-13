@@ -40,6 +40,14 @@ const COLOR_OPTIONS = [
 
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+const safeDayName = (dayIndex: number) => {
+  if (!Number.isFinite(dayIndex)) return 'Unknown';
+  const idx = Math.trunc(dayIndex);
+  return DAYS_OF_WEEK[idx] ?? 'Unknown';
+};
+
+const abbrDay = (dayName: string) => (typeof dayName === 'string' && dayName.length >= 3 ? dayName.substring(0, 3) : '---');
+
 const getStageColor = (stage: Stage) => {
   switch (stage) {
     case Stage.SEED: return 'bg-slate-100 text-slate-600';
@@ -223,67 +231,69 @@ const CropManager: React.FC<CropManagerProps> = ({
   // --- Calculations for Planners ---
 
   const eventSchedule = useMemo(() => {
-     if (!plannerCropId || !plannerDate) return null;
-     const crop = state.crops.find(c => c.id === plannerCropId);
-     if (!crop) return null;
+     try {
+       if (!plannerCropId || !plannerDate) return null;
+       const crop = state.crops.find(c => c.id === plannerCropId);
+       if (!crop) return null;
 
-     const target = new Date(plannerDate);
-     if (isNaN(target.getTime())) return null;
+       const target = new Date(plannerDate);
+       if (isNaN(target.getTime())) return null;
 
-     const totalDays = (crop.germinationDays || 0) + (crop.blackoutDays || 0) + (crop.lightDays || 0);
-     
-     // Plant Date = Target - Total Days
-     const plantDate = new Date(target);
-     plantDate.setDate(target.getDate() - totalDays);
-     
-     const germEnd = new Date(plantDate);
-     germEnd.setDate(plantDate.getDate() + (crop.germinationDays || 0));
-     
-     const blackoutEnd = new Date(germEnd);
-     blackoutEnd.setDate(germEnd.getDate() + (crop.blackoutDays || 0));
-     
-     return { crop, plantDate, germEnd, blackoutEnd, harvestDate: target };
+       const totalDays = (crop.germinationDays || 0) + (crop.blackoutDays || 0) + (crop.lightDays || 0);
+       
+       // Plant Date = Target - Total Days
+       const plantDate = new Date(target);
+       plantDate.setDate(target.getDate() - totalDays);
+       
+       const germEnd = new Date(plantDate);
+       germEnd.setDate(plantDate.getDate() + (crop.germinationDays || 0));
+       
+       const blackoutEnd = new Date(germEnd);
+       blackoutEnd.setDate(germEnd.getDate() + (crop.blackoutDays || 0));
+       
+       return { crop, plantDate, germEnd, blackoutEnd, harvestDate: target };
+     } catch (e) {
+       console.error('Planner (event) crashed', e);
+       return null;
+     }
   }, [plannerCropId, plannerDate, state.crops]);
 
   const recurringSchedule = useMemo(() => {
-    if (!recurringCropId || !recurringTargetAmount) return null;
-    const crop = state.crops.find(c => c.id === recurringCropId);
-    if (!crop) return null;
-    
-    const target = parseInt(recurringTargetAmount);
-    if (isNaN(target) || target <= 0) return null;
+    try {
+      if (!recurringCropId || !recurringTargetAmount) return null;
+      const crop = state.crops.find(c => c.id === recurringCropId);
+      if (!crop) return null;
+      
+      const target = parseInt(recurringTargetAmount);
+      if (isNaN(target) || target <= 0) return null;
 
-    const yieldPerTray = crop.estimatedYieldPerTray || 1;
-    const traysNeeded = Math.ceil(target / yieldPerTray);
-    const totalGrowingDays = (crop.germinationDays || 0) + (crop.blackoutDays || 0) + (crop.lightDays || 0);
-    
-    // Calculate Plant Day Index (0-6)
-    // Handle potential negative result from modulo operator correctly
-    const plantDayIndex = (recurringHarvestDay - (totalGrowingDays % 7) + 7) % 7;
-    
-    // --- New Calculations ---
-    // 1. Weekly Seed Usage
-    const weeklySeedGrams = traysNeeded * (crop.seedingRate || 0);
-    
-    // 2. Weekly Seed Cost (Best Price Logic: 1kg -> 500g -> fallback)
-    let seedCost = 0;
-    if (crop.price1kg) seedCost = (weeklySeedGrams / 1000) * crop.price1kg;
-    else if (crop.price500g) seedCost = (weeklySeedGrams / 500) * crop.price500g;
-    
-    // 3. Weekly Revenue
-    const weeklyRevenue = (target / 100) * (crop.revenuePer100g || 6.00);
+      const yieldPerTray = crop.estimatedYieldPerTray || 1;
+      const traysNeeded = Math.ceil(target / yieldPerTray);
+      const totalGrowingDays = (crop.germinationDays || 0) + (crop.blackoutDays || 0) + (crop.lightDays || 0);
+      
+      // Calculate Plant Day Index (0-6)
+      const plantDayIndex = (Math.trunc(recurringHarvestDay) - (Math.trunc(totalGrowingDays) % 7) + 7) % 7;
+      
+      // --- New Calculations ---
+      // 1. Weekly Seed Usage
+      const weeklySeedGrams = traysNeeded * (crop.seedingRate || 0);
+      
+      // 2. Weekly Seed Cost (Best Price Logic: 1kg -> 500g -> fallback)
+      let seedCost = 0;
+      if (crop.price1kg) seedCost = (weeklySeedGrams / 1000) * crop.price1kg;
+      else if (crop.price500g) seedCost = (weeklySeedGrams / 500) * crop.price500g;
+      
+      // 3. Weekly Revenue
+      const weeklyRevenue = (target / 100) * (crop.revenuePer100g || 6.00);
 
-    // 4. Shelf Capacity Used (Peak Active Trays under lights)
-    // Since we plant in weekly batches, we need to handle the overlap.
-    // e.g., if Light Stage is 8 days, for 1 day a week we have 2 batches under lights.
-    // We must plan for that peak usage (2 batches), not the average.
-    const lightBatches = Math.ceil((crop.lightDays || 0) / 7); 
-    const shelfSpace = lightBatches * traysNeeded;
+      // 4. Shelf Capacity Used (Peak Active Trays under lights)
+      const lightBatches = Math.ceil((crop.lightDays || 0) / 7); 
+      const shelfSpace = lightBatches * traysNeeded;
 
-    // 5. Schedule Flow
-    const plantDayName = DAYS_OF_WEEK[plantDayIndex];
-    const blackoutStartDayIndex = (plantDayIndex + (crop.germinationDays || 0)) % 7;
-    const lightStartDayIndex = (blackoutStartDayIndex + (crop.blackoutDays || 0)) % 7;
+      // 5. Schedule Flow
+      const plantDayName = safeDayName(plantDayIndex);
+      const blackoutStartDayIndex = (plantDayIndex + Math.trunc(crop.germinationDays || 0)) % 7;
+      const lightStartDayIndex = (blackoutStartDayIndex + Math.trunc(crop.blackoutDays || 0)) % 7;
 
     // 6. Upcoming Schedule (Calendar Dates)
     const today = new Date();
@@ -302,70 +312,75 @@ const CropManager: React.FC<CropManagerProps> = ({
         upcomingDates.push(d);
     }
 
-    return {
-      crop,
-      traysNeeded,
-      yieldPerTray,
-      plantDayName,
-      harvestDayName: DAYS_OF_WEEK[recurringHarvestDay] || 'Unknown',
-      totalGrowingDays,
-      weeklySeedGrams,
-      seedCost,
-      weeklyRevenue,
-      shelfSpace,
-      lightBatches,
-      upcomingDates,
-      timeline: {
+      return {
+        crop,
+        traysNeeded,
+        yieldPerTray,
+        plantDayName,
+        harvestDayName: safeDayName(recurringHarvestDay),
+        totalGrowingDays,
+        weeklySeedGrams,
+        seedCost,
+        weeklyRevenue,
+        shelfSpace,
+        lightBatches,
+        upcomingDates,
+        timeline: {
           plant: plantDayName,
-          blackout: DAYS_OF_WEEK[blackoutStartDayIndex],
-          light: DAYS_OF_WEEK[lightStartDayIndex],
-          harvest: DAYS_OF_WEEK[recurringHarvestDay]
-      }
-    };
+          blackout: safeDayName(blackoutStartDayIndex),
+          light: safeDayName(lightStartDayIndex),
+          harvest: safeDayName(recurringHarvestDay),
+        },
+      };
+    } catch (e) {
+      console.error('Planner (recurring) crashed', e);
+      return null;
+    }
   }, [recurringCropId, recurringTargetAmount, recurringHarvestDay, state.crops]);
 
   // --- Calendar Data Generation ---
   const calendarDays = useMemo(() => {
-      const days = [];
-      const today = new Date();
-  
-      for (let i = 0; i < 7; i++) {
-        const currentDay = new Date(today);
-        currentDay.setDate(today.getDate() + i);
-        const dayOfWeek = currentDay.getDay(); // 0-6
-  
-        const tasks: { type: string, text: string, sub?: string, icon: any, color: string, trayId?: string, estYield?: number }[] = [];
-  
-        // 0. Overdue / Action Needed (Only for Today) - Sync with Dashboard Alerts
-      if (i === 0) {
-         const alerts = getFarmAlerts(state);
-         alerts.forEach(alert => {
-            let icon = AlertCircle;
-            let color = "text-red-600 bg-red-50";
-            let type = 'alert'; // Default to alert style
-            
-            if (alert.type === 'urgent') {
-               icon = AlertCircle;
-               color = "text-red-600 bg-red-50";
-            } else if (alert.type === 'warning') {
-               icon = AlertCircle;
-               color = "text-amber-600 bg-amber-50"; 
-            } else if (alert.type === 'routine') {
-               icon = Droplet;
-               color = "text-blue-500 bg-blue-50";
-               type = 'routine';
-            }
+      try {
+        const days = [];
+        const today = new Date();
+    
+        for (let i = 0; i < 7; i++) {
+          const currentDay = new Date(today);
+          currentDay.setDate(today.getDate() + i);
+          const dayOfWeek = currentDay.getDay(); // 0-6
+    
+          const tasks: { type: string, text: string, sub?: string, icon: any, color: string, trayId?: string, estYield?: number }[] = [];
+    
+          // 0. Overdue / Action Needed (Only for Today) - Sync with Dashboard Alerts
+          if (i === 0) {
+            const alerts = getFarmAlerts(state);
+            alerts.forEach(alert => {
+              let icon = AlertCircle;
+              let color = "text-red-600 bg-red-50";
+              let type = 'alert'; // Default to alert style
+              
+              if (alert.type === 'urgent') {
+                icon = AlertCircle;
+                color = "text-red-600 bg-red-50";
+              } else if (alert.type === 'warning') {
+                icon = AlertCircle;
+                color = "text-amber-600 bg-amber-50"; 
+              } else if (alert.type === 'routine') {
+                icon = Droplet;
+                color = "text-blue-500 bg-blue-50";
+                type = 'routine';
+              }
 
-            tasks.push({
-               type: type,
-               text: alert.title,
-               sub: alert.message,
-               icon: icon,
-               color: color,
-               trayId: alert.trayId
+              tasks.push({
+                type: type,
+                text: alert.title,
+                sub: alert.message,
+                icon: icon,
+                color: color,
+                trayId: alert.trayId
+              });
             });
-         });
-      }
+          }
 
       // 1. Existing Tasks from Active Trays
       
@@ -459,9 +474,13 @@ const CropManager: React.FC<CropManagerProps> = ({
       // Future days don't show generic routines to keep calendar clean.
 
 
-      days.push({ date: currentDay, dayOfWeek, tasks });
-    }
-    return days;
+          days.push({ date: currentDay, dayOfWeek, tasks });
+        }
+        return days;
+      } catch (e) {
+        console.error('Calendar generation crashed', e);
+        return [];
+      }
   }, [activeTrays, recurringOrders, state.crops, state.customers]);
 
 
@@ -1068,19 +1087,19 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  <div className="grid grid-cols-4 gap-2 text-center">
                                     <div className="bg-slate-50 rounded-lg p-2 border border-slate-100">
                                        <span className="block text-[10px] text-slate-400 uppercase font-bold">Plant</span>
-                                       <span className="text-xs font-bold text-indigo-600">{recurringSchedule.timeline.plant.substring(0,3)}</span>
+                                       <span className="text-xs font-bold text-indigo-600">{abbrDay(recurringSchedule.timeline.plant)}</span>
                                     </div>
                                     <div className="bg-slate-50 rounded-lg p-2 border border-slate-100">
                                        <span className="block text-[10px] text-slate-400 uppercase font-bold">Dark</span>
-                                       <span className="text-xs font-bold text-slate-700">{recurringSchedule.timeline.blackout.substring(0,3)}</span>
+                                       <span className="text-xs font-bold text-slate-700">{abbrDay(recurringSchedule.timeline.blackout)}</span>
                                     </div>
                                     <div className="bg-slate-50 rounded-lg p-2 border border-slate-100">
                                        <span className="block text-[10px] text-slate-400 uppercase font-bold">Light</span>
-                                       <span className="text-xs font-bold text-amber-500">{recurringSchedule.timeline.light.substring(0,3)}</span>
+                                       <span className="text-xs font-bold text-amber-500">{abbrDay(recurringSchedule.timeline.light)}</span>
                                     </div>
                                     <div className="bg-slate-50 rounded-lg p-2 border border-slate-100">
                                        <span className="block text-[10px] text-slate-400 uppercase font-bold">Cut</span>
-                                       <span className="text-xs font-bold text-teal-600">{recurringSchedule.timeline.harvest.substring(0,3)}</span>
+                                       <span className="text-xs font-bold text-teal-600">{abbrDay(recurringSchedule.timeline.harvest)}</span>
                                     </div>
                                  </div>
                               </div>
