@@ -734,7 +734,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                                     ]}
                                  />
                               </div>
-                              <input type="number" placeholder="g" value={newOrderAmount} onChange={e => setNewOrderAmount(e.target.value)} className="flex-1 p-2 bg-slate-50 border border-slate-100 rounded-xl font-bold text-slate-700 outline-none" />
+                              <input type="number" placeholder="g" value={newOrderAmount} onChange={e => setNewOrderAmount(e.target.value)} className="flex-1 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-700 outline-none" />
                            </div>
                            <CustomSelect 
                               value={newOrderDay}
@@ -998,7 +998,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                                 value={recurringTargetAmount} 
                                 onChange={(e) => setRecurringTargetAmount(e.target.value)}
                                 placeholder="e.g. 1000"
-                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl font-bold text-slate-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                              />
                            </div>
                            <div className="flex-1">
@@ -1179,11 +1179,11 @@ const CropManager: React.FC<CropManagerProps> = ({
                   <div className="flex gap-4">
                      <div className="flex-1">
                         <label className="text-xs font-bold text-slate-400 uppercase">Location</label>
-                        <input type="text" value={plantLocation} onChange={e => setPlantLocation(e.target.value)} placeholder="Shelf 1" className="w-full mt-1 p-3 bg-slate-50 rounded-xl font-bold outline-none border border-slate-100" />
+                        <input type="text" value={plantLocation} onChange={e => setPlantLocation(e.target.value)} placeholder="Shelf 1" className="w-full mt-1 p-3 bg-slate-50 rounded-xl text-base font-bold outline-none border border-slate-100" />
                      </div>
                      <div className="w-24">
                         <label className="text-xs font-bold text-slate-400 uppercase">Count</label>
-                        <input type="number" value={plantCount} onChange={e => setPlantCount(parseInt(e.target.value)||1)} className="w-full mt-1 p-3 bg-slate-50 rounded-xl font-bold outline-none border border-slate-100 text-center" />
+                        <input type="number" value={plantCount} onChange={e => setPlantCount(parseInt(e.target.value)||1)} className="w-full mt-1 p-3 bg-slate-50 rounded-xl text-base font-bold outline-none border border-slate-100 text-center" />
                      </div>
                   </div>
                   
@@ -1246,7 +1246,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                   {/* Primary Action */}
                   {selectedTray.stage === Stage.HARVEST_READY ? (
                      <div className="space-y-2">
-                        <input type="number" value={yieldInput} onChange={e => setYieldInput(e.target.value)} placeholder="Yield Weight (g)" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl font-bold text-center outline-none focus:ring-2 focus:ring-teal-500" />
+                        <input type="number" value={yieldInput} onChange={e => setYieldInput(e.target.value)} placeholder="Yield Weight (g)" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-center outline-none focus:ring-2 focus:ring-teal-500" />
                         <button onClick={harvestTray} className="w-full py-4 bg-teal-600 text-white font-bold rounded-xl shadow-lg shadow-teal-200 flex items-center justify-center">
                            <Archive className="w-5 h-5 mr-2" /> Complete Harvest
                         </button>
@@ -1402,7 +1402,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                         
                         <div>
                            <label className="text-[10px] font-bold uppercase text-slate-400">Name</label>
-                           <input type="text" value={selectedCrop.name} onChange={e => setSelectedCrop({...selectedCrop, name: e.target.value})} placeholder="Crop Name" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl font-bold" />
+                           <input type="text" value={selectedCrop.name} onChange={e => setSelectedCrop({...selectedCrop, name: e.target.value})} placeholder="Crop Name" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
                         </div>
                         
                         <div className="grid grid-cols-2 gap-3">
@@ -1410,12 +1410,12 @@ const CropManager: React.FC<CropManagerProps> = ({
                               <label className="text-[10px] font-bold uppercase text-slate-400">Seed Rate (g)</label>
                               <div className="relative">
                                  <Scale className="w-3 h-3 absolute left-3 top-3.5 text-slate-400" />
-                                 <input type="number" value={selectedCrop.seedingRate} onChange={e => setSelectedCrop({...selectedCrop, seedingRate: parseInt(e.target.value)})} className="w-full pl-8 p-3 bg-slate-50 border border-slate-100 rounded-xl font-bold" />
+                                 <input type="number" value={selectedCrop.seedingRate} onChange={e => setSelectedCrop({...selectedCrop, seedingRate: parseInt(e.target.value)})} className="w-full pl-8 p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
                               </div>
                            </div>
                            <div>
                               <label className="text-[10px] font-bold uppercase text-slate-400">Est Yield (g)</label>
-                              <input type="number" value={selectedCrop.estimatedYieldPerTray} onChange={e => setSelectedCrop({...selectedCrop, estimatedYieldPerTray: parseInt(e.target.value)})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl font-bold" />
+                              <input type="number" value={selectedCrop.estimatedYieldPerTray} onChange={e => setSelectedCrop({...selectedCrop, estimatedYieldPerTray: parseInt(e.target.value)})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
                            </div>
                         </div>
 
@@ -1424,14 +1424,14 @@ const CropManager: React.FC<CropManagerProps> = ({
                               <label className="text-[10px] font-bold uppercase text-slate-400">Price 500g (€)</label>
                               <div className="relative">
                                  <span className="absolute left-3 top-3.5 text-xs font-bold text-slate-400">€</span>
-                                 <input type="number" step="0.01" value={selectedCrop.price500g || ''} onChange={e => setSelectedCrop({...selectedCrop, price500g: parseFloat(e.target.value)})} className="w-full pl-7 p-3 bg-slate-50 border border-slate-100 rounded-xl font-bold" />
+                                 <input type="number" step="0.01" value={selectedCrop.price500g || ''} onChange={e => setSelectedCrop({...selectedCrop, price500g: parseFloat(e.target.value)})} className="w-full pl-7 p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
                               </div>
                            </div>
                            <div>
                               <label className="text-[10px] font-bold uppercase text-slate-400">Price 1kg (€)</label>
                               <div className="relative">
                                  <span className="absolute left-3 top-3.5 text-xs font-bold text-slate-400">€</span>
-                                 <input type="number" step="0.01" value={selectedCrop.price1kg || ''} onChange={e => setSelectedCrop({...selectedCrop, price1kg: parseFloat(e.target.value)})} className="w-full pl-7 p-3 bg-slate-50 border border-slate-100 rounded-xl font-bold" />
+                                 <input type="number" step="0.01" value={selectedCrop.price1kg || ''} onChange={e => setSelectedCrop({...selectedCrop, price1kg: parseFloat(e.target.value)})} className="w-full pl-7 p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
                               </div>
                            </div>
                         </div>

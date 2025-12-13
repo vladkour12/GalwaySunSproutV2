@@ -180,7 +180,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
         {/* Metric 1: Active Trays */}
         <motion.div 
           variants={item}
-          className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:border-teal-200 transition-colors"
+          className="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:border-teal-200 transition-colors"
           onClick={() => onNavigate('crops')}
           whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
           whileTap={{ scale: 0.98 }}
@@ -194,7 +194,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
             </div>
           </div>
           <div className="mt-4 z-10">
-            <h3 className="text-3xl font-bold text-slate-800 tracking-tight">{activeTrays.length}</h3>
+            <h3 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">{activeTrays.length}</h3>
             <p className="text-sm font-medium text-slate-500">Active Trays</p>
           </div>
         </motion.div>
@@ -202,7 +202,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
         {/* Metric 2: Harvest Ready */}
         <motion.div 
           variants={item}
-          className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between cursor-pointer hover:border-amber-200 transition-colors group relative overflow-hidden"
+          className="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between cursor-pointer hover:border-amber-200 transition-colors group relative overflow-hidden"
           onClick={() => onNavigate('crops')}
           whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
           whileTap={{ scale: 0.98 }}
@@ -222,7 +222,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
             )}
           </div>
           <div className="mt-4 z-10">
-            <h3 className="text-3xl font-bold text-slate-800 tracking-tight">{readyToHarvest.length}</h3>
+            <h3 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">{readyToHarvest.length}</h3>
             <p className="text-sm font-medium text-slate-500">Ready to Cut</p>
           </div>
         </motion.div>
@@ -230,7 +230,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
         {/* Metric 3: Revenue Breakdown */}
         <motion.div 
           variants={item}
-          className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-3xl shadow-xl shadow-slate-200 col-span-2 relative overflow-hidden"
+          className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 sm:p-5 rounded-3xl shadow-xl shadow-slate-200 col-span-2 relative overflow-hidden"
           whileHover={{ scale: 1.01 }}
         >
            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
@@ -241,7 +241,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
               <div className="flex justify-between items-start">
                  <div>
                     <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Potential Value</p>
-                    <h3 className="text-3xl font-bold text-white tracking-tight">€{financialStats.total.toFixed(2)}</h3>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">€{financialStats.total.toFixed(2)}</h3>
                  </div>
                  <div className="p-2 bg-white/10 backdrop-blur-md rounded-xl text-teal-400">
                     <ArrowUpRight className="w-5 h-5" />

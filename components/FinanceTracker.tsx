@@ -225,7 +225,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                </div>
                <div className="space-y-4">
                   <div className="relative"><span className="absolute left-4 top-3.5 text-slate-400 font-medium">€</span><input type="number" value={amount} onChange={e => setAmount(e.target.value)} onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()} className="w-full pl-8 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-lg font-bold text-slate-800 focus:ring-2 focus:ring-teal-100 placeholder:text-slate-300 transition-all" placeholder="0.00" required /></div>
-                  {editingTx && ( <div className="relative"><Calendar className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" /><input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-teal-100 outline-none" /></div> )}
+                  {editingTx && ( <div className="relative"><Calendar className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" /><input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-base font-bold text-slate-700 focus:ring-2 focus:ring-teal-100 outline-none" /></div> )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <div className="relative">
                        {type === 'income' && <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] text-teal-600 font-bold z-10">Sales Channel</label>}
@@ -266,10 +266,10 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                           />
                        </div>
                      ) : (
-                        <div className="relative"><input type="text" value={payee} onChange={e => setPayee(e.target.value)} list="payee-suggestions" placeholder="Payee / Vendor" className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-teal-100 outline-none" /><datalist id="payee-suggestions">{payeeSuggestions.map((p, i) => <option key={i} value={p} />)}</datalist></div>
+                        <div className="relative"><input type="text" value={payee} onChange={e => setPayee(e.target.value)} list="payee-suggestions" placeholder="Payee / Vendor" className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-base font-medium text-slate-700 focus:ring-2 focus:ring-teal-100 outline-none" /><datalist id="payee-suggestions">{payeeSuggestions.map((p, i) => <option key={i} value={p} />)}</datalist></div>
                      )}
                   </div>
-                  <input type="text" value={description} onChange={e => setDescription(e.target.value)} className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-teal-100 placeholder:text-slate-300 outline-none" placeholder="Description (e.g. Weekly Farmers Market)" />
+                  <input type="text" value={description} onChange={e => setDescription(e.target.value)} className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-base font-medium text-slate-700 focus:ring-2 focus:ring-teal-100 placeholder:text-slate-300 outline-none" placeholder="Description (e.g. Weekly Farmers Market)" />
                </div>
                <div className="pt-2 flex gap-3">
                   <button type="button" onClick={() => { setShowTxForm(false); resetForm(); }} className="flex-1 py-3.5 rounded-2xl border border-slate-200 text-slate-500 font-bold hover:bg-slate-50 transition-colors">Cancel</button>
@@ -286,17 +286,17 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
           </motion.div>
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 h-64">
+             <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
                 <h4 className="text-sm font-bold text-slate-800 mb-4">Cash Flow (Last 7 Days)</h4>
-                <div style={{ width: '100%', height: '100%', minHeight: 200 }}>
+                <div className="h-48 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                      <BarChart data={cashFlowData}><XAxis dataKey="date" hide /><Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} /><Bar dataKey="income" fill="#0d9488" radius={[4, 4, 0, 0]} animationDuration={1000} /><Bar dataKey="expense" fill="#ef4444" radius={[4, 4, 0, 0]} animationDuration={1000} /></BarChart>
                   </ResponsiveContainer>
                 </div>
              </div>
-             <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 h-64">
+             <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
                 <h4 className="text-sm font-bold text-slate-800 mb-4">Expenses by Category</h4>
-                <div style={{ width: '100%', height: '100%', minHeight: 200 }}>
+                <div className="h-48 w-full">
                   <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={expenseCategoryData} innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value" animationDuration={1000}>{expenseCategoryData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}</Pie><Tooltip /><Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} /></PieChart></ResponsiveContainer>
                 </div>
              </div>
@@ -360,7 +360,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                    <button onClick={() => setShowCustomerModal(false)} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5 text-slate-500" /></button>
                </div>
                <div className="space-y-3">
-                  <div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Name</label><input type="text" value={editingCustomer.name} onChange={e => setEditingCustomer({...editingCustomer, name: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none" /></div>
+                  <div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Name</label><input type="text" value={editingCustomer.name} onChange={e => setEditingCustomer({...editingCustomer, name: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none" /></div>
                   <div>
                      <CustomSelect 
                         label="Type"
@@ -373,8 +373,8 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                         ]}
                      />
                   </div>
-                  <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Contact Person</label><input type="text" value={editingCustomer.contact} onChange={e => setEditingCustomer({...editingCustomer, contact: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none" /></div><div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Email</label><input type="email" value={editingCustomer.email} onChange={e => setEditingCustomer({...editingCustomer, email: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none" /></div></div>
-                  <div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Notes</label><textarea value={editingCustomer.notes} onChange={e => setEditingCustomer({...editingCustomer, notes: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none resize-none h-20" /></div>
+                  <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Contact Person</label><input type="text" value={editingCustomer.contact} onChange={e => setEditingCustomer({...editingCustomer, contact: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-medium focus:ring-2 focus:ring-teal-500 outline-none" /></div><div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Email</label><input type="email" value={editingCustomer.email} onChange={e => setEditingCustomer({...editingCustomer, email: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-medium focus:ring-2 focus:ring-teal-500 outline-none" /></div></div>
+                  <div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Notes</label><textarea value={editingCustomer.notes} onChange={e => setEditingCustomer({...editingCustomer, notes: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-medium focus:ring-2 focus:ring-teal-500 outline-none resize-none h-20" /></div>
                </div>
                <div className="flex space-x-3 pt-2"><button onClick={() => setShowCustomerModal(false)} className="flex-1 py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl">Cancel</button><button onClick={handleSaveCustomer} className="flex-1 py-3 bg-teal-600 text-white font-bold rounded-xl shadow-lg shadow-teal-200">Save Customer</button></div>
             </motion.div>

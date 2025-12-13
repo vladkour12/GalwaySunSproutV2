@@ -171,7 +171,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                              onChange={(e) => setSeedCost(parseFloat(e.target.value) || 0)}
                              onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
                              step="0.01"
-                             className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
+                             className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
                              placeholder="0.00"
                           />
                        </div>
@@ -191,7 +191,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                              onChange={(e) => setSoilCost(parseFloat(e.target.value) || 0)}
                              onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
                              step="0.01"
-                             className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
+                             className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
                              placeholder="0.00"
                           />
                        </div>
@@ -211,7 +211,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                              onChange={(e) => setElecCost(parseFloat(e.target.value) || 0)}
                              onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
                              step="0.01"
-                             className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
+                             className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
                              placeholder="0.00"
                           />
                        </div>
@@ -231,7 +231,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                              onChange={(e) => setPackagingCost(parseFloat(e.target.value) || 0)}
                              onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
                              step="0.01"
-                             className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
+                             className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
                              placeholder="0.00"
                           />
                        </div>
@@ -251,7 +251,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                              onChange={(e) => setWaterCost(parseFloat(e.target.value) || 0)}
                              onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
                              step="0.01"
-                             className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
+                             className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
                              placeholder="0.00"
                           />
                        </div>
@@ -309,16 +309,16 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
             </div>
 
             {/* Cost Distribution Chart */}
-            <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 h-64 relative">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider absolute top-5 left-5">Cost Breakdown</h4>
+            <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 relative">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Cost Breakdown</h4>
                 {totalVariableCost > 0 ? (
-                  <div style={{ width: '100%', height: '100%', minHeight: 200, paddingTop: '24px' }}>
+                  <div className="h-48 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                       <Pie
                         data={chartData}
                         cx="50%"
-                        cy="55%"
+                        cy="50%"
                         innerRadius={50}
                         outerRadius={70}
                         paddingAngle={5}
@@ -344,7 +344,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                     </ResponsiveContainer>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-full text-slate-300 text-sm">
+                  <div className="flex items-center justify-center h-48 text-slate-300 text-sm">
                       No costs to display
                   </div>
                 )}
