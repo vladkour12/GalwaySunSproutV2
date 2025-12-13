@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@google/genai": "^1.31.0",
+    "@vercel/edge-config": "^1.4.3",
+    "@vercel/postgres": "^0.10.0",
     "framer-motion": "^11.0.8",
     "lucide-react": "^0.556.0",
     "react": "^19.2.1",
