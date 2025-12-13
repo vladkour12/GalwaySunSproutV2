@@ -64,18 +64,31 @@ const getStageDurationHours = (stage: Stage, crop: CropType): number => {
   }
 };
 
+const isValidDate = (d: Date) => !Number.isNaN(d.getTime());
+
+const formatShortDate = (d: Date) => {
+  if (!isValidDate(d)) return '--';
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+};
+
 // Helper to calculate Dynamic Harvest Date based on CURRENT stage progress
 const getTargetHarvestDate = (tray: Tray, crop: CropType) => {
   // If finished, return the last update time
   if (tray.stage === Stage.HARVEST_READY || tray.stage === Stage.HARVESTED) {
-     return new Date(tray.updatedAt); 
+     const d = new Date(tray.updatedAt);
+     return isValidDate(d) ? d : new Date();
   }
 
   const currentStageIndex = STAGE_FLOW.indexOf(tray.stage);
   if (currentStageIndex === -1) return new Date(); // Fallback
 
   // 1. Start calculation from when the current stage began
-  let projectedTime = new Date(tray.startDate).getTime();
+  const start = new Date(tray.startDate);
+  if (!isValidDate(start)) {
+    const updated = new Date(tray.updatedAt);
+    return isValidDate(updated) ? updated : new Date();
+  }
+  let projectedTime = start.getTime();
 
   // 2. Add remaining duration of current stage + all future stages
   for (let i = currentStageIndex; i < STAGE_FLOW.length; i++) {
@@ -609,7 +622,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                               <>
                                  <div className="mb-0.5">
                                     <span className="text-[9px] text-slate-400 font-bold uppercase block leading-none mb-0.5">Ready</span>
-                                    <span className="text-xs font-bold text-slate-700">{harvestDate.toLocaleDateString(undefined, {month:'short', day:'numeric'})}</span>
+                                    <span className="text-xs font-bold text-slate-700">{formatShortDate(harvestDate)}</span>
                                  </div>
                                  <div>
                                     <span className="text-[9px] text-slate-400 font-bold uppercase block leading-none mb-0.5">Next</span>
@@ -1246,7 +1259,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                      </div>
                      <div className="text-right">
                         <span className="text-xs font-bold text-slate-400 uppercase">Planted</span>
-                        <div className="font-bold text-slate-700">{new Date(selectedTray.startDate).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</div>
+                        <div className="font-bold text-slate-700">{formatShortDate(new Date(selectedTray.startDate))}</div>
                      </div>
                   </div>
 
