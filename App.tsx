@@ -11,6 +11,7 @@ import DataManager from './components/DataManager';
 import ProfitCalculator from './components/ProfitCalculator';
 import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
+import NotificationManager from './components/NotificationManager';
 import { AppState, View, Stage, Transaction, CropType, Customer, Tray } from './types';
 import { INITIAL_CROPS, MOCK_TRANSACTIONS, INITIAL_CUSTOMERS } from './constants';
 import { loadState, saveState } from './services/storage';
@@ -180,16 +181,18 @@ const App: React.FC = () => {
     setAppState({ crops: INITIAL_CROPS, trays: [], transactions: [...MOCK_TRANSACTIONS], customers: INITIAL_CUSTOMERS });
   }, []);
 
-  // --- Alert Calculation for Badge ---
-  const alertCount = React.useMemo(() => {
+  // --- Alert Calculation for Badge & Notifications ---
+  const alerts = React.useMemo(() => {
      try {
-        if (!Array.isArray(appState.trays) || !Array.isArray(appState.crops)) return 0;
-        return getFarmAlerts(appState).length;
+        if (!Array.isArray(appState.trays) || !Array.isArray(appState.crops)) return [];
+        return getFarmAlerts(appState);
      } catch (e) {
         console.error("Alert calc error", e);
-        return 0;
+        return [];
      }
   }, [appState]);
+
+  const alertCount = alerts.length;
 
   // --- Rendering ---
 
@@ -244,6 +247,7 @@ const App: React.FC = () => {
 
   return (
     <Layout currentView={currentView} onNavigate={setCurrentView} onLogout={() => setAuthStatus('landing')} alertCount={alertCount}>
+      <NotificationManager alerts={alerts} />
       <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => setCurrentView('dashboard')}>
         {renderView()}
       </ErrorBoundary>
