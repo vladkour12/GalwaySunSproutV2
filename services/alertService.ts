@@ -25,10 +25,11 @@ export const getFarmAlerts = (state: AppState): Alert[] => {
     const crop = state.crops.find(c => c.id === tray.cropTypeId);
     if (!crop) return;
 
-    const startDate = new Date(tray.startDate);
-    if (isNaN(startDate.getTime())) return;
+    const stageStartDate = tray.stageUpdateAt ? new Date(tray.stageUpdateAt) : new Date(tray.updatedAt);
+    if (isNaN(stageStartDate.getTime())) return;
 
-    const diffMs = now.getTime() - startDate.getTime();
+    // Use current stage start time for calculation, NOT tray start time
+    const diffMs = now.getTime() - stageStartDate.getTime();
     const diffHours = diffMs / (1000 * 60 * 60);
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
