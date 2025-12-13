@@ -169,20 +169,27 @@ const CropManager: React.FC<CropManagerProps> = ({
 
   // Load Orders from LocalStorage on mount
   useEffect(() => {
-    const saved = localStorage.getItem('galway_orders');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-           setRecurringOrders(parsed);
-        }
-      } catch (e) { console.error("Failed to load orders"); }
+    try {
+      const saved = localStorage.getItem('galway_orders');
+      if (!saved) return;
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) {
+        setRecurringOrders(parsed);
+      }
+    } catch (e) {
+      // localStorage can throw in some environments (e.g. Safari private mode / blocked storage).
+      console.warn('Failed to load orders from localStorage', e);
     }
   }, []);
 
   // Save Orders
   useEffect(() => {
-    localStorage.setItem('galway_orders', JSON.stringify(recurringOrders));
+    try {
+      localStorage.setItem('galway_orders', JSON.stringify(recurringOrders));
+    } catch (e) {
+      // Avoid crashing the entire app due to storage quota/security restrictions.
+      console.warn('Failed to persist orders to localStorage', e);
+    }
   }, [recurringOrders]);
 
   useEffect(() => {
