@@ -148,7 +148,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             transition={{ delay: 0.4 }}
             className="text-xl md:text-2xl text-slate-600 max-w-2xl leading-relaxed mb-12"
           >
-            Galway's premium urban microgreens farm. We grow nutrient-dense superfoods in a precision tray-based system, delivered fresh to local chefs and households.
+            Galway's premier microgreens partner for chefs. We deliver ultra-fresh, precision-grown varieties tailored to your menu's unique flavor and aesthetic needs.
           </motion.p>
 
           <motion.div 
