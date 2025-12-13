@@ -37,6 +37,14 @@ const SpotlightCard = ({ children, className = "", spotlightColor = "rgba(20, 18
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
+  const background = useMotionTemplate`
+    radial-gradient(
+      650px circle at ${mouseX}px ${mouseY}px,
+      ${spotlightColor},
+      transparent 80%
+    )
+  `;
+
   function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
     const { left, top } = currentTarget.getBoundingClientRect();
     mouseX.set(clientX - left);
@@ -50,15 +58,7 @@ const SpotlightCard = ({ children, className = "", spotlightColor = "rgba(20, 18
     >
       <motion.div
         className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
-        style={{
-          background: useMotionTemplate`
-            radial-gradient(
-              650px circle at ${mouseX}px ${mouseY}px,
-              ${spotlightColor},
-              transparent 80%
-            )
-          `,
-        }}
+        style={{ background }}
       />
       {children}
     </div>
@@ -68,6 +68,14 @@ const SpotlightCard = ({ children, className = "", spotlightColor = "rgba(20, 18
 const SpotlightButton = ({ children, className = "", onClick, href, spotlightColor = "rgba(255, 255, 255, 0.25)" }: { children: React.ReactNode, className?: string, onClick?: () => void, href?: string, spotlightColor?: string }) => {
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
+
+    const background = useMotionTemplate`
+      radial-gradient(
+        150px circle at ${mouseX}px ${mouseY}px,
+        ${spotlightColor},
+        transparent 80%
+      )
+    `;
   
     function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
       const { left, top } = currentTarget.getBoundingClientRect();
@@ -90,15 +98,7 @@ const SpotlightButton = ({ children, className = "", onClick, href, spotlightCol
         {/* Spotlight Effect */}
         <motion.div
           className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100"
-          style={{
-            background: useMotionTemplate`
-              radial-gradient(
-                150px circle at ${mouseX}px ${mouseY}px,
-                ${spotlightColor},
-                transparent 80%
-              )
-            `,
-          }}
+          style={{ background }}
         />
         <div className="relative z-10 flex items-center justify-center gap-2">
           {children}
