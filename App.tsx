@@ -609,7 +609,13 @@ const App: React.FC = () => {
         </div>
       )}
       <NotificationManager alerts={alerts} />
-      <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => setCurrentView('dashboard')}>
+      <ErrorBoundary
+        FallbackComponent={ErrorFallback}
+        onReset={() => setCurrentView('dashboard')}
+        // Important: if one view throws (e.g. CropManager), don't "brick" the whole app.
+        // Reset the boundary whenever the user navigates to a different view.
+        resetKeys={[currentView]}
+      >
         {renderView()}
       </ErrorBoundary>
     </Layout>
