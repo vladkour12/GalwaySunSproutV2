@@ -25,10 +25,11 @@ export const getFarmAlerts = (state: AppState): Alert[] => {
     const crop = state.crops.find(c => c.id === tray.cropTypeId);
     if (!crop) return;
 
-    const stageStartDate = tray.stageUpdateAt ? new Date(tray.stageUpdateAt) : new Date(tray.updatedAt);
+    // Use startDate as the beginning of the CURRENT stage
+    // Note: App.tsx updates startDate whenever the stage changes.
+    const stageStartDate = new Date(tray.startDate);
     if (isNaN(stageStartDate.getTime())) return;
 
-    // Use current stage start time for calculation, NOT tray start time
     const diffMs = now.getTime() - stageStartDate.getTime();
     const diffHours = diffMs / (1000 * 60 * 60);
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
@@ -36,6 +37,7 @@ export const getFarmAlerts = (state: AppState): Alert[] => {
     // A. Soaking Overdue
     if (tray.stage === Stage.SOAK) {
        const threshold = crop.soakHours;
+       // Alert if soaked > threshold + 2 hours buffer
        if (threshold > 0 && diffHours > threshold + 2) {
           alerts.push({
              id: `soak-${tray.id}`,
@@ -50,6 +52,7 @@ export const getFarmAlerts = (state: AppState): Alert[] => {
     // B. Germination Done -> Move to Blackout
     else if (tray.stage === Stage.GERMINATION) {
        const threshold = crop.germinationDays;
+       // Alert if germinating > threshold + 0.5 days buffer (12h)
        if (diffDays > threshold + 0.5) {
           alerts.push({
              id: `germ-${tray.id}`,
@@ -78,7 +81,8 @@ export const getFarmAlerts = (state: AppState): Alert[] => {
     // D. Harvest Overdue
     else if (tray.stage === Stage.LIGHT) {
        const threshold = crop.lightDays;
-       if (diffDays > threshold + 2) {
+       // Use a smaller buffer for harvest (e.g. 1 day overdue is significant)
+       if (diffDays > threshold + 1) {
           alerts.push({
              id: `harvest-${tray.id}`,
              type: 'urgent',
@@ -102,4 +106,3 @@ export const getFarmAlerts = (state: AppState): Alert[] => {
      return score(b.type) - score(a.type);
   });
 };
-
