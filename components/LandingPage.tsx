@@ -54,15 +54,54 @@ const FloatingElement = ({ children, delay = 0, duration = 4, yOffset = 10, clas
 
 // 3D Tilt Card with Spotlight
 const TiltSpotlightCard = ({ children, className = "", spotlightColor = "rgba(20, 184, 166, 0.2)" }: { children: React.ReactNode, className?: string, spotlightColor?: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
+  // Auto-animation for mobile/idle state
+  useEffect(() => {
+    if (isHovered) return;
+    
+    let animationFrameId: number;
+    const startTime = Date.now();
+
+    const update = () => {
+      if (!ref.current) return;
+      // Check if we are on mobile to potentially reduce intensity or keep it subtle
+      // For now, we want "crazy" animations everywhere
+      
+      const { width, height } = ref.current.getBoundingClientRect();
+      const time = (Date.now() - startTime) / 3000; // Slower, smoother cycle
+      
+      // Circular spotlight motion
+      const newMouseX = (width / 2) + (width / 2.5) * Math.sin(time);
+      const newMouseY = (height / 2) + (height / 2.5) * Math.cos(time);
+      
+      mouseX.set(newMouseX);
+      mouseY.set(newMouseY);
+
+      // Subtle tilt breathing
+      // Normalized coordinates from -0.5 to 0.5
+      const newX = (Math.sin(time) * 0.1); // +/- 10% tilt
+      const newY = (Math.cos(time) * 0.1); // +/- 10% tilt
+      
+      x.set(newX);
+      y.set(newY);
+
+      animationFrameId = requestAnimationFrame(update);
+    };
+
+    update();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isHovered, mouseX, mouseY, x, y]);
+
   const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [15, -15]), { stiffness: 150, damping: 20 });
   const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-15, 15]), { stiffness: 150, damping: 20 });
-  const scale = useSpring(useTransform(x, [-0.5, 0.5], [1, 1]), { stiffness: 150, damping: 20 }); // Placeholder for scale if needed
 
   const background = useMotionTemplate`
     radial-gradient(
@@ -73,6 +112,7 @@ const TiltSpotlightCard = ({ children, className = "", spotlightColor = "rgba(20
   `;
 
   function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
+    setIsHovered(true);
     const { left, top, width, height } = currentTarget.getBoundingClientRect();
     const localX = clientX - left;
     const localY = clientY - top;
@@ -80,20 +120,19 @@ const TiltSpotlightCard = ({ children, className = "", spotlightColor = "rgba(20
     mouseX.set(localX);
     mouseY.set(localY);
     
-    // Calculate normalized position (-0.5 to 0.5)
     x.set(localX / width - 0.5);
     y.set(localY / height - 0.5);
   }
 
   function handleMouseLeave() {
-    x.set(0);
-    y.set(0);
-    // Optional: reset spotlight position or fade it out, but keeping it is fine
+    setIsHovered(false);
+    // Spring will handle the smooth return to auto-animation values
   }
 
   return (
     <motion.div 
-      className={`relative group perspective-1000 ${className}`} // Add perspective class or style
+      ref={ref}
+      className={`relative group perspective-1000 ${className}`} 
       style={{ perspective: 1000 }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -106,10 +145,12 @@ const TiltSpotlightCard = ({ children, className = "", spotlightColor = "rgba(20
             transformStyle: "preserve-3d"
         }}
         whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }} // Add feedback for touch
       >
         {/* Spotlight Overlay */}
         <motion.div
             className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100 z-20"
+            animate={{ opacity: isHovered ? 1 : 0.5 }} // Keep spotlight visible but dimmer when not hovered (auto mode)
             style={{ background }}
         />
         {/* Content */}
@@ -124,11 +165,42 @@ const TiltSpotlightCard = ({ children, className = "", spotlightColor = "rgba(20
 // Magnetic Button with Spotlight
 const MagneticSpotlightButton = ({ children, className = "", onClick, href, spotlightColor = "rgba(255, 255, 255, 0.25)" }: { children: React.ReactNode, className?: string, onClick?: () => void, href?: string, spotlightColor?: string }) => {
     const ref = useRef<HTMLDivElement>(null);
+    const [isHovered, setIsHovered] = useState(false);
+
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
     
     const x = useMotionValue(0);
     const y = useMotionValue(0);
+
+    // Auto-animation for mobile/idle state
+    useEffect(() => {
+        if (isHovered) return;
+        
+        let animationFrameId: number;
+        const startTime = Date.now();
+
+        const update = () => {
+        if (!ref.current) return;
+        const { width, height } = ref.current.getBoundingClientRect();
+        const time = (Date.now() - startTime) / 2000; 
+        
+        const newMouseX = (width / 2) + (width / 2.5) * Math.sin(time);
+        const newMouseY = (height / 2) + (height / 2.5) * Math.cos(time * 0.8);
+        
+        mouseX.set(newMouseX);
+        mouseY.set(newMouseY);
+        
+        // No magnetic auto-movement (x,y) as that might be annoying, just the spotlight
+        x.set(0);
+        y.set(0);
+
+        animationFrameId = requestAnimationFrame(update);
+        };
+
+        update();
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [isHovered, mouseX, mouseY, x, y]);
     
     // Smooth spring animation for magnetic effect
     const springX = useSpring(x, { stiffness: 150, damping: 15 });
@@ -144,6 +216,7 @@ const MagneticSpotlightButton = ({ children, className = "", onClick, href, spot
   
     function handleMouseMove({ clientX, clientY }: React.MouseEvent) {
       if (!ref.current) return;
+      setIsHovered(true);
       const { left, top, width, height } = ref.current.getBoundingClientRect();
       const localX = clientX - left;
       const localY = clientY - top;
@@ -160,6 +233,7 @@ const MagneticSpotlightButton = ({ children, className = "", onClick, href, spot
     }
     
     function handleMouseLeave() {
+        setIsHovered(false);
         x.set(0);
         y.set(0);
     }
@@ -182,8 +256,9 @@ const MagneticSpotlightButton = ({ children, className = "", onClick, href, spot
         <div className="absolute inset-0 rounded-full overflow-hidden">
              {/* Spotlight Effect */}
             <motion.div
-            className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100"
-            style={{ background }}
+                className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100"
+                animate={{ opacity: isHovered ? 1 : 0.6 }} // Always visible on mobile/auto
+                style={{ background }}
             />
         </div>
 
