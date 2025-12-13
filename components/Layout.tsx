@@ -49,7 +49,8 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
       {/* Main Content with Transition */}
       <main className="flex-1 overflow-y-auto pb-32 overflow-x-hidden">
         <div className="max-w-4xl mx-auto p-4 sm:p-6">
-          <AnimatePresence mode="wait">
+          {/* Avoid mode="wait" deadlocks that can leave the UI blank on mobile */}
+          <AnimatePresence initial={false} mode="sync">
             <motion.div
               key={currentView}
               initial={{ opacity: 0, y: 2, scale: 0.995 }}
