@@ -251,11 +251,11 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
               <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-white/10">
                  <div>
                     <span className="text-xs text-slate-400 block mb-0.5">Ready Now</span>
-                    <span className="text-lg font-bold text-teal-400">€{financialStats.readyValue.toFixed(0)}</span>
+                    <span className="text-lg font-bold text-teal-400">€{financialStats.readyValue.toFixed(2)}</span>
                  </div>
                  <div>
                     <span className="text-xs text-slate-400 block mb-0.5">Maturing</span>
-                    <span className="text-lg font-bold text-blue-300">€{financialStats.maturingValue.toFixed(0)}</span>
+                    <span className="text-lg font-bold text-blue-300">€{financialStats.maturingValue.toFixed(2)}</span>
                  </div>
               </div>
            </div>
