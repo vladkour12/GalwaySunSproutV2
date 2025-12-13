@@ -558,7 +558,7 @@ const CropManager: React.FC<CropManagerProps> = ({
   // --- Render Sections ---
 
   return (
-    <div className="pb-24">
+    <div>
       {/* 1. Simple Header & Tabs */}
       <div className="bg-white sticky top-0 z-20 pt-4 pb-2 px-1 border-b border-slate-100 shadow-sm">
          <div className="flex justify-between items-center mb-4 px-2">

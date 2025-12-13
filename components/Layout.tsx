@@ -56,7 +56,8 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
       </header>
 
       {/* Main Content with Transition */}
-      <main ref={mainRef} className="flex-1 overflow-y-auto pb-32 overflow-x-hidden">
+      {/* pb-24 matches dock height + bottom offset without excessive blank space */}
+      <main ref={mainRef} className="flex-1 overflow-y-auto pb-24 overflow-x-hidden">
         <div className="max-w-4xl mx-auto p-4 sm:p-6">
           {/* Use popLayout so exiting views don't reserve layout space (prevents "blank spacing" after leaving Crops). */}
           <AnimatePresence initial={false} mode="popLayout">
