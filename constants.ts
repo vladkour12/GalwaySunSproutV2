@@ -484,8 +484,8 @@ export const INITIAL_CROPS: CropType[] = [
     pricePerTray: 22.00,
     price500g: 35.45,
     price1kg: 69.45,
-    pkgWeightSmall: 500,
-    pkgWeightLarge: 1000,
+    pkgWeightSmall: 50,
+    pkgWeightLarge: 100,
     color: 'bg-red-100 text-red-800 border-red-200',
     summary: 'Lemony, sour taste. Red veins.',
     imageUrl: 'https://images.unsplash.com/photo-1627993074811-9a7217351657?auto=format&fit=crop&q=80&w=400'
