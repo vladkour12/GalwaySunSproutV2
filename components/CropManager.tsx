@@ -1460,6 +1460,21 @@ const CropManager: React.FC<CropManagerProps> = ({
 
                         <div className="grid grid-cols-2 gap-3">
                            <div>
+                              <label className="text-[10px] font-bold uppercase text-slate-400">Small Pack (g)</label>
+                              <div className="relative">
+                                 <input type="number" value={selectedCrop.pkgWeightSmall || ''} onChange={e => setSelectedCrop({...selectedCrop, pkgWeightSmall: parseInt(e.target.value)})} placeholder="500" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                              </div>
+                           </div>
+                           <div>
+                              <label className="text-[10px] font-bold uppercase text-slate-400">Large Pack (g)</label>
+                              <div className="relative">
+                                 <input type="number" value={selectedCrop.pkgWeightLarge || ''} onChange={e => setSelectedCrop({...selectedCrop, pkgWeightLarge: parseInt(e.target.value)})} placeholder="1000" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                              </div>
+                           </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                           <div>
                               <label className="text-[10px] font-bold uppercase text-slate-400">Price {selectedCrop.pkgWeightSmall || 500}g (€)</label>
                               <div className="relative">
                                  <span className="absolute left-3 top-3.5 text-xs font-bold text-slate-400">€</span>
