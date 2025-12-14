@@ -397,10 +397,9 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
               )}
               
               {activeTrays.length > 0 ? (
-                <div style={{ width: '100%', height: 192, minHeight: 192 }}>
+                <div style={{ width: 192, height: 192 }}>
                   {showCharts && (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
+                      <PieChart width={192} height={192}>
                       <Pie
                         data={chartData}
                         cx="50%"
@@ -420,7 +419,6 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
                         contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px', fontWeight: 600 }}
                       />
                       </PieChart>
-                    </ResponsiveContainer>
                   )}
                 </div>
               ) : (
