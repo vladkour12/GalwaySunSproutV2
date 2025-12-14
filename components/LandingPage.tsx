@@ -469,7 +469,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             transition={{ delay: 1.2, type: "spring", stiffness: 50 }}
             className="w-full max-w-lg aspect-square rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 relative mt-16 lg:hidden"
           >
-            <img src="https://images.unsplash.com/photo-1536636730397-5b62b083c74c?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover opacity-90" alt="Microgreens" crossOrigin="anonymous" />
+            <img src="https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover opacity-90" alt="Microgreens" crossOrigin="anonymous" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
             <div className="absolute bottom-6 left-6 text-white text-left">
                 <h3 className="text-2xl font-bold">Sunflower Shoots</h3>

@@ -1490,6 +1490,17 @@ const CropManager: React.FC<CropManagerProps> = ({
                            </div>
                         </div>
 
+                        <div className="space-y-3">
+                           <div>
+                              <label className="text-[10px] font-bold uppercase text-slate-400">Image URL</label>
+                              <input type="text" value={selectedCrop.imageUrl || ''} onChange={e => setSelectedCrop({...selectedCrop, imageUrl: e.target.value})} placeholder="https://..." className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600 truncate" />
+                           </div>
+                           <div>
+                              <label className="text-[10px] font-bold uppercase text-slate-400">Summary / Notes</label>
+                              <textarea value={selectedCrop.summary || ''} onChange={e => setSelectedCrop({...selectedCrop, summary: e.target.value})} placeholder="Description..." className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600 h-20 resize-none" />
+                           </div>
+                        </div>
+
                         <div>
                            <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center mb-2"><Palette className="w-3 h-3 mr-1"/> Color Theme</label>
                            <div className="flex flex-wrap gap-2">

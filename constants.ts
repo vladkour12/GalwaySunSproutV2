@@ -506,7 +506,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 9.20,
     color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     summary: 'Sweet taste. Crunchy.',
-    imageUrl: 'https://images.unsplash.com/photo-1536636730397-5b62b083c74c?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'turnip',
