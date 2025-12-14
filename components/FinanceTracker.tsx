@@ -67,12 +67,9 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
 
   // Defer rendering heavy charts on touch devices so taps feel responsive.
   useEffect(() => {
-    if (!isTouchUI) {
-      setShowCharts(true);
-      return;
-    }
+    // Always defer slightly to allow layout to settle, especially for Recharts
     setShowCharts(false);
-    const id = window.setTimeout(() => setShowCharts(true), 400);
+    const id = window.setTimeout(() => setShowCharts(true), isTouchUI ? 400 : 100);
     return () => window.clearTimeout(id);
   }, [isTouchUI]);
 
@@ -334,8 +331,8 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
             >
               <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
                 <h4 className="text-sm font-bold text-slate-800 mb-4">Cash Flow (Last 7 Days)</h4>
-                <div className="h-48 w-full" style={{ pointerEvents: 'none' }}>
-                  <ResponsiveContainer width="100%" height="100%">
+                <div className="h-48 w-full" style={{ pointerEvents: 'none', minHeight: 192 }}>
+                  <ResponsiveContainer width="100%" height="100%" minWidth={100}>
                     <BarChart data={cashFlowData}>
                       <XAxis dataKey="date" hide />
                       <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
@@ -348,8 +345,8 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
               </div>
               <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
                 <h4 className="text-sm font-bold text-slate-800 mb-4">Expenses by Category</h4>
-                <div className="h-48 w-full" style={{ pointerEvents: 'none' }}>
-                  <ResponsiveContainer width="100%" height="100%">
+                <div className="h-48 w-full" style={{ pointerEvents: 'none', minHeight: 192 }}>
+                  <ResponsiveContainer width="100%" height="100%" minWidth={100}>
                     <PieChart>
                       <Pie data={expenseCategoryData} innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value" isAnimationActive={false}>
                         {expenseCategoryData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
