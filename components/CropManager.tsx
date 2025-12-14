@@ -1407,11 +1407,11 @@ const CropManager: React.FC<CropManagerProps> = ({
                               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Bulk Seed Prices</span>
                               <div className="grid grid-cols-2 gap-3">
                                  <div className="bg-white p-2 rounded-lg border border-slate-100 flex justify-between items-center">
-                                    <span className="text-xs text-slate-500 font-medium">500g Pack</span>
+                                    <span className="text-xs text-slate-500 font-medium">{selectedCrop.pkgWeightSmall || 500}g Pack</span>
                                     <span className="text-xs font-bold text-slate-800">{selectedCrop.price500g ? `€${selectedCrop.price500g.toFixed(2)}` : '--'}</span>
                                  </div>
                                  <div className="bg-white p-2 rounded-lg border border-slate-100 flex justify-between items-center">
-                                    <span className="text-xs text-slate-500 font-medium">1kg Pack</span>
+                                    <span className="text-xs text-slate-500 font-medium">{selectedCrop.pkgWeightLarge >= 1000 ? (selectedCrop.pkgWeightLarge/1000) + 'kg' : selectedCrop.pkgWeightLarge || 1000 + 'g'} Pack</span>
                                     <span className="text-xs font-bold text-slate-800">{selectedCrop.price1kg ? `€${selectedCrop.price1kg.toFixed(2)}` : '--'}</span>
                                  </div>
                               </div>
@@ -1460,14 +1460,14 @@ const CropManager: React.FC<CropManagerProps> = ({
 
                         <div className="grid grid-cols-2 gap-3">
                            <div>
-                              <label className="text-[10px] font-bold uppercase text-slate-400">Price 500g (€)</label>
+                              <label className="text-[10px] font-bold uppercase text-slate-400">Price {selectedCrop.pkgWeightSmall || 500}g (€)</label>
                               <div className="relative">
                                  <span className="absolute left-3 top-3.5 text-xs font-bold text-slate-400">€</span>
                                  <input type="number" step="0.01" value={selectedCrop.price500g || ''} onChange={e => setSelectedCrop({...selectedCrop, price500g: parseFloat(e.target.value)})} className="w-full pl-7 p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
                               </div>
                            </div>
                            <div>
-                              <label className="text-[10px] font-bold uppercase text-slate-400">Price 1kg (€)</label>
+                              <label className="text-[10px] font-bold uppercase text-slate-400">Price {selectedCrop.pkgWeightLarge ? (selectedCrop.pkgWeightLarge >= 1000 ? (selectedCrop.pkgWeightLarge/1000) + 'kg' : selectedCrop.pkgWeightLarge + 'g') : '1kg'} (€)</label>
                               <div className="relative">
                                  <span className="absolute left-3 top-3.5 text-xs font-bold text-slate-400">€</span>
                                  <input type="number" step="0.01" value={selectedCrop.price1kg || ''} onChange={e => setSelectedCrop({...selectedCrop, price1kg: parseFloat(e.target.value)})} className="w-full pl-7 p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
