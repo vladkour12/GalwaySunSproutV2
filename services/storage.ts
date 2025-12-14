@@ -34,12 +34,17 @@ const initDB = (): Promise<IDBDatabase> => {
     };
 
     const timeoutId = setTimeout(() => {
-      settleOnce(() => reject(new Error('IndexedDB open timed out (possible blocked upgrade).')));
-    }, 3_000);
+      // Don't reject for timeout, just warn and try to proceed if possible or let the request fail naturally
+      console.warn('IndexedDB open taking long (possible blocked upgrade).');
+      // settleOnce(() => reject(new Error('IndexedDB open timed out (possible blocked upgrade).')));
+    }, 5_000); // Increased to 5s
 
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onerror = () => {
+      // Ignore abort errors which happen on page reload
+      if (request.error?.name === 'AbortError') return;
+      
       console.error("IndexedDB error:", request.error);
       clearTimeout(timeoutId);
       settleOnce(() => reject(request.error));
