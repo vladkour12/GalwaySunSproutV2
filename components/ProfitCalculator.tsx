@@ -23,6 +23,14 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
   const [waterCost, setWaterCost] = useState<number>(0.15); // Water & Labor misc
   const [packagingCost, setPackagingCost] = useState<number>(0.40); // Clamshell/box
 
+  const [showCharts, setShowCharts] = useState(false);
+
+  // Defer chart rendering to avoid layout shifts on load
+  useEffect(() => {
+    const timer = setTimeout(() => setShowCharts(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Effect: Auto-populate when crop changes
   useEffect(() => {
     if (!selectedCropId) return;
@@ -312,36 +320,38 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
             <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 relative">
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Cost Breakdown</h4>
                 {totalVariableCost > 0 ? (
-                  <div className="h-48 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                      <Pie
-                        data={chartData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={50}
-                        outerRadius={70}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {chartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip 
-                         formatter={(value: number) => `€${value.toFixed(2)}`}
-                         contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', fontSize: '12px', fontWeight: 600 }}
-                      />
-                      <Legend 
-                        layout="vertical" 
-                        verticalAlign="middle" 
-                        align="right"
-                        iconType="circle"
-                        iconSize={8}
-                        wrapperStyle={{ fontSize: '11px', fontWeight: 600, color: '#64748b' }}
-                      />
-                      </PieChart>
-                    </ResponsiveContainer>
+                  <div className="h-48 w-full" style={{ minHeight: 192 }}>
+                    {showCharts && (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                        <Pie
+                          data={chartData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={50}
+                          outerRadius={70}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip 
+                           formatter={(value: number) => `€${value.toFixed(2)}`}
+                           contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', fontSize: '12px', fontWeight: 600 }}
+                        />
+                        <Legend 
+                          layout="vertical" 
+                          verticalAlign="middle" 
+                          align="right"
+                          iconType="circle"
+                          iconSize={8}
+                          wrapperStyle={{ fontSize: '11px', fontWeight: 600, color: '#64748b' }}
+                        />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    )}
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-48 text-slate-300 text-sm">
