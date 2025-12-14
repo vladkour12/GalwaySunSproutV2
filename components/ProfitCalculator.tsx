@@ -23,12 +23,26 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
   const [waterCost, setWaterCost] = useState<number>(0.15); // Water & Labor misc
   const [packagingCost, setPackagingCost] = useState<number>(0.40); // Clamshell/box
 
-  const [showCharts, setShowCharts] = useState(false);
+  const [chartWidth, setChartWidth] = useState(0);
+  const chartRef = React.useRef<HTMLDivElement>(null);
 
-  // Defer chart rendering to avoid layout shifts on load
   useEffect(() => {
-    const timer = setTimeout(() => setShowCharts(true), 100);
-    return () => clearTimeout(timer);
+    // Force re-measure on load and resize
+    const updateWidth = () => {
+      if (chartRef.current) {
+        setChartWidth(chartRef.current.offsetWidth);
+      }
+    };
+    
+    updateWidth();
+    // Add a small delay to allow layout to settle
+    const timer = setTimeout(updateWidth, 100);
+    
+    window.addEventListener('resize', updateWidth);
+    return () => {
+      window.removeEventListener('resize', updateWidth);
+      clearTimeout(timer);
+    };
   }, []);
 
   // Effect: Auto-populate when crop changes
@@ -320,10 +334,9 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
             <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 relative">
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Cost Breakdown</h4>
                 {totalVariableCost > 0 ? (
-                  <div className="h-48 w-full" style={{ minHeight: 192 }}>
-                    {showCharts && (
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
+                  <div ref={chartRef} className="h-48 w-full" style={{ minHeight: 192 }}>
+                    {chartWidth > 0 && (
+                        <PieChart width={chartWidth} height={192}>
                         <Pie
                           data={chartData}
                           cx="50%"
@@ -350,7 +363,6 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                           wrapperStyle={{ fontSize: '11px', fontWeight: 600, color: '#64748b' }}
                         />
                         </PieChart>
-                      </ResponsiveContainer>
                     )}
                   </div>
                 ) : (
