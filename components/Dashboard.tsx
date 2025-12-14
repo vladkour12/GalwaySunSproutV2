@@ -159,6 +159,14 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
     }));
   }, [activeTrays]);
 
+  const [showCharts, setShowCharts] = React.useState(false);
+
+  // Defer chart rendering to ensure DOM size is ready (fixes Recharts width(-1) error)
+  React.useEffect(() => {
+    const timer = setTimeout(() => setShowCharts(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Updated Colors: Teal as primary
   const COLORS = ['#0d9488', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444'];
 
@@ -389,29 +397,31 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
               )}
               
               {activeTrays.length > 0 ? (
-                <div style={{ width: '100%', height: 192 }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                    <Pie
-                      data={chartData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      cornerRadius={4}
-                      dataKey="value"
-                      stroke="none"
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px', fontWeight: 600 }}
-                    />
-                    </PieChart>
-                  </ResponsiveContainer>
+                <div style={{ width: '100%', height: 192, minHeight: 192 }}>
+                  {showCharts && (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                      <Pie
+                        data={chartData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        cornerRadius={4}
+                        dataKey="value"
+                        stroke="none"
+                      >
+                        {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px', fontWeight: 600 }}
+                      />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  )}
                 </div>
               ) : (
                 <div className="h-full w-full rounded-full border-4 border-dashed border-slate-100 flex items-center justify-center">
