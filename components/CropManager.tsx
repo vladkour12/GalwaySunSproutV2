@@ -861,10 +861,10 @@ const CropManager: React.FC<CropManagerProps> = ({
                               <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
                                  <div className="flex items-center">
                                     <Package className="w-3 h-3 mr-1 opacity-50" />
-                                    <span className={crop.price500g ? "text-slate-600" : ""}>500g: {crop.price500g ? `€${crop.price500g.toFixed(2)}` : '--'}</span>
+                                    <span className={crop.price500g ? "text-slate-600" : ""}>{crop.pkgWeightSmall || 500}g: {crop.price500g ? `€${crop.price500g.toFixed(2)}` : '--'}</span>
                                  </div>
                                  <span className="text-slate-300">•</span>
-                                 <span className={crop.price1kg ? "text-slate-600" : ""}>1kg: {crop.price1kg ? `€${crop.price1kg.toFixed(2)}` : '--'}</span>
+                                 <span className={crop.price1kg ? "text-slate-600" : ""}>{crop.pkgWeightLarge ? (crop.pkgWeightLarge >= 1000 ? (crop.pkgWeightLarge/1000) + 'kg' : crop.pkgWeightLarge + 'g') : '1kg'}: {crop.price1kg ? `€${crop.price1kg.toFixed(2)}` : '--'}</span>
                               </div>
                            </div>
                            
