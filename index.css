@@ -5,9 +5,9 @@
 html {
   height: 100%;
   height: -webkit-fill-available; /* iOS Safari */
-  overflow: hidden; /* Prevent document scrolling */
-  position: fixed; /* Lock viewport */
-  width: 100%;
+  /* Prevent overscroll that triggers browser UI */
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
 }
 
 body {
@@ -15,26 +15,24 @@ body {
   background: linear-gradient(135deg, #f0fdfa 0%, #f1f5f9 100%);
   color: #0f172a;
   -webkit-tap-highlight-color: transparent;
-  height: 100%;
-  height: -webkit-fill-available; /* iOS Safari */
-  width: 100%;
-  overflow: hidden; /* Prevent body scrolling */
-  position: fixed; /* Lock viewport */
+  min-height: 100vh;
+  min-height: -webkit-fill-available; /* iOS Safari */
   /* Prevent overscroll bounce on iOS - this is key for fullscreen */
   overscroll-behavior: none;
   overscroll-behavior-y: none;
   /* Prevent pull-to-refresh */
   overscroll-behavior-block: none;
-  touch-action: pan-y pinch-zoom; /* Allow vertical scroll but prevent gestures that trigger browser UI */
+  /* Prevent browser UI from appearing on scroll */
+  position: relative;
+  overflow-x: hidden;
 }
 
 #root {
-  height: 100%;
-  height: -webkit-fill-available; /* iOS Safari */
-  width: 100%;
-  overflow: hidden; /* Root should not scroll */
-  position: relative;
+  min-height: 100vh;
+  min-height: -webkit-fill-available; /* iOS Safari */
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  /* Prevent scroll chaining */
+  overscroll-behavior: contain;
 }
 
 h1, h2, h3, h4, h5, h6 {
