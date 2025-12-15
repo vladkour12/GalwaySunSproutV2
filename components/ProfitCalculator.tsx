@@ -45,12 +45,12 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
   
   const selectedCrop = state.crops.find(c => c.id === selectedCropId);
   const elecCalc = useMemo(() => {
-    if (!selectedCrop) return null;
+    const lightDays = selectedCrop?.lightDays || 7;
     return quickElectricityCalc(
       elecWattagePerShelf,
       elecTraysPerShelf,
       elecHoursPerDay,
-      selectedCrop.lightDays || 7,
+      lightDays,
       elecRatePerKwh
     );
   }, [selectedCrop, elecWattagePerShelf, elecTraysPerShelf, elecHoursPerDay, elecRatePerKwh]);
@@ -60,9 +60,9 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
   }, [soilCostPerBag, soilVolumePerBag, soilVolumePerTray]);
   
   const packagingCalc = useMemo(() => {
-    if (!selectedCrop || !yieldPerTray) return null;
-    return quickPackagingCalc(packagingCostPerBag, packagingWeightPerBag, yieldPerTray);
-  }, [selectedCrop, yieldPerTray, packagingCostPerBag, packagingWeightPerBag]);
+    const yieldValue = yieldPerTray || 300; // Default to 300g if no crop selected
+    return quickPackagingCalc(packagingCostPerBag, packagingWeightPerBag, yieldValue);
+  }, [yieldPerTray, packagingCostPerBag, packagingWeightPerBag]);
 
   // Effect: Auto-populate when crop changes
   useEffect(() => {
@@ -316,7 +316,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                       </div>
                       
                       {/* Electricity Calculator */}
-                      {showElecCalc && selectedCrop && elecCalc && (
+                      {showElecCalc && elecCalc && (
                          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3 text-xs">
                             <div className="flex justify-between items-center">
                                <h4 className="font-bold text-amber-900">Electricity Cost Calculator</h4>
@@ -346,7 +346,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                                   <span className="font-bold">€{elecCalc.costPerCyclePerTray.toFixed(2)}</span>
                                </div>
                                <div className="text-[10px] text-amber-600">
-                                  {elecCalc.wattagePerTray.toFixed(0)}W/tray × {elecHoursPerDay}h/day × {selectedCrop.lightDays} days = €{elecCalc.costPerCyclePerTray.toFixed(2)}
+                                  {elecCalc.wattagePerTray.toFixed(0)}W/tray × {elecHoursPerDay}h/day × {selectedCrop?.lightDays || 7} days = €{elecCalc.costPerCyclePerTray.toFixed(2)}
                                </div>
                                <button
                                   type="button"
