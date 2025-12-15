@@ -15,33 +15,124 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
   // --- State ---
   const [selectedCropId, setSelectedCropId] = useState<string>('');
   
+  // Load saved values from localStorage on mount
+  const loadSavedValues = (): {
+    pricePer100g: number;
+    seedCost: number;
+    soilCost: number;
+    elecCost: number;
+    waterCost: number;
+    packagingCost: number;
+    elecWattagePerShelf: number;
+    elecTraysPerShelf: number;
+    elecHoursPerDay: number;
+    elecRatePerKwh: number;
+    soilCostPerBag: number;
+    soilVolumePerBag: number;
+    soilVolumePerTray: number;
+    packagingCostPerBag: number;
+    packagingWeightPerBag: number;
+  } => {
+    try {
+      const saved = localStorage.getItem('galway_profit_calc_settings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          pricePer100g: parsed.pricePer100g || 0,
+          seedCost: parsed.seedCost || 0,
+          soilCost: parsed.soilCost ?? 0.50,
+          elecCost: parsed.elecCost ?? 0.85,
+          waterCost: parsed.waterCost ?? 0.15,
+          packagingCost: parsed.packagingCost ?? 0.40,
+          elecWattagePerShelf: parsed.elecWattagePerShelf ?? 100,
+          elecTraysPerShelf: parsed.elecTraysPerShelf ?? 4,
+          elecHoursPerDay: parsed.elecHoursPerDay ?? 16,
+          elecRatePerKwh: parsed.elecRatePerKwh ?? 0.32,
+          soilCostPerBag: parsed.soilCostPerBag ?? 12.00,
+          soilVolumePerBag: parsed.soilVolumePerBag ?? 50,
+          soilVolumePerTray: parsed.soilVolumePerTray ?? 3,
+          packagingCostPerBag: parsed.packagingCostPerBag ?? 0.40,
+          packagingWeightPerBag: parsed.packagingWeightPerBag ?? 100,
+        };
+      }
+    } catch (e) {
+      console.warn('Failed to load profit calculator settings', e);
+    }
+    // Defaults
+    return {
+      pricePer100g: 0,
+      seedCost: 0,
+      soilCost: 0.50,
+      elecCost: 0.85,
+      waterCost: 0.15,
+      packagingCost: 0.40,
+      elecWattagePerShelf: 100,
+      elecTraysPerShelf: 4,
+      elecHoursPerDay: 16,
+      elecRatePerKwh: 0.32,
+      soilCostPerBag: 12.00,
+      soilVolumePerBag: 50,
+      soilVolumePerTray: 3,
+      packagingCostPerBag: 0.40,
+      packagingWeightPerBag: 100,
+    };
+  };
+
+  const savedValues = loadSavedValues();
+  
   // Inputs
-  const [pricePer100g, setPricePer100g] = useState<number>(0);
+  const [pricePer100g, setPricePer100g] = useState<number>(savedValues.pricePer100g);
   const [yieldPerTray, setYieldPerTray] = useState<number>(0);
   
-  const [seedCost, setSeedCost] = useState<number>(0);
-  const [soilCost, setSoilCost] = useState<number>(0.50);
-  const [elecCost, setElecCost] = useState<number>(0.85); // Estimated per tray per cycle
-  const [waterCost, setWaterCost] = useState<number>(0.15); // Water & Labor misc
-  const [packagingCost, setPackagingCost] = useState<number>(0.40); // Clamshell/box
+  const [seedCost, setSeedCost] = useState<number>(savedValues.seedCost);
+  const [soilCost, setSoilCost] = useState<number>(savedValues.soilCost);
+  const [elecCost, setElecCost] = useState<number>(savedValues.elecCost);
+  const [waterCost, setWaterCost] = useState<number>(savedValues.waterCost);
+  const [packagingCost, setPackagingCost] = useState<number>(savedValues.packagingCost);
 
   // Electricity calculation helper (100W per shelf, 4 trays per shelf)
   const [showElecCalc, setShowElecCalc] = useState(false);
-  const [elecWattagePerShelf, setElecWattagePerShelf] = useState(100);
-  const [elecTraysPerShelf, setElecTraysPerShelf] = useState(4);
-  const [elecHoursPerDay, setElecHoursPerDay] = useState(16);
-  const [elecRatePerKwh, setElecRatePerKwh] = useState(0.32); // Typical Irish rate
+  const [elecWattagePerShelf, setElecWattagePerShelf] = useState(savedValues.elecWattagePerShelf);
+  const [elecTraysPerShelf, setElecTraysPerShelf] = useState(savedValues.elecTraysPerShelf);
+  const [elecHoursPerDay, setElecHoursPerDay] = useState(savedValues.elecHoursPerDay);
+  const [elecRatePerKwh, setElecRatePerKwh] = useState(savedValues.elecRatePerKwh);
   
   // Soil calculation helper
   const [showSoilCalc, setShowSoilCalc] = useState(false);
-  const [soilCostPerBag, setSoilCostPerBag] = useState(12.00);
-  const [soilVolumePerBag, setSoilVolumePerBag] = useState(50); // Liters
-  const [soilVolumePerTray, setSoilVolumePerTray] = useState(3); // Liters per 1020 tray
+  const [soilCostPerBag, setSoilCostPerBag] = useState(savedValues.soilCostPerBag);
+  const [soilVolumePerBag, setSoilVolumePerBag] = useState(savedValues.soilVolumePerBag);
+  const [soilVolumePerTray, setSoilVolumePerTray] = useState(savedValues.soilVolumePerTray);
   
   // Packaging calculation helper
   const [showPackagingCalc, setShowPackagingCalc] = useState(false);
-  const [packagingCostPerBag, setPackagingCostPerBag] = useState(0.40);
-  const [packagingWeightPerBag, setPackagingWeightPerBag] = useState(100); // grams per bag
+  const [packagingCostPerBag, setPackagingCostPerBag] = useState(savedValues.packagingCostPerBag);
+  const [packagingWeightPerBag, setPackagingWeightPerBag] = useState(savedValues.packagingWeightPerBag);
+
+  // Save values to localStorage whenever they change
+  useEffect(() => {
+    try {
+      const settings = {
+        pricePer100g,
+        seedCost,
+        soilCost,
+        elecCost,
+        waterCost,
+        packagingCost,
+        elecWattagePerShelf,
+        elecTraysPerShelf,
+        elecHoursPerDay,
+        elecRatePerKwh,
+        soilCostPerBag,
+        soilVolumePerBag,
+        soilVolumePerTray,
+        packagingCostPerBag,
+        packagingWeightPerBag,
+      };
+      localStorage.setItem('galway_profit_calc_settings', JSON.stringify(settings));
+    } catch (e) {
+      console.warn('Failed to save profit calculator settings', e);
+    }
+  }, [pricePer100g, seedCost, soilCost, elecCost, waterCost, packagingCost, elecWattagePerShelf, elecTraysPerShelf, elecHoursPerDay, elecRatePerKwh, soilCostPerBag, soilVolumePerBag, soilVolumePerTray, packagingCostPerBag, packagingWeightPerBag]);
   
   const selectedCrop = state.crops.find(c => c.id === selectedCropId);
   const elecCalc = useMemo(() => {
@@ -110,6 +201,22 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
     setElecCost(0.85);
     setWaterCost(0.15);
     setPackagingCost(0.40);
+    // Also reset calculator settings
+    setElecWattagePerShelf(100);
+    setElecTraysPerShelf(4);
+    setElecHoursPerDay(16);
+    setElecRatePerKwh(0.32);
+    setSoilCostPerBag(12.00);
+    setSoilVolumePerBag(50);
+    setSoilVolumePerTray(3);
+    setPackagingCostPerBag(0.40);
+    setPackagingWeightPerBag(100);
+    // Clear localStorage to use defaults
+    try {
+      localStorage.removeItem('galway_profit_calc_settings');
+    } catch (e) {
+      console.warn('Failed to clear profit calculator settings', e);
+    }
   };
 
   return (
@@ -369,9 +476,8 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                          <button
                             type="button"
                             onClick={() => setShowPackagingCalc(!showPackagingCalc)}
-                            className="col-span-1 flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-                            title={!yieldPerTray || yieldPerTray === 0 ? "Select a crop first to calculate packaging costs" : "Click to calculate packaging costs"}
-                            disabled={!yieldPerTray || yieldPerTray === 0}
+                            className="col-span-1 flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity"
+                            title="Click to calculate packaging costs"
                             style={{ touchAction: 'manipulation' }}
                          >
                             <div className="flex items-center">
@@ -395,7 +501,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                       </div>
                       
                       {/* Packaging Calculator */}
-                      {showPackagingCalc && packagingCalc && yieldPerTray > 0 && (
+                      {showPackagingCalc && packagingCalc && (
                          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-3 text-xs">
                             <div className="flex justify-between items-center">
                                <h4 className="font-bold text-blue-900">Packaging Cost Calculator</h4>
@@ -421,7 +527,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                                   <span className="font-bold">€{packagingCalc.totalCostPerTray.toFixed(2)}</span>
                                </div>
                                <div className="text-[10px] text-blue-600">
-                                  ({yieldPerTray}g yield ÷ {packagingWeightPerBag}g per bag = {packagingCalc.bagsPerTray} bags)
+                                  ({(yieldPerTray || 300)}g yield ÷ {packagingWeightPerBag}g per bag = {packagingCalc.bagsPerTray} bags)
                                </div>
                                <button
                                   type="button"
