@@ -10,7 +10,26 @@ export default defineConfig(({ mode }) => {
         port: 3000,
         host: '0.0.0.0',
       },
-      plugins: [react()],
+      plugins: [
+        react(),
+        {
+          name: 'skip-html-import-analysis',
+          enforce: 'pre',
+          load(id) {
+            // Prevent import analysis from running on HTML files
+            if (id.endsWith('.html') || id.includes('.html?')) {
+              // Return empty string to skip processing
+              return '';
+            }
+          },
+          resolveId(id) {
+            // Don't resolve HTML files through this plugin
+            if (id.endsWith('.html') || id.includes('.html?')) {
+              return null;
+            }
+          }
+        }
+      ],
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
