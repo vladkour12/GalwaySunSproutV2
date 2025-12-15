@@ -20,9 +20,12 @@ export default defineConfig(({ mode }) => {
           '@': path.resolve(__dirname, '.'),
         }
       },
-      assetsInclude: ['**/*.json'],
-      optimizeDeps: {
-        exclude: ['manifest.json']
+      build: {
+        rollupOptions: {
+          input: {
+            main: './index.html'
+          }
+        }
       }
     };
 });
