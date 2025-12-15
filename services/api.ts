@@ -75,11 +75,21 @@ const fetchJson = async <T>(url: string, init?: RequestInit): Promise<T> => {
   try {
     return JSON.parse(text) as T;
   } catch (parseError) {
-    // Check if response is HTML (commonly happens when host serves index.html for /api/*)
-    if (text.trim().startsWith('<!') || text.trim().startsWith('<html')) {
-      const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    const trimmed = text.trim();
+    
+    // Check if response is TypeScript/JavaScript source code (Vite serves .ts files as-is)
+    if (trimmed.startsWith('import ') || trimmed.startsWith('export ') || trimmed.startsWith('//')) {
       if (isLocalDev && url.includes('/api/')) {
-        throw new ApiError('API routes not available in local development. Use "npm run dev:vercel" or deploy to Vercel.', { status: res.status, url });
+        throw new ApiError('API routes require "npm run dev:vercel" instead of "npm run dev". Vite cannot run serverless functions.', { status: res.status, url });
+      }
+      throw new ApiError('API endpoint returned source code instead of JSON. This usually means the serverless function is not configured correctly.', { status: res.status, url });
+    }
+    
+    // Check if response is HTML (commonly happens when host serves index.html for /api/*)
+    if (trimmed.startsWith('<!') || trimmed.startsWith('<html')) {
+      if (isLocalDev && url.includes('/api/')) {
+        throw new ApiError('API routes not available in local development. Use "npm run dev:vercel" instead of "npm run dev".', { status: res.status, url });
       }
       throw new ApiError('API returned HTML instead of JSON. This usually means API routes are not configured correctly.', { status: res.status, url });
     }
@@ -92,12 +102,21 @@ const fetchOk = async (url: string, init?: RequestInit) => {
   const res = await fetchWithTimeout(url, init);
   if (!res.ok) {
     const text = await res.text();
+    const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    const trimmed = text.trim();
+    
+    // Check if response is TypeScript/JavaScript source code (Vite serves .ts files as-is on 404)
+    if (trimmed.startsWith('import ') || trimmed.startsWith('export ') || trimmed.startsWith('//')) {
+      if (isLocalDev && url.includes('/api/')) {
+        throw new ApiError('API routes require "npm run dev:vercel" instead of "npm run dev". Vite cannot run serverless functions.', { status: res.status, url });
+      }
+      throw new ApiError('API endpoint returned source code instead of JSON. This usually means the serverless function is not configured correctly.', { status: res.status, url });
+    }
     
     // Check if response is HTML (likely a 404 page or error page)
-    if (text.trim().startsWith('<!') || text.trim().startsWith('<html')) {
-      const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    if (trimmed.startsWith('<!') || trimmed.startsWith('<html')) {
       if (isLocalDev && url.includes('/api/')) {
-        throw new ApiError('API routes not available in local development. Use "npm run dev:vercel" or deploy to Vercel.', { status: res.status, url });
+        throw new ApiError('API routes not available in local development. Use "npm run dev:vercel" instead of "npm run dev".', { status: res.status, url });
       }
       throw new ApiError(`API returned HTML instead of JSON. Route may not exist.`, { status: res.status, url });
     }

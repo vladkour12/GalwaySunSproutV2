@@ -121,22 +121,22 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
     if (crops.length === 0) {
       console.log('Database is empty, seeding initial data...');
       try {
-        await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
-        const [seededCrops, seededTrays, seededTransactions, seededCustomers] = await Promise.all([
-          api.getCrops(),
-          api.getTrays(),
-          api.getTransactions(),
-          api.getCustomers(),
-        ]);
-        const seeded: AppState = {
-          crops: seededCrops,
-          trays: seededTrays,
-          transactions: seededTransactions,
-          customers: seededCustomers,
-        };
-        await saveState(seeded);
+      await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
+      const [seededCrops, seededTrays, seededTransactions, seededCustomers] = await Promise.all([
+        api.getCrops(),
+        api.getTrays(),
+        api.getTransactions(),
+        api.getCustomers(),
+      ]);
+      const seeded: AppState = {
+        crops: seededCrops,
+        trays: seededTrays,
+        transactions: seededTransactions,
+        customers: seededCustomers,
+      };
+      await saveState(seeded);
         console.log('Database seeded successfully');
-        return seeded;
+      return seeded;
       } catch (seedError) {
         console.error('Failed to seed database:', seedError);
         // If seeding fails, return empty state but don't crash
@@ -170,6 +170,16 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
     return state;
   } catch (e) {
     const msg = (e as Error)?.message ?? String(e);
+    const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    
+    // Check if this is a "Vite dev server" error (API routes not available)
+    if (isLocalDev && (msg.includes('dev:vercel') || msg.includes('Vite cannot run serverless') || msg.includes('API routes not available'))) {
+      console.warn('API routes not available in Vite dev mode. Working offline. Use "npm run dev:vercel" for full API support.');
+      // Return empty state - app will work offline
+      const emptyState: AppState = { crops: [], trays: [], transactions: [], customers: [] };
+      return emptyState;
+    }
+    
     console.error('Failed to refresh from remote:', msg);
     
     // If it's a connection/database error, throw it so the UI can show appropriate message
@@ -177,42 +187,52 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
       throw new Error(`Network error: ${msg}`);
     }
     
-    // For other errors, try one more time after setup
-    try {
-      console.log('Retrying after database setup...');
-      await api.setup();
-      const [crops, trays, transactions, customers] = await Promise.all([
-        api.getCrops(),
-        api.getTrays(),
-        api.getTransactions(),
-        api.getCustomers(),
-      ]);
-
-      if (crops.length === 0) {
-        await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
-        const [seededCrops, seededTrays, seededTransactions, seededCustomers] = await Promise.all([
+    // For other errors, try one more time after setup (only if not local dev with Vite)
+    if (!isLocalDev || !msg.includes('dev:vercel')) {
+      try {
+        console.log('Retrying after database setup...');
+        await api.setup();
+        const [crops, trays, transactions, customers] = await Promise.all([
           api.getCrops(),
           api.getTrays(),
           api.getTransactions(),
           api.getCustomers(),
         ]);
-        const seeded: AppState = {
-          crops: seededCrops,
-          trays: seededTrays,
-          transactions: seededTransactions,
-          customers: seededCustomers,
-        };
-        await saveState(seeded);
-        return seeded;
-      }
 
-      const state: AppState = { crops, trays, transactions, customers };
-      await saveState(state);
-      return state;
-    } catch (e2) {
-      const msg2 = (e2 as Error)?.message ?? String(e2);
-      throw new Error(`Database error: ${msg} / ${msg2}`);
+        if (crops.length === 0) {
+          await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
+          const [seededCrops, seededTrays, seededTransactions, seededCustomers] = await Promise.all([
+            api.getCrops(),
+            api.getTrays(),
+            api.getTransactions(),
+            api.getCustomers(),
+          ]);
+          const seeded: AppState = {
+            crops: seededCrops,
+            trays: seededTrays,
+            transactions: seededTransactions,
+            customers: seededCustomers,
+          };
+          await saveState(seeded);
+          return seeded;
+        }
+
+        const state: AppState = { crops, trays, transactions, customers };
+        await saveState(state);
+        return state;
+      } catch (e2) {
+        const msg2 = (e2 as Error)?.message ?? String(e2);
+        throw new Error(`Database error: ${msg} / ${msg2}`);
+      }
     }
+    
+    // If we're in local dev with Vite, return empty state
+    if (isLocalDev) {
+      const emptyState: AppState = { crops: [], trays: [], transactions: [], customers: [] };
+      return emptyState;
+    }
+    
+    throw new Error(`Database error: ${msg}`);
   }
 };
 
