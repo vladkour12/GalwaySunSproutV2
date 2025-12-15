@@ -10,26 +10,7 @@ export default defineConfig(({ mode }) => {
         port: 3000,
         host: '0.0.0.0',
       },
-      plugins: [
-        react(),
-        {
-          name: 'html-import-fix',
-          enforce: 'pre',
-          transformIndexHtml: {
-            enforce: 'pre',
-            transform(html, ctx) {
-              // This ensures HTML is handled correctly
-              return html;
-            }
-          },
-          load(id) {
-            // Prevent import analysis on HTML files
-            if (id === path.resolve(__dirname, 'index.html') || id.endsWith('index.html')) {
-              return null; // Let Vite handle it normally
-            }
-          }
-        }
-      ],
+      plugins: [react()],
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
@@ -40,6 +21,13 @@ export default defineConfig(({ mode }) => {
         }
       },
       assetsInclude: ['**/*.json'],
+      // Workaround for Vite 6.x bug where import-analysis tries to parse HTML
+      // Only include non-entry HTML files as assets
+      build: {
+        rollupOptions: {
+          input: path.resolve(__dirname, 'index.html')
+        }
+      },
       optimizeDeps: {
         exclude: ['manifest.json']
       }
