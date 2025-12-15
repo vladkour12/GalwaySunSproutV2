@@ -162,7 +162,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 40.00,
     color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     summary: 'Cabbage taste. High yield.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Broccoli.PNG'
   },
   {
     id: 'buckwheat',
