@@ -5,6 +5,8 @@ import { Calculator, Euro, Sprout, Zap, Box, Droplets, TrendingUp, AlertCircle, 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import CustomSelect from './CustomSelect';
 import { quickElectricityCalc } from '../utils/electricityCalculator';
+import { quickSoilCalc } from '../utils/soilCalculator';
+import { quickPackagingCalc } from '../utils/packagingCalculator';
 
 interface ProfitCalculatorProps {
   state: AppState;
@@ -34,6 +36,17 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
   const [elecHoursPerDay, setElecHoursPerDay] = useState(16);
   const [elecRatePerKwh, setElecRatePerKwh] = useState(0.32); // Typical Irish rate
   
+  // Soil calculation helper
+  const [showSoilCalc, setShowSoilCalc] = useState(false);
+  const [soilCostPerBag, setSoilCostPerBag] = useState(12.00);
+  const [soilVolumePerBag, setSoilVolumePerBag] = useState(50); // Liters
+  const [soilVolumePerTray, setSoilVolumePerTray] = useState(3); // Liters per 1020 tray
+  
+  // Packaging calculation helper
+  const [showPackagingCalc, setShowPackagingCalc] = useState(false);
+  const [packagingCostPerContainer, setPackagingCostPerContainer] = useState(0.40);
+  const [packagingWeightPerContainer, setPackagingWeightPerContainer] = useState(100); // grams
+  
   const selectedCrop = state.crops.find(c => c.id === selectedCropId);
   const elecCalc = useMemo(() => {
     if (!selectedCrop) return null;
@@ -45,6 +58,15 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
       elecRatePerKwh
     );
   }, [selectedCrop, elecWattagePerShelf, elecTraysPerShelf, elecHoursPerDay, elecRatePerKwh]);
+  
+  const soilCalc = useMemo(() => {
+    return quickSoilCalc(soilCostPerBag, soilVolumePerBag, soilVolumePerTray);
+  }, [soilCostPerBag, soilVolumePerBag, soilVolumePerTray]);
+  
+  const packagingCalc = useMemo(() => {
+    if (!selectedCrop || !yieldPerTray) return null;
+    return quickPackagingCalc(packagingCostPerContainer, packagingWeightPerContainer, yieldPerTray);
+  }, [selectedCrop, yieldPerTray, packagingCostPerContainer, packagingWeightPerContainer]);
 
   useEffect(() => {
     // Force re-measure on load and resize
@@ -220,23 +242,78 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                    </div>
 
                    {/* Soil Cost */}
-                   <div className="grid grid-cols-3 gap-4 items-center">
-                       <label className="col-span-1 text-xs font-bold text-slate-500 flex items-center">
-                          <Box className="w-3.5 h-3.5 mr-2 text-violet-500" />
-                          Medium/Soil
-                       </label>
-                       <div className="col-span-2 relative">
-                          <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
-                          <input 
-                             type="number"
-                             value={soilCost || ''}
-                             onChange={(e) => setSoilCost(parseFloat(e.target.value) || 0)}
-                             onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
-                             step="0.01"
-                             className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
-                             placeholder="0.00"
-                          />
-                       </div>
+                   <div className="space-y-2">
+                      <div className="grid grid-cols-3 gap-4 items-center">
+                         <label className="col-span-1 text-xs font-bold text-slate-500 flex items-center justify-between">
+                            <div className="flex items-center">
+                               <Box className="w-3.5 h-3.5 mr-2 text-violet-500" />
+                               Medium/Soil
+                            </div>
+                            <button
+                               type="button"
+                               onClick={() => setShowSoilCalc(!showSoilCalc)}
+                               className="p-1 text-violet-500 hover:text-violet-600 rounded"
+                               title="Calculate soil costs"
+                            >
+                               <Info className="w-3.5 h-3.5" />
+                            </button>
+                         </label>
+                         <div className="col-span-2 relative">
+                            <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
+                            <input 
+                               type="number"
+                               value={soilCost || ''}
+                               onChange={(e) => setSoilCost(parseFloat(e.target.value) || 0)}
+                               onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
+                               step="0.01"
+                               className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
+                               placeholder="0.00"
+                            />
+                         </div>
+                      </div>
+                      
+                      {/* Soil Calculator */}
+                      {showSoilCalc && soilCalc && (
+                         <div className="bg-violet-50 border border-violet-200 rounded-xl p-4 space-y-3 text-xs">
+                            <div className="flex justify-between items-center">
+                               <h4 className="font-bold text-violet-900">Soil Cost Calculator</h4>
+                               <button onClick={() => setShowSoilCalc(false)} className="text-violet-600 hover:text-violet-800">×</button>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                               <div>
+                                  <label className="text-[10px] font-bold text-violet-700 uppercase">€ per Bag</label>
+                                  <input type="number" value={soilCostPerBag} step="0.01" onChange={e => setSoilCostPerBag(parseFloat(e.target.value) || 12)} className="w-full p-1.5 bg-white border border-violet-200 rounded text-xs font-bold" />
+                               </div>
+                               <div>
+                                  <label className="text-[10px] font-bold text-violet-700 uppercase">L per Bag</label>
+                                  <input type="number" value={soilVolumePerBag} onChange={e => setSoilVolumePerBag(parseFloat(e.target.value) || 50)} className="w-full p-1.5 bg-white border border-violet-200 rounded text-xs font-bold" />
+                               </div>
+                               <div>
+                                  <label className="text-[10px] font-bold text-violet-700 uppercase">L per Tray</label>
+                                  <input type="number" value={soilVolumePerTray} step="0.1" onChange={e => setSoilVolumePerTray(parseFloat(e.target.value) || 3)} className="w-full p-1.5 bg-white border border-violet-200 rounded text-xs font-bold" />
+                               </div>
+                            </div>
+                            <div className="pt-2 border-t border-violet-200 space-y-1">
+                               <div className="flex justify-between text-violet-800">
+                                  <span className="font-medium">Cost per Tray:</span>
+                                  <span className="font-bold">€{soilCalc.costPerTray.toFixed(2)}</span>
+                               </div>
+                               <div className="text-[10px] text-violet-600">
+                                  (€{soilCalc.costPerUnit.toFixed(3)}/L × {soilVolumePerTray}L)
+                               </div>
+                               <button
+                                  type="button"
+                                  onClick={() => {
+                                     setSoilCost(Number(soilCalc.costPerTray.toFixed(2)));
+                                     setShowSoilCalc(false);
+                                  }}
+                                  className="w-full mt-2 py-1.5 bg-violet-600 text-white rounded-lg text-xs font-bold hover:bg-violet-700"
+                               >
+                                  Use This Value
+                               </button>
+                            </div>
+                         </div>
+                      )}
                    </div>
 
                    {/* Electricity Cost */}
@@ -319,23 +396,79 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                    </div>
 
                     {/* Packaging Cost */}
-                   <div className="grid grid-cols-3 gap-4 items-center">
-                       <label className="col-span-1 text-xs font-bold text-slate-500 flex items-center">
-                          <Box className="w-3.5 h-3.5 mr-2 text-blue-500" />
-                          Packaging
-                       </label>
-                       <div className="col-span-2 relative">
-                          <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
-                          <input 
-                             type="number"
-                             value={packagingCost || ''}
-                             onChange={(e) => setPackagingCost(parseFloat(e.target.value) || 0)}
-                             onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
-                             step="0.01"
-                             className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
-                             placeholder="0.00"
-                          />
-                       </div>
+                   <div className="space-y-2">
+                      <div className="grid grid-cols-3 gap-4 items-center">
+                         <label className="col-span-1 text-xs font-bold text-slate-500 flex items-center justify-between">
+                            <div className="flex items-center">
+                               <Box className="w-3.5 h-3.5 mr-2 text-blue-500" />
+                               Packaging
+                            </div>
+                            <button
+                               type="button"
+                               onClick={() => setShowPackagingCalc(!showPackagingCalc)}
+                               className="p-1 text-blue-500 hover:text-blue-600 rounded"
+                               title="Calculate packaging costs"
+                               disabled={!yieldPerTray || yieldPerTray === 0}
+                            >
+                               <Info className="w-3.5 h-3.5" />
+                            </button>
+                         </label>
+                         <div className="col-span-2 relative">
+                            <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
+                            <input 
+                               type="number"
+                               value={packagingCost || ''}
+                               onChange={(e) => setPackagingCost(parseFloat(e.target.value) || 0)}
+                               onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
+                               step="0.01"
+                               className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
+                               placeholder="0.00"
+                            />
+                         </div>
+                      </div>
+                      
+                      {/* Packaging Calculator */}
+                      {showPackagingCalc && packagingCalc && yieldPerTray > 0 && (
+                         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-3 text-xs">
+                            <div className="flex justify-between items-center">
+                               <h4 className="font-bold text-blue-900">Packaging Cost Calculator</h4>
+                               <button onClick={() => setShowPackagingCalc(false)} className="text-blue-600 hover:text-blue-800">×</button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                               <div>
+                                  <label className="text-[10px] font-bold text-blue-700 uppercase">€ per Container</label>
+                                  <input type="number" value={packagingCostPerContainer} step="0.01" onChange={e => setPackagingCostPerContainer(parseFloat(e.target.value) || 0.40)} className="w-full p-1.5 bg-white border border-blue-200 rounded text-xs font-bold" />
+                               </div>
+                               <div>
+                                  <label className="text-[10px] font-bold text-blue-700 uppercase">g per Container</label>
+                                  <input type="number" value={packagingWeightPerContainer} onChange={e => setPackagingWeightPerContainer(parseInt(e.target.value) || 100)} className="w-full p-1.5 bg-white border border-blue-200 rounded text-xs font-bold" />
+                               </div>
+                            </div>
+                            <div className="pt-2 border-t border-blue-200 space-y-1">
+                               <div className="flex justify-between text-blue-800">
+                                  <span className="font-medium">Containers per Tray:</span>
+                                  <span className="font-bold">{packagingCalc.containersPerTray}</span>
+                               </div>
+                               <div className="flex justify-between text-blue-800">
+                                  <span className="font-medium">Cost per Tray:</span>
+                                  <span className="font-bold">€{packagingCalc.totalCostPerTray.toFixed(2)}</span>
+                               </div>
+                               <div className="text-[10px] text-blue-600">
+                                  ({yieldPerTray}g yield ÷ {packagingWeightPerContainer}g per container = {packagingCalc.containersPerTray} containers)
+                               </div>
+                               <button
+                                  type="button"
+                                  onClick={() => {
+                                     setPackagingCost(Number(packagingCalc.totalCostPerTray.toFixed(2)));
+                                     setShowPackagingCalc(false);
+                                  }}
+                                  className="w-full mt-2 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700"
+                               >
+                                  Use This Value
+                               </button>
+                            </div>
+                         </div>
+                      )}
                    </div>
 
                    {/* Water Cost */}
