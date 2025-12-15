@@ -586,15 +586,11 @@ const App: React.FC = () => {
   const alertCount = alerts.length;
 
   // Handler to dismiss an alert (shared across components)
+  // Note: Saving is handled by the useEffect above
   const handleDismissAlert = React.useCallback((alertId: string) => {
     setDismissedAlerts(prev => {
       const newDismissed = new Set(prev);
       newDismissed.add(alertId);
-      try {
-        localStorage.setItem('galway_dismissed_alerts', JSON.stringify(Array.from(newDismissed)));
-      } catch (e) {
-        console.warn('Failed to save dismissed alerts to localStorage', e);
-      }
       return newDismissed;
     });
   }, []);
