@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppState } from '../types';
 import { Calculator, Euro, Sprout, Zap, Box, Droplets, TrendingUp, AlertCircle, RefreshCw, Scale, Info } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import CustomSelect from './CustomSelect';
 import { quickElectricityCalc } from '../utils/electricityCalculator';
 import { quickSoilCalc } from '../utils/soilCalculator';
@@ -26,9 +25,6 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
   const [waterCost, setWaterCost] = useState<number>(0.15); // Water & Labor misc
   const [packagingCost, setPackagingCost] = useState<number>(0.40); // Clamshell/box
 
-  const [chartWidth, setChartWidth] = useState(0);
-  const chartRef = React.useRef<HTMLDivElement>(null);
-  
   // Electricity calculation helper (100W per shelf, 4 trays per shelf)
   const [showElecCalc, setShowElecCalc] = useState(false);
   const [elecWattagePerShelf, setElecWattagePerShelf] = useState(100);
@@ -67,25 +63,6 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
     if (!selectedCrop || !yieldPerTray) return null;
     return quickPackagingCalc(packagingCostPerBag, packagingWeightPerBag, yieldPerTray);
   }, [selectedCrop, yieldPerTray, packagingCostPerBag, packagingWeightPerBag]);
-
-  useEffect(() => {
-    // Force re-measure on load and resize
-    const updateWidth = () => {
-      if (chartRef.current) {
-        setChartWidth(chartRef.current.offsetWidth);
-      }
-    };
-    
-    updateWidth();
-    // Add a small delay to allow layout to settle
-    const timer = setTimeout(updateWidth, 100);
-    
-    window.addEventListener('resize', updateWidth);
-    return () => {
-      window.removeEventListener('resize', updateWidth);
-      clearTimeout(timer);
-    };
-  }, []);
 
   // Effect: Auto-populate when crop changes
   useEffect(() => {
@@ -127,13 +104,6 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
   const netProfit = revenuePerTray - totalVariableCost;
   const margin = revenuePerTray > 0 ? (netProfit / revenuePerTray) * 100 : 0;
   
-  const chartData = [
-    { name: 'Seed', value: seedCost, color: '#0d9488' }, // Teal
-    { name: 'Soil', value: soilCost, color: '#8b5cf6' }, // Violet
-    { name: 'Electricity', value: elecCost, color: '#f59e0b' }, // Amber
-    { name: 'Packaging', value: packagingCost, color: '#3b82f6' }, // Blue
-    { name: 'Water/Misc', value: waterCost, color: '#64748b' }, // Slate
-  ].filter(item => item.value > 0);
 
   const resetDefaults = () => {
     setSoilCost(0.50);
@@ -554,47 +524,6 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                </div>
             </div>
 
-            {/* Cost Distribution Chart */}
-            <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 relative">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Cost Breakdown</h4>
-                {totalVariableCost > 0 ? (
-                  <div ref={chartRef} className="h-48 w-full" style={{ minHeight: 192 }}>
-                    {chartWidth > 0 && (
-                        <PieChart width={chartWidth} height={192}>
-                        <Pie
-                          data={chartData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={50}
-                          outerRadius={70}
-                          paddingAngle={5}
-                          dataKey="value"
-                        >
-                          {chartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip 
-                           formatter={(value: number) => `€${value.toFixed(2)}`}
-                           contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', fontSize: '12px', fontWeight: 600 }}
-                        />
-                        <Legend 
-                          layout="vertical" 
-                          verticalAlign="middle" 
-                          align="right"
-                          iconType="circle"
-                          iconSize={8}
-                          wrapperStyle={{ fontSize: '11px', fontWeight: 600, color: '#64748b' }}
-                        />
-                        </PieChart>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center h-48 text-slate-300 text-sm">
-                      No costs to display
-                  </div>
-                )}
-            </div>
         </div>
       </div>
     </div>
