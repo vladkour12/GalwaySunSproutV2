@@ -26,6 +26,25 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
 
   const [chartWidth, setChartWidth] = useState(0);
   const chartRef = React.useRef<HTMLDivElement>(null);
+  
+  // Electricity calculation helper (100W per shelf, 4 trays per shelf)
+  const [showElecCalc, setShowElecCalc] = useState(false);
+  const [elecWattagePerShelf, setElecWattagePerShelf] = useState(100);
+  const [elecTraysPerShelf, setElecTraysPerShelf] = useState(4);
+  const [elecHoursPerDay, setElecHoursPerDay] = useState(16);
+  const [elecRatePerKwh, setElecRatePerKwh] = useState(0.32); // Typical Irish rate
+  
+  const selectedCrop = state.crops.find(c => c.id === selectedCropId);
+  const elecCalc = useMemo(() => {
+    if (!selectedCrop) return null;
+    return quickElectricityCalc(
+      elecWattagePerShelf,
+      elecTraysPerShelf,
+      elecHoursPerDay,
+      selectedCrop.lightDays || 7,
+      elecRatePerKwh
+    );
+  }, [selectedCrop, elecWattagePerShelf, elecTraysPerShelf, elecHoursPerDay, elecRatePerKwh]);
 
   useEffect(() => {
     // Force re-measure on load and resize
