@@ -115,7 +115,32 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
         className="flex-1 overflow-y-auto overflow-x-hidden"
         style={{ 
           paddingBottom: `calc(${bottomPadPx}px + env(safe-area-inset-bottom))`,
-          minHeight: 0 // Prevent flex item from growing beyond content on large screens
+          minHeight: 0, // Prevent flex item from growing beyond content on large screens
+          WebkitOverflowScrolling: 'touch', // Smooth scrolling on iOS
+          overscrollBehavior: 'contain', // Prevent scroll chaining to body
+          overscrollBehaviorY: 'contain' // Prevent pull-to-refresh
+        }}
+        onTouchStart={(e) => {
+          // Store initial touch position for scroll detection
+          const el = e.currentTarget;
+          (el as any).__touchStartY = e.touches[0].clientY;
+        }}
+        onTouchMove={(e) => {
+          // Prevent scroll chaining when at boundaries
+          const el = e.currentTarget;
+          const { scrollTop, scrollHeight, clientHeight } = el;
+          const touchStartY = (el as any).__touchStartY;
+          const currentY = e.touches[0].clientY;
+          const deltaY = currentY - touchStartY;
+          
+          // If at top and trying to scroll up, or at bottom and trying to scroll down
+          const isAtTop = scrollTop <= 0;
+          const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+          
+          if ((isAtTop && deltaY > 0) || (isAtBottom && deltaY < 0)) {
+            // Prevent scroll chaining to document body
+            e.stopPropagation();
+          }
         }}
       >
         <div className="max-w-4xl mx-auto p-4 sm:p-6">

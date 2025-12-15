@@ -5,6 +5,9 @@
 html {
   height: 100%;
   height: -webkit-fill-available; /* iOS Safari */
+  overflow: hidden; /* Prevent document scrolling */
+  position: fixed; /* Lock viewport */
+  width: 100%;
 }
 
 body {
@@ -12,16 +15,25 @@ body {
   background: linear-gradient(135deg, #f0fdfa 0%, #f1f5f9 100%);
   color: #0f172a;
   -webkit-tap-highlight-color: transparent;
-  min-height: 100vh;
-  min-height: -webkit-fill-available; /* iOS Safari */
-  /* Prevent overscroll bounce on iOS */
+  height: 100%;
+  height: -webkit-fill-available; /* iOS Safari */
+  width: 100%;
+  overflow: hidden; /* Prevent body scrolling */
+  position: fixed; /* Lock viewport */
+  /* Prevent overscroll bounce on iOS - this is key for fullscreen */
   overscroll-behavior: none;
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y: none;
+  /* Prevent pull-to-refresh */
+  overscroll-behavior-block: none;
+  touch-action: pan-y pinch-zoom; /* Allow vertical scroll but prevent gestures that trigger browser UI */
 }
 
 #root {
-  min-height: 100vh;
-  min-height: -webkit-fill-available; /* iOS Safari */
+  height: 100%;
+  height: -webkit-fill-available; /* iOS Safari */
+  width: 100%;
+  overflow: hidden; /* Root should not scroll */
+  position: relative;
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
