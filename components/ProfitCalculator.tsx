@@ -214,25 +214,20 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                    {/* Soil Cost */}
                    <div className="space-y-2">
                       <div className="grid grid-cols-3 gap-4 items-center">
-                         <div className="col-span-1 flex items-center justify-between">
+                         <button
+                            type="button"
+                            onClick={() => setShowSoilCalc(!showSoilCalc)}
+                            className="col-span-1 flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity"
+                            title="Click to calculate soil costs"
+                            style={{ touchAction: 'manipulation' }}
+                         >
                             <div className="flex items-center">
                                <Box className="w-3.5 h-3.5 mr-2 text-violet-500" />
                                <span className="text-xs font-bold text-slate-500">Medium/Soil</span>
                             </div>
-                            <button
-                               type="button"
-                               onClick={(e) => {
-                                  e.stopPropagation();
-                                  setShowSoilCalc(!showSoilCalc);
-                               }}
-                               className="p-1 text-violet-500 hover:text-violet-600 rounded relative z-10"
-                               title="Calculate soil costs"
-                               style={{ touchAction: 'manipulation' }}
-                            >
-                               <Info className="w-3.5 h-3.5" />
-                            </button>
-                         </div>
-                         <div className="col-span-2 relative">
+                            <Info className="w-3.5 h-3.5 text-violet-500" />
+                         </button>
+                         <div className="col-span-2 relative" onClick={(e) => e.stopPropagation()}>
                             <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
                             <input 
                                type="number"
@@ -293,25 +288,20 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                    {/* Electricity Cost */}
                    <div className="space-y-2">
                       <div className="grid grid-cols-3 gap-4 items-center">
-                         <div className="col-span-1 flex items-center justify-between">
+                         <button
+                            type="button"
+                            onClick={() => setShowElecCalc(!showElecCalc)}
+                            className="col-span-1 flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity"
+                            title="Click to calculate electricity costs"
+                            style={{ touchAction: 'manipulation' }}
+                         >
                             <div className="flex items-center">
                                <Zap className="w-3.5 h-3.5 mr-2 text-amber-500" />
                                <span className="text-xs font-bold text-slate-500">Electricity</span>
                             </div>
-                            <button
-                               type="button"
-                               onClick={(e) => {
-                                  e.stopPropagation();
-                                  setShowElecCalc(!showElecCalc);
-                               }}
-                               className="p-1 text-amber-500 hover:text-amber-600 rounded relative z-10"
-                               title="Calculate electricity costs"
-                               style={{ touchAction: 'manipulation' }}
-                            >
-                               <Info className="w-3.5 h-3.5" />
-                            </button>
-                         </div>
-                         <div className="col-span-2 relative">
+                            <Info className="w-3.5 h-3.5 text-amber-500" />
+                         </button>
+                         <div className="col-span-2 relative" onClick={(e) => e.stopPropagation()}>
                             <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
                             <input 
                                type="number"
@@ -376,26 +366,21 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                     {/* Packaging Cost */}
                    <div className="space-y-2">
                       <div className="grid grid-cols-3 gap-4 items-center">
-                         <div className="col-span-1 flex items-center justify-between">
+                         <button
+                            type="button"
+                            onClick={() => setShowPackagingCalc(!showPackagingCalc)}
+                            className="col-span-1 flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                            title={!yieldPerTray || yieldPerTray === 0 ? "Select a crop first to calculate packaging costs" : "Click to calculate packaging costs"}
+                            disabled={!yieldPerTray || yieldPerTray === 0}
+                            style={{ touchAction: 'manipulation' }}
+                         >
                             <div className="flex items-center">
                                <Box className="w-3.5 h-3.5 mr-2 text-blue-500" />
                                <span className="text-xs font-bold text-slate-500">Packaging</span>
                             </div>
-                            <button
-                               type="button"
-                               onClick={(e) => {
-                                  e.stopPropagation();
-                                  setShowPackagingCalc(!showPackagingCalc);
-                               }}
-                               className="p-1 text-blue-500 hover:text-blue-600 rounded relative z-10 disabled:opacity-50 disabled:cursor-not-allowed"
-                               title={!yieldPerTray || yieldPerTray === 0 ? "Select a crop first to calculate packaging costs" : "Calculate packaging costs"}
-                               disabled={!yieldPerTray || yieldPerTray === 0}
-                               style={{ touchAction: 'manipulation' }}
-                            >
-                               <Info className="w-3.5 h-3.5" />
-                            </button>
-                         </div>
-                         <div className="col-span-2 relative">
+                            <Info className="w-3.5 h-3.5 text-blue-500" />
+                         </button>
+                         <div className="col-span-2 relative" onClick={(e) => e.stopPropagation()}>
                             <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
                             <input 
                                type="number"
