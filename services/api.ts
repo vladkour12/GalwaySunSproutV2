@@ -50,25 +50,71 @@ const fetchJson = async <T>(url: string, init?: RequestInit): Promise<T> => {
   const text = await res.text();
 
   if (!res.ok) {
-    // In local dev, don't log 404s for API routes (expected when not using vercel dev)
-    const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-    if (isLocalDev && res.status === 404 && url.includes('/api/')) {
-      // Suppress console error for expected local dev 404s
+    // Check if response is HTML (likely a 404 page or error page)
+    if (text.trim().startsWith('<!') || text.trim().startsWith('<html')) {
+      const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+      if (isLocalDev && url.includes('/api/')) {
+        throw new ApiError('API routes not available in local development. Use "npm run dev:vercel" or deploy to Vercel.', { status: res.status, url });
+      }
+      throw new ApiError(`API returned HTML instead of JSON. Route may not exist or server misconfigured.`, { status: res.status, url });
     }
-    throw new ApiError(`Request failed (${res.status})`, { status: res.status, url });
+    
+    // Try to parse error as JSON
+    let errorMessage = `Request failed (${res.status})`;
+    try {
+      const errorData = JSON.parse(text);
+      errorMessage = errorData.error || errorMessage;
+    } catch {
+      if (text && text.length < 200) {
+        errorMessage = `${errorMessage}: ${text}`;
+      }
+    }
+    throw new ApiError(errorMessage, { status: res.status, url });
   }
 
   try {
     return JSON.parse(text) as T;
-  } catch {
+  } catch (parseError) {
+    // Check if response is HTML (commonly happens when host serves index.html for /api/*)
+    if (text.trim().startsWith('<!') || text.trim().startsWith('<html')) {
+      const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+      if (isLocalDev && url.includes('/api/')) {
+        throw new ApiError('API routes not available in local development. Use "npm run dev:vercel" or deploy to Vercel.', { status: res.status, url });
+      }
+      throw new ApiError('API returned HTML instead of JSON. This usually means API routes are not configured correctly.', { status: res.status, url });
+    }
     // This commonly happens when the host serves index.html for /api/* (misconfigured rewrites)
-    throw new ApiError(`Invalid JSON response from API`, { status: res.status, url });
+    throw new ApiError(`Invalid JSON response from API: ${parseError instanceof Error ? parseError.message : 'Unknown parse error'}`, { status: res.status, url });
   }
 };
 
 const fetchOk = async (url: string, init?: RequestInit) => {
   const res = await fetchWithTimeout(url, init);
-  if (!res.ok) throw new ApiError(`Request failed (${res.status})`, { status: res.status, url });
+  if (!res.ok) {
+    const text = await res.text();
+    
+    // Check if response is HTML (likely a 404 page or error page)
+    if (text.trim().startsWith('<!') || text.trim().startsWith('<html')) {
+      const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+      if (isLocalDev && url.includes('/api/')) {
+        throw new ApiError('API routes not available in local development. Use "npm run dev:vercel" or deploy to Vercel.', { status: res.status, url });
+      }
+      throw new ApiError(`API returned HTML instead of JSON. Route may not exist.`, { status: res.status, url });
+    }
+    
+    let errorMessage = `Request failed (${res.status})`;
+    try {
+      const errorData = JSON.parse(text);
+      errorMessage = errorData.error || errorMessage;
+    } catch {
+      // If response is not JSON, include the text if it's short
+      if (text && text.length < 200) {
+        errorMessage = `${errorMessage}: ${text}`;
+      }
+    }
+    throw new ApiError(errorMessage, { status: res.status, url });
+  }
+  return res;
 };
 
 export const api = {
@@ -118,7 +164,34 @@ export const api = {
 
   // --- System ---
   async setup() {
-     await fetchOk('/api/setup');
+     const res = await fetchWithTimeout('/api/setup', { method: 'GET' });
+     if (!res.ok) {
+       const text = await res.text();
+       // Check if response is HTML (likely a 404 page)
+       if (text.trim().startsWith('<!') || text.trim().startsWith('<html')) {
+         throw new ApiError('API routes not available. Are you running on Vercel or using vercel dev?', { status: res.status, url: '/api/setup' });
+       }
+       let errorMessage = `Database setup failed (${res.status})`;
+       try {
+         const errorData = JSON.parse(text);
+         errorMessage = errorData.error || errorMessage;
+       } catch {
+         if (text && text.length < 200) {
+           errorMessage = `${errorMessage}: ${text}`;
+         }
+       }
+       throw new ApiError(errorMessage, { status: res.status, url: '/api/setup' });
+     }
+     // Verify it returns valid JSON
+     const text = await res.text();
+     try {
+       JSON.parse(text);
+     } catch {
+       // If setup doesn't return valid JSON, check if it's HTML
+       if (text.trim().startsWith('<!') || text.trim().startsWith('<html')) {
+         throw new ApiError('API routes not available. Received HTML instead of JSON.', { status: res.status, url: '/api/setup' });
+       }
+     }
   },
   async seed(data: { crops: CropType[], customers: Customer[] }) {
      const res = await fetchWithTimeout('/api/seed', { method: 'POST', headers, body: JSON.stringify(data) });
