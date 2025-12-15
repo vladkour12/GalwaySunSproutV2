@@ -116,7 +116,10 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
       <main
         ref={mainRef}
         className="flex-1 overflow-y-auto overflow-x-hidden"
-        style={{ paddingBottom: `calc(${bottomPadPx}px + env(safe-area-inset-bottom))` }}
+        style={{ 
+          paddingBottom: `calc(${bottomPadPx}px + env(safe-area-inset-bottom))`,
+          minHeight: 0 // Prevent flex item from growing beyond content on large screens
+        }}
       >
         <div className="max-w-4xl mx-auto p-4 sm:p-6">
           {/* Use popLayout so exiting views don't reserve layout space (prevents "blank spacing" after leaving Crops). */}
@@ -127,6 +130,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -2, scale: 0.995 }}
               transition={{ duration: 0.08, ease: "easeOut" }}
+              style={{ minHeight: 0 }} // Prevent motion div from preserving height
             >
               {children}
             </motion.div>
