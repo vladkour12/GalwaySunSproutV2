@@ -96,8 +96,18 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) =
       if (isLocalDev) {
         // Try to detect if API routes are available
         try {
-          await fetch('/api/version', { method: 'GET' });
-        } catch {
+          const testResponse = await fetch('/api/version', { method: 'GET' });
+          if (!testResponse.ok && testResponse.status === 404) {
+            // API routes not available
+            alert('⚠️ API routes are not available in local development.\n\n' +
+                  'The sync will work automatically when deployed to Vercel.\n\n' +
+                  'To test locally, run: npm run dev:vercel');
+            setSyncStatus('error');
+            setTimeout(() => setSyncStatus('idle'), 3000);
+            return;
+          }
+        } catch (fetchError) {
+          // Network error or API not available
           alert('⚠️ API routes are not available in local development.\n\n' +
                 'The sync will work automatically when deployed to Vercel.\n\n' +
                 'To test locally, run: npm run dev:vercel');

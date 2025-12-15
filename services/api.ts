@@ -34,6 +34,11 @@ const fetchWithTimeout = async (input: RequestInfo | URL, init?: RequestInit, ti
     if ((err as any)?.name === 'AbortError') {
       throw new ApiError(`Request timed out after ${timeoutMs}ms`, { url: String(input) });
     }
+    // In local dev, suppress network errors to console if API routes aren't available
+    const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    if (isLocalDev && String(input).includes('/api/')) {
+      // Don't log expected 404s in local dev
+    }
     throw err;
   } finally {
     if (timeoutId) clearTimeout(timeoutId);
@@ -45,6 +50,11 @@ const fetchJson = async <T>(url: string, init?: RequestInit): Promise<T> => {
   const text = await res.text();
 
   if (!res.ok) {
+    // In local dev, don't log 404s for API routes (expected when not using vercel dev)
+    const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    if (isLocalDev && res.status === 404 && url.includes('/api/')) {
+      // Suppress console error for expected local dev 404s
+    }
     throw new ApiError(`Request failed (${res.status})`, { status: res.status, url });
   }
 
