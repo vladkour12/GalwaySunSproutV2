@@ -89,17 +89,43 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) =
   const handleSyncCrops = async () => {
     setSyncStatus('syncing');
     try {
+      console.log('Starting sync...', { cropCount: INITIAL_CROPS.length });
+      
+      // First ensure database is set up (this adds missing columns)
+      try {
+        console.log('Running database setup...');
+        await api.setup();
+        console.log('Database setup completed');
+      } catch (setupError: any) {
+        console.warn('Setup warning (may already exist):', setupError);
+        // Continue even if setup fails - columns might already exist
+      }
+      
+      // Then sync crops
+      console.log('Seeding crops to database...');
       await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
+      console.log('Sync completed successfully');
+      
       setSyncStatus('success');
       setTimeout(() => {
         setSyncStatus('idle');
         // Refresh the page to load updated crops from database
         window.location.reload();
       }, 2000);
-    } catch (error) {
-      console.error('Sync failed:', error);
+    } catch (error: any) {
+      console.error('Sync failed with error:', error);
+      const errorMessage = error?.message || error?.toString() || 'Unknown error';
+      console.error('Error details:', {
+        message: errorMessage,
+        stack: error?.stack,
+        response: error?.response,
+        status: error?.status
+      });
+      
+      // Show detailed error in alert
+      alert(`Sync failed: ${errorMessage}\n\nCheck browser console (F12) for more details.`);
       setSyncStatus('error');
-      setTimeout(() => setSyncStatus('idle'), 3000);
+      setTimeout(() => setSyncStatus('idle'), 5000);
     }
   };
 

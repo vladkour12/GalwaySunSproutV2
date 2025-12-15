@@ -111,6 +111,22 @@ export const api = {
      await fetchOk('/api/setup');
   },
   async seed(data: { crops: CropType[], customers: Customer[] }) {
-     await fetchOk('/api/seed', { method: 'POST', headers, body: JSON.stringify(data) });
+     const res = await fetchWithTimeout('/api/seed', { method: 'POST', headers, body: JSON.stringify(data) });
+     const text = await res.text();
+     
+     if (!res.ok) {
+       try {
+         const errorData = JSON.parse(text);
+         throw new ApiError(errorData.error || `Seed failed (${res.status})`, { status: res.status, url: '/api/seed' });
+       } catch {
+         throw new ApiError(`Seed failed (${res.status}): ${text}`, { status: res.status, url: '/api/seed' });
+       }
+     }
+     
+     try {
+       return JSON.parse(text);
+     } catch {
+       return { message: 'Seeded successfully' };
+     }
   }
 };
