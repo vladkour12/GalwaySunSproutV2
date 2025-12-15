@@ -686,21 +686,21 @@ const CropManager: React.FC<CropManagerProps> = ({
                                              
                                              <div className="p-3 flex flex-col gap-2 relative z-10">
                                                 {/* Crop Image with Stage Badge */}
-                                                <div className={`relative w-full aspect-square rounded-xl flex items-center justify-center text-xs font-bold shadow-md overflow-hidden border-2 ${nextStageInfo.isOverdue ? 'border-red-300' : isHarvestReady ? 'border-teal-300' : 'border-white'} ${crop.color?.split(' ')[0] || 'bg-slate-200'}`}>
+                                                <div className={`relative w-full aspect-square rounded-lg flex items-center justify-center text-[10px] font-bold shadow-sm overflow-hidden border ${nextStageInfo.isOverdue ? 'border-red-300' : isHarvestReady ? 'border-teal-300' : 'border-slate-200'} ${crop.color?.split(' ')[0] || 'bg-slate-200'}`}>
                                                    {crop.imageUrl ? (
                                                       <img src={crop.imageUrl} alt={crop.name} className="w-full h-full object-cover" />
                                                    ) : (
                                                       <span className="text-slate-600">{crop.name.substring(0,2).toUpperCase()}</span>
                                                    )}
                                                    {/* Stage Indicator Badge */}
-                                                   <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${
+                                                   <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-white flex items-center justify-center ${
                                                       tray.stage === Stage.SEED || tray.stage === Stage.SOAK ? 'bg-slate-500' :
                                                       tray.stage === Stage.GERMINATION ? 'bg-blue-500' :
                                                       tray.stage === Stage.BLACKOUT ? 'bg-purple-500' :
                                                       tray.stage === Stage.LIGHT ? 'bg-amber-500' :
                                                       'bg-teal-500'
                                                    }`}>
-                                                      <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                                                      <div className="w-1 h-1 bg-white rounded-full"></div>
                                                    </div>
                                                 </div>
 
