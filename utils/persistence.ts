@@ -60,6 +60,25 @@ export function loadFinancePreferences(): FinancePreferences {
 }
 
 /**
+ * Crop Manager preferences
+ */
+export interface CropManagerPreferences {
+  activeTab: 'production' | 'varieties' | 'plan' | 'calendar';
+  plannerMode: 'event' | 'recurring';
+}
+
+export function saveCropManagerPreferences(prefs: CropManagerPreferences): void {
+  saveToStorage('galway_crop_manager_prefs', prefs);
+}
+
+export function loadCropManagerPreferences(): CropManagerPreferences {
+  return loadFromStorage<CropManagerPreferences>('galway_crop_manager_prefs', {
+    activeTab: 'production',
+    plannerMode: 'event',
+  });
+}
+
+/**
  * Re-export storage keys for other modules
  */
 export { STORAGE_KEYS };

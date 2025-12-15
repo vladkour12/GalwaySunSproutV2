@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { saveCropManagerPreferences, loadCropManagerPreferences } from '../utils/persistence';
 import { AppState, CropType, Stage, Tray, Customer, Alert } from '../types';
 import { getFarmAlerts } from '../services/alertService';
 import { STAGE_FLOW } from '../constants';
@@ -155,9 +156,15 @@ const CropManager: React.FC<CropManagerProps> = ({
   onBulkUpdateTrayStage, 
   onBulkDeleteTrays 
 }) => {
-  // Navigation State
-  const [activeTab, setActiveTab] = useState<'production' | 'varieties' | 'plan' | 'calendar'>('production');
-  const [plannerMode, setPlannerMode] = useState<'event' | 'recurring'>('event');
+  // Navigation State (with persistence)
+  const savedCropManagerPrefs = loadCropManagerPreferences();
+  const [activeTab, setActiveTab] = useState<'production' | 'varieties' | 'plan' | 'calendar'>(savedCropManagerPrefs.activeTab);
+  const [plannerMode, setPlannerMode] = useState<'event' | 'recurring'>(savedCropManagerPrefs.plannerMode);
+
+  // Save preferences when they change
+  useEffect(() => {
+    saveCropManagerPreferences({ activeTab, plannerMode });
+  }, [activeTab, plannerMode]);
   
   // Modal State
   const [isAdding, setIsAdding] = useState(false);
