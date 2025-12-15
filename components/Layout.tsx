@@ -92,14 +92,11 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
     <div className="min-h-screen flex flex-col font-sans text-slate-900 selection:bg-teal-200 selection:text-teal-900">
       {/* Header */}
       <header className="sticky top-0 z-40 px-6 py-4 bg-white/80 backdrop-blur-md border-b border-slate-200/50 supports-[backdrop-filter]:bg-white/60">
-        <div className="max-w-4xl mx-auto flex justify-between items-center relative">
+        <div className="max-w-4xl mx-auto flex justify-end items-center relative">
             {/* Absolute Centered Title */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none">
                 <h1 className="text-xl font-bold tracking-tight text-slate-800">Galway Sun Sprouts</h1>
             </div>
-
-            {/* Spacer to balance flex */}
-            <div></div>
 
             {/* Logout Button */}
             <button 
