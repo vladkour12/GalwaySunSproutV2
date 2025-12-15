@@ -134,6 +134,15 @@ const initDB = (): Promise<IDBDatabase> => {
 // Optionally convert image URLs to base64 for offline storage
 export const saveState = async (state: AppState, convertImages = false): Promise<void> => {
   try {
+    // Convert images to base64 if requested (do this before opening transaction)
+    let cropsToSave = state.crops;
+    if (convertImages) {
+      console.log('Converting crop images to base64 for local storage...');
+      cropsToSave = await convertCropImagesToBase64(state.crops);
+      const convertedCount = cropsToSave.filter(c => c.imageUrl?.startsWith('data:')).length;
+      console.log(`Converted ${convertedCount}/${state.crops.length} crop images to base64`);
+    }
+
     const db = await initDB();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(DATA_STORES, 'readwrite');
@@ -159,15 +168,7 @@ export const saveState = async (state: AppState, convertImages = false): Promise
       // We do NOT clear images store on every save to avoid rewriting large blobs.
       // We only add/update images. Cleanup of unused images can be a separate maintenance task.
 
-      // 1. Convert images to base64 if requested
-      let cropsToSave = state.crops;
-      if (convertImages) {
-        console.log('Converting crop images to base64 for local storage...');
-        cropsToSave = await convertCropImagesToBase64(state.crops);
-        console.log(`Converted ${cropsToSave.filter(c => c.imageUrl?.startsWith('data:')).length} crop images to base64`);
-      }
-
-      // 2. Save Crops & Handle Images
+      // Save Crops & Handle Images
       cropsToSave.forEach(crop => {
         if (crop.imageUrl && crop.imageUrl.startsWith('data:')) {
            // It's a heavy base64 string. 
