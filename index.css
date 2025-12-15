@@ -51,3 +51,17 @@ h1, h2, h3, h4, h5, h6 {
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* Animated gradient for text */
+@keyframes gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient {
+  animation: gradient 3s ease infinite;
+}
