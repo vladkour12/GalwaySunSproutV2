@@ -13,19 +13,19 @@ export default defineConfig(({ mode }) => {
       plugins: [
         react(),
         {
-          name: 'skip-html-import-analysis',
+          name: 'html-import-fix',
           enforce: 'pre',
-          load(id) {
-            // Prevent import analysis from running on HTML files
-            if (id.endsWith('.html') || id.includes('.html?')) {
-              // Return empty string to skip processing
-              return '';
+          transformIndexHtml: {
+            enforce: 'pre',
+            transform(html, ctx) {
+              // This ensures HTML is handled correctly
+              return html;
             }
           },
-          resolveId(id) {
-            // Don't resolve HTML files through this plugin
-            if (id.endsWith('.html') || id.includes('.html?')) {
-              return null;
+          load(id) {
+            // Prevent import analysis on HTML files
+            if (id === path.resolve(__dirname, 'index.html') || id.endsWith('index.html')) {
+              return null; // Let Vite handle it normally
             }
           }
         }
