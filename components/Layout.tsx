@@ -26,9 +26,11 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
     // Force a layout recalculation after a brief delay to clear any lingering height issues
     const id = window.setTimeout(() => {
       el.scrollTop = 0;
-      // Force reflow to ensure layout is clean
+      // Force reflow to ensure layout is clean and reset any cached heights
       void el.offsetHeight;
-    }, 50);
+      // Also trigger a resize event to ensure any listeners recalculate
+      window.dispatchEvent(new Event('resize'));
+    }, 100);
     return () => window.clearTimeout(id);
   }, [currentView]);
 
@@ -41,12 +43,23 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
 
     const measure = () => {
       const rect = dockEl.getBoundingClientRect();
-      // Padding needed so content can scroll above the dock.
-      // Use the dock's on-screen position instead of its height to avoid over-padding on mobile.
       const viewportH = window.innerHeight || 0;
-      const needed = Math.ceil((viewportH - rect.top) + 12);
-      // Defensive clamp: prevents weird mobile layout bugs from creating huge empty space.
-      setBottomPadPx(clamp(needed, 56, 128));
+      const viewportW = window.innerWidth || 0;
+      
+      // Calculate actual space needed: distance from bottom of viewport to top of dock
+      const dockBottomMargin = 24; // bottom-6 = 24px
+      const dockHeight = rect.height || 56;
+      const spaceFromBottom = viewportH - rect.top;
+      
+      // On large screens (desktop), use minimal padding to prevent excessive empty space
+      // On smaller screens (mobile/tablet), use more padding for comfortable scrolling
+      const isLargeScreen = viewportW >= 1024; // lg breakpoint
+      const basePadding = isLargeScreen 
+        ? Math.ceil(dockHeight + dockBottomMargin + 8)  // Minimal padding on desktop
+        : Math.ceil(spaceFromBottom + 12);  // Full space on mobile
+      
+      // Conservative clamp: tighter limits prevent huge empty spaces
+      setBottomPadPx(clamp(basePadding, 56, isLargeScreen ? 96 : 128));
     };
 
     measure();
