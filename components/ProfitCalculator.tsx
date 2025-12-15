@@ -1,9 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { AppState } from '../types';
-import { Calculator, Euro, Sprout, Zap, Box, Droplets, TrendingUp, AlertCircle, RefreshCw, Scale } from 'lucide-react';
+import { Calculator, Euro, Sprout, Zap, Box, Droplets, TrendingUp, AlertCircle, RefreshCw, Scale, Info } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import CustomSelect from './CustomSelect';
+import { quickElectricityCalc } from '../utils/electricityCalculator';
 
 interface ProfitCalculatorProps {
   state: AppState;
@@ -220,23 +221,82 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                    </div>
 
                    {/* Electricity Cost */}
-                   <div className="grid grid-cols-3 gap-4 items-center">
-                       <label className="col-span-1 text-xs font-bold text-slate-500 flex items-center">
-                          <Zap className="w-3.5 h-3.5 mr-2 text-amber-500" />
-                          Electricity
-                       </label>
-                       <div className="col-span-2 relative">
-                          <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
-                          <input 
-                             type="number"
-                             value={elecCost || ''}
-                             onChange={(e) => setElecCost(parseFloat(e.target.value) || 0)}
-                             onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
-                             step="0.01"
-                             className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
-                             placeholder="0.00"
-                          />
-                       </div>
+                   <div className="space-y-2">
+                      <div className="grid grid-cols-3 gap-4 items-center">
+                         <label className="col-span-1 text-xs font-bold text-slate-500 flex items-center justify-between">
+                            <div className="flex items-center">
+                               <Zap className="w-3.5 h-3.5 mr-2 text-amber-500" />
+                               Electricity
+                            </div>
+                            <button
+                               type="button"
+                               onClick={() => setShowElecCalc(!showElecCalc)}
+                               className="p-1 text-amber-500 hover:text-amber-600 rounded"
+                               title="Calculate electricity costs"
+                            >
+                               <Info className="w-3.5 h-3.5" />
+                            </button>
+                         </label>
+                         <div className="col-span-2 relative">
+                            <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
+                            <input 
+                               type="number"
+                               value={elecCost || ''}
+                               onChange={(e) => setElecCost(parseFloat(e.target.value) || 0)}
+                               onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
+                               step="0.01"
+                               className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
+                               placeholder="0.00"
+                            />
+                         </div>
+                      </div>
+                      
+                      {/* Electricity Calculator */}
+                      {showElecCalc && selectedCrop && elecCalc && (
+                         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3 text-xs">
+                            <div className="flex justify-between items-center">
+                               <h4 className="font-bold text-amber-900">Electricity Cost Calculator</h4>
+                               <button onClick={() => setShowElecCalc(false)} className="text-amber-600 hover:text-amber-800">×</button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                               <div>
+                                  <label className="text-[10px] font-bold text-amber-700 uppercase">W per Shelf</label>
+                                  <input type="number" value={elecWattagePerShelf} onChange={e => setElecWattagePerShelf(parseInt(e.target.value) || 100)} className="w-full p-1.5 bg-white border border-amber-200 rounded text-xs font-bold" />
+                               </div>
+                               <div>
+                                  <label className="text-[10px] font-bold text-amber-700 uppercase">Trays/Shelf</label>
+                                  <input type="number" value={elecTraysPerShelf} onChange={e => setElecTraysPerShelf(parseInt(e.target.value) || 4)} className="w-full p-1.5 bg-white border border-amber-200 rounded text-xs font-bold" />
+                               </div>
+                               <div>
+                                  <label className="text-[10px] font-bold text-amber-700 uppercase">Hours/Day</label>
+                                  <input type="number" value={elecHoursPerDay} onChange={e => setElecHoursPerDay(parseInt(e.target.value) || 16)} className="w-full p-1.5 bg-white border border-amber-200 rounded text-xs font-bold" />
+                               </div>
+                               <div>
+                                  <label className="text-[10px] font-bold text-amber-700 uppercase">€/kWh</label>
+                                  <input type="number" value={elecRatePerKwh} step="0.01" onChange={e => setElecRatePerKwh(parseFloat(e.target.value) || 0.32)} className="w-full p-1.5 bg-white border border-amber-200 rounded text-xs font-bold" />
+                               </div>
+                            </div>
+                            <div className="pt-2 border-t border-amber-200 space-y-1">
+                               <div className="flex justify-between text-amber-800">
+                                  <span className="font-medium">Per Tray (Light Stage):</span>
+                                  <span className="font-bold">€{elecCalc.costPerCyclePerTray.toFixed(2)}</span>
+                               </div>
+                               <div className="text-[10px] text-amber-600">
+                                  {elecCalc.wattagePerTray.toFixed(0)}W/tray × {elecHoursPerDay}h/day × {selectedCrop.lightDays} days = €{elecCalc.costPerCyclePerTray.toFixed(2)}
+                               </div>
+                               <button
+                                  type="button"
+                                  onClick={() => {
+                                     setElecCost(Number(elecCalc.costPerCyclePerTray.toFixed(2)));
+                                     setShowElecCalc(false);
+                                  }}
+                                  className="w-full mt-2 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-bold hover:bg-amber-700"
+                               >
+                                  Use This Value
+                               </button>
+                            </div>
+                         </div>
+                      )}
                    </div>
 
                     {/* Packaging Cost */}
