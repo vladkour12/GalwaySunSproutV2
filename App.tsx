@@ -582,9 +582,9 @@ const App: React.FC = () => {
       } catch (e) {
         console.error('Failed to persist imported state locally', e);
         alert("State loaded in memory, but failed to persist locally.");
-      }
+    }
   }, []);
-  
+
   const handleResetState = useCallback(async () => {
     // Basic reset
     setAppState({ crops: INITIAL_CROPS, trays: [], transactions: [], customers: INITIAL_CUSTOMERS });
