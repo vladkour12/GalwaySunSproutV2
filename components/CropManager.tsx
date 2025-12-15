@@ -624,7 +624,6 @@ const CropManager: React.FC<CropManagerProps> = ({
                               const harvestDate = getTargetHarvestDate(tray, crop);
                               const nextStageInfo = getTimeToNextStage(tray, crop);
                               const isHarvestReady = tray.stage === Stage.HARVEST_READY;
-                              const stageDays = nextStageInfo.daysRemaining || 0;
 
                               return (
                                  <motion.div 
@@ -701,14 +700,6 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                          {nextStageInfo.text}
                                                       </span>
                                                    </div>
-                                                   {stageDays > 0 && stageDays <= 2 && (
-                                                      <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                                         <div 
-                                                            className={`h-full rounded-full transition-all ${nextStageInfo.isOverdue ? 'bg-red-500' : 'bg-teal-500'}`}
-                                                            style={{ width: `${Math.max(10, (stageDays / 2) * 100)}%` }}
-                                                         ></div>
-                                                      </div>
-                                                   )}
                                                 </div>
                                              )}
                                           </div>
