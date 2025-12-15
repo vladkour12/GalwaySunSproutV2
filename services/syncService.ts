@@ -100,7 +100,14 @@ export const flushSyncQueueOnce = async (): Promise<SyncResult> => {
 };
 
 export const refreshLocalFromRemote = async (): Promise<AppState> => {
-  // If tables aren't created yet, try setup once and retry.
+  // Always try setup first to ensure tables exist
+  try {
+    await api.setup();
+  } catch (setupError) {
+    // Setup errors are OK - tables might already exist
+    console.warn('Database setup warning (may already exist):', setupError);
+  }
+
   try {
     const [crops, trays, transactions, customers] = await Promise.all([
       api.getCrops(),
@@ -112,21 +119,36 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
     // Local-first apps should not "erase" local defaults due to an empty remote DB.
     // If the remote DB is empty, seed it with initial test data.
     if (crops.length === 0) {
-      await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
-      const [seededCrops, seededTrays, seededTransactions, seededCustomers] = await Promise.all([
-        api.getCrops(),
-        api.getTrays(),
-        api.getTransactions(),
-        api.getCustomers(),
-      ]);
-      const seeded: AppState = {
-        crops: seededCrops,
-        trays: seededTrays,
-        transactions: seededTransactions,
-        customers: seededCustomers,
-      };
-      await saveState(seeded);
-      return seeded;
+      console.log('Database is empty, seeding initial data...');
+      try {
+        await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
+        const [seededCrops, seededTrays, seededTransactions, seededCustomers] = await Promise.all([
+          api.getCrops(),
+          api.getTrays(),
+          api.getTransactions(),
+          api.getCustomers(),
+        ]);
+        const seeded: AppState = {
+          crops: seededCrops,
+          trays: seededTrays,
+          transactions: seededTransactions,
+          customers: seededCustomers,
+        };
+        await saveState(seeded);
+        console.log('Database seeded successfully');
+        return seeded;
+      } catch (seedError) {
+        console.error('Failed to seed database:', seedError);
+        // If seeding fails, return empty state but don't crash
+        const emptyState: AppState = {
+          crops: INITIAL_CROPS,
+          trays: [],
+          transactions: [],
+          customers: INITIAL_CUSTOMERS,
+        };
+        await saveState(emptyState);
+        return emptyState;
+      }
     }
 
     const state: AppState = { crops, trays, transactions, customers };
@@ -134,8 +156,16 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
     return state;
   } catch (e) {
     const msg = (e as Error)?.message ?? String(e);
-    // Setup can be required on a fresh DB.
+    console.error('Failed to refresh from remote:', msg);
+    
+    // If it's a connection/database error, throw it so the UI can show appropriate message
+    if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch')) {
+      throw new Error(`Network error: ${msg}`);
+    }
+    
+    // For other errors, try one more time after setup
     try {
+      console.log('Retrying after database setup...');
       await api.setup();
       const [crops, trays, transactions, customers] = await Promise.all([
         api.getCrops(),
@@ -167,7 +197,7 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
       return state;
     } catch (e2) {
       const msg2 = (e2 as Error)?.message ?? String(e2);
-      throw new Error(`${msg} / ${msg2}`);
+      throw new Error(`Database error: ${msg} / ${msg2}`);
     }
   }
 };
