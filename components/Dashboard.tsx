@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { AppState, Stage } from '../types';
 import { getFarmAlerts } from '../services/alertService';
 import { 
