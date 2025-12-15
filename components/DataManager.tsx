@@ -2,7 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { AppState, Tray, Transaction, Customer, CropType } from '../types';
 import { clearDB, getStorageEstimate, getDatabaseStats, DbStats } from '../services/storage';
-import { Database, Download, Upload, Trash2, HardDrive, AlertTriangle, CheckCircle, Image as ImageIcon, Sprout, ShoppingBag, Users, X, DollarSign, Scale, Calendar } from 'lucide-react';
+import { Database, Download, Upload, Trash2, HardDrive, AlertTriangle, CheckCircle, Image as ImageIcon, Sprout, ShoppingBag, Users, X, DollarSign, Scale, Calendar, RefreshCw } from 'lucide-react';
+import { api } from '../services/api';
+import { INITIAL_CROPS, INITIAL_CUSTOMERS } from '../constants';
 
 interface DataManagerProps {
   state: AppState;
@@ -15,6 +17,7 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) =
   const [dbBreakdown, setDbBreakdown] = useState<DbStats[]>([]);
   const [resetConfirm, setResetConfirm] = useState(false);
   const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
   
   // Data Inspector State
   const [viewingStore, setViewingStore] = useState<string | null>(null);
@@ -80,6 +83,23 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) =
        await clearDB();
        onReset(); 
        setResetConfirm(false);
+    }
+  };
+
+  const handleSyncCrops = async () => {
+    setSyncStatus('syncing');
+    try {
+      await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
+      setSyncStatus('success');
+      setTimeout(() => {
+        setSyncStatus('idle');
+        // Refresh the page to load updated crops from database
+        window.location.reload();
+      }, 2000);
+    } catch (error) {
+      console.error('Sync failed:', error);
+      setSyncStatus('error');
+      setTimeout(() => setSyncStatus('idle'), 3000);
     }
   };
 
@@ -322,7 +342,23 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) =
       </div>
 
       {/* Actions Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+         {/* Sync Crops */}
+         <button 
+            onClick={handleSyncCrops}
+            disabled={syncStatus === 'syncing'}
+            className="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-md hover:border-purple-200 transition-all group relative disabled:opacity-50 disabled:cursor-not-allowed"
+         >
+            <div className="p-4 bg-purple-50 rounded-full text-purple-600 mb-3 group-hover:scale-110 transition-transform">
+               {syncStatus === 'syncing' ? <RefreshCw className="w-8 h-8 animate-spin" /> : syncStatus === 'success' ? <CheckCircle className="w-8 h-8" /> : syncStatus === 'error' ? <AlertTriangle className="w-8 h-8 text-red-500" /> : <RefreshCw className="w-8 h-8" />}
+            </div>
+            <h3 className="font-bold text-slate-800">Sync Crops to DB</h3>
+            <p className="text-xs text-slate-400 mt-1">Update database with latest crops</p>
+            {syncStatus === 'syncing' && <span className="absolute bottom-2 text-xs text-purple-500 font-bold">Syncing...</span>}
+            {syncStatus === 'success' && <span className="absolute bottom-2 text-xs text-teal-500 font-bold">Sync Successful!</span>}
+            {syncStatus === 'error' && <span className="absolute bottom-2 text-xs text-red-500 font-bold">Sync Failed</span>}
+         </button>
+
          {/* Backup */}
          <button 
             onClick={handleExport}
