@@ -4,7 +4,7 @@ import { saveCropManagerPreferences, loadCropManagerPreferences, STORAGE_KEYS, s
 import { AppState, CropType, Stage, Tray, Customer, Alert } from '../types';
 import { getFarmAlerts } from '../services/alertService';
 import { STAGE_FLOW } from '../constants';
-import { Plus, X, Sprout, Calendar, CheckCircle, Trash2, ArrowRight, Droplet, Sun, Moon, Archive, MoreHorizontal, Scale, Palette, AlertCircle, Euro, ChevronRight, Edit2, Info, Package, Repeat, ShoppingBag, Truck, MapPin, Clock, Anchor, User, CheckSquare } from 'lucide-react';
+import { Plus, X, Sprout, Calendar, CheckCircle, Trash2, ArrowRight, Droplet, Sun, Moon, Archive, MoreHorizontal, Scale, Palette, AlertCircle, Euro, ChevronRight, Edit2, Info, Package, Repeat, ShoppingBag, Truck, MapPin, Clock, Anchor, User, CheckSquare, Search, Filter, ArrowUpDown, Thermometer, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomSelect from './CustomSelect';
 
@@ -161,6 +161,12 @@ const CropManager: React.FC<CropManagerProps> = ({
   const [activeTab, setActiveTab] = useState<'production' | 'varieties' | 'plan' | 'calendar'>(savedCropManagerPrefs.activeTab);
   const [plannerMode, setPlannerMode] = useState<'event' | 'recurring'>(savedCropManagerPrefs.plannerMode);
 
+  // Crop search and filter state
+  const [cropSearchQuery, setCropSearchQuery] = useState('');
+  const [cropFilterDifficulty, setCropFilterDifficulty] = useState<string>('all');
+  const [cropSortBy, setCropSortBy] = useState<'name' | 'difficulty' | 'yield' | 'price'>('name');
+  const [cropSortOrder, setCropSortOrder] = useState<'asc' | 'desc'>('asc');
+
   // Force re-render every minute to update countdown timers
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -230,7 +236,58 @@ const CropManager: React.FC<CropManagerProps> = ({
       .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
   , [state.trays]);
 
-  const varieties = useMemo(() => state.crops, [state.crops]);
+  // Filtered and sorted varieties
+  const varieties = useMemo(() => {
+    let filtered = state.crops.filter(crop => {
+      // Search filter
+      if (cropSearchQuery) {
+        const query = cropSearchQuery.toLowerCase();
+        const matchesName = crop.name.toLowerCase().includes(query);
+        const matchesScientific = crop.scientificName?.toLowerCase().includes(query);
+        const matchesSummary = crop.summary?.toLowerCase().includes(query);
+        const matchesCategory = crop.category?.toLowerCase().includes(query);
+        if (!matchesName && !matchesScientific && !matchesSummary && !matchesCategory) {
+          return false;
+        }
+      }
+      
+      // Difficulty filter
+      if (cropFilterDifficulty !== 'all') {
+        if (crop.difficulty?.toLowerCase() !== cropFilterDifficulty.toLowerCase()) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+
+    // Sort
+    filtered.sort((a, b) => {
+      let comparison = 0;
+      switch (cropSortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'difficulty':
+          const difficultyOrder: Record<string, number> = {
+            'easy': 1, 'medium': 2, 'intermediate': 3, 'medium-difficult': 4, 'hard': 5, 'difficult': 6
+          };
+          const aDiff = difficultyOrder[a.difficulty?.toLowerCase() || ''] || 99;
+          const bDiff = difficultyOrder[b.difficulty?.toLowerCase() || ''] || 99;
+          comparison = aDiff - bDiff;
+          break;
+        case 'yield':
+          comparison = (a.estimatedYieldPerTray || 0) - (b.estimatedYieldPerTray || 0);
+          break;
+        case 'price':
+          comparison = (a.pricePerTray || 0) - (b.pricePerTray || 0);
+          break;
+      }
+      return cropSortOrder === 'asc' ? comparison : -comparison;
+    });
+
+    return filtered;
+  }, [state.crops, cropSearchQuery, cropFilterDifficulty, cropSortBy, cropSortOrder]);
 
   // --- Calculations for Planners ---
 
@@ -920,13 +977,92 @@ const CropManager: React.FC<CropManagerProps> = ({
          {/* --- VARIETIES LIST --- */}
          {activeTab === 'varieties' && (
             <div className="space-y-3">
+               {/* Search and Filter Bar */}
+               <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                  {/* Search */}
+                  <div className="relative">
+                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                     <input
+                        type="text"
+                        value={cropSearchQuery}
+                        onChange={(e) => setCropSearchQuery(e.target.value)}
+                        placeholder="Search crops by name, scientific name, or category..."
+                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                     />
+                     {cropSearchQuery && (
+                        <button
+                           onClick={() => setCropSearchQuery('')}
+                           className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        >
+                           <X className="w-4 h-4" />
+                        </button>
+                     )}
+                  </div>
+
+                  {/* Filters and Sort */}
+                  <div className="flex flex-wrap gap-2">
+                     {/* Difficulty Filter */}
+                     <div className="flex items-center gap-2">
+                        <Filter className="w-4 h-4 text-slate-400" />
+                        <select
+                           value={cropFilterDifficulty}
+                           onChange={(e) => setCropFilterDifficulty(e.target.value)}
+                           className="text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-teal-500 outline-none"
+                        >
+                           <option value="all">All Difficulties</option>
+                           <option value="easy">Easy</option>
+                           <option value="medium">Medium</option>
+                           <option value="intermediate">Intermediate</option>
+                           <option value="medium-difficult">Medium-Difficult</option>
+                           <option value="hard">Hard</option>
+                           <option value="difficult">Difficult</option>
+                        </select>
+                     </div>
+
+                     {/* Sort By */}
+                     <div className="flex items-center gap-2">
+                        <ArrowUpDown className="w-4 h-4 text-slate-400" />
+                        <select
+                           value={cropSortBy}
+                           onChange={(e) => setCropSortBy(e.target.value as any)}
+                           className="text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-teal-500 outline-none"
+                        >
+                           <option value="name">Name</option>
+                           <option value="difficulty">Difficulty</option>
+                           <option value="yield">Yield</option>
+                           <option value="price">Price</option>
+                        </select>
+                        <button
+                           onClick={() => setCropSortOrder(cropSortOrder === 'asc' ? 'desc' : 'asc')}
+                           className="text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 px-2 py-1.5 rounded-lg transition-colors"
+                           title={cropSortOrder === 'asc' ? 'Ascending' : 'Descending'}
+                        >
+                           {cropSortOrder === 'asc' ? '↑' : '↓'}
+                        </button>
+                     </div>
+
+                     {/* Results Count */}
+                     <div className="ml-auto flex items-center text-xs text-slate-500 font-medium">
+                        {varieties.length} {varieties.length === 1 ? 'crop' : 'crops'}
+                        {cropSearchQuery || cropFilterDifficulty !== 'all' ? ' found' : ''}
+                     </div>
+                  </div>
+               </div>
+
                {/* New Button */}
-               <button onClick={openNewCrop} className="w-full p-4 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 hover:border-teal-400 hover:text-teal-500 transition-colors mb-4">
+               <button onClick={openNewCrop} className="w-full p-4 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 hover:border-teal-400 hover:text-teal-500 transition-colors">
                   <Plus className="w-5 h-5 mr-2" />
                   <span className="font-bold">Add New Variety</span>
                </button>
 
                {/* Varieties List */}
+               {varieties.length === 0 ? (
+                  <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                     <Sprout className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+                     <p className="text-slate-500 font-bold text-sm mb-1">No crops found</p>
+                     <p className="text-slate-400 text-xs">Try adjusting your search or filters</p>
+                  </div>
+               ) : (
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {varieties.map(crop => {
                      const seedCost = getEstimatedSeedCost(crop);
@@ -983,6 +1119,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                      );
                   })}
                </div>
+               )}
             </div>
          )}
 
@@ -1603,8 +1740,44 @@ const CropManager: React.FC<CropManagerProps> = ({
                               <input type="text" value={selectedCrop.imageUrl || ''} onChange={e => setSelectedCrop({...selectedCrop, imageUrl: e.target.value})} placeholder="https://..." className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600 truncate" />
                            </div>
                            <div>
+                              <label className="text-[10px] font-bold uppercase text-slate-400">Category / Flavor Profile</label>
+                              <input type="text" value={selectedCrop.category || ''} onChange={e => setSelectedCrop({...selectedCrop, category: e.target.value})} placeholder="e.g. Spicy, Mild, Peppery, Nutty, Sweet" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600" />
+                           </div>
+                           <div>
                               <label className="text-[10px] font-bold uppercase text-slate-400">Summary / Notes</label>
                               <textarea value={selectedCrop.summary || ''} onChange={e => setSelectedCrop({...selectedCrop, summary: e.target.value})} placeholder="Description..." className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600 h-20 resize-none" />
+                           </div>
+                        </div>
+
+                        {/* Additional Crop Information */}
+                        <div className="pt-3 border-t border-slate-200 space-y-3">
+                           <h4 className="text-xs font-bold uppercase text-slate-400">Additional Information</h4>
+                           
+                           <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                 <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center">
+                                    <Thermometer className="w-3 h-3 mr-1" />
+                                    Optimal Temp (°C)
+                                 </label>
+                                 <input type="number" value={selectedCrop.optimalTemperature || ''} onChange={e => setSelectedCrop({...selectedCrop, optimalTemperature: parseInt(e.target.value) || undefined})} placeholder="e.g. 20" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                              </div>
+                              <div>
+                                 <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center">
+                                    <Save className="w-3 h-3 mr-1" />
+                                    Storage Days
+                                 </label>
+                                 <input type="number" value={selectedCrop.storageDays || ''} onChange={e => setSelectedCrop({...selectedCrop, storageDays: parseInt(e.target.value) || undefined})} placeholder="e.g. 7" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                              </div>
+                           </div>
+
+                           <div>
+                              <label className="text-[10px] font-bold uppercase text-slate-400">Growing Tips</label>
+                              <textarea value={selectedCrop.growingTips || ''} onChange={e => setSelectedCrop({...selectedCrop, growingTips: e.target.value})} placeholder="Special growing instructions or tips..." className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600 h-20 resize-none" />
+                           </div>
+
+                           <div>
+                              <label className="text-[10px] font-bold uppercase text-slate-400">Nutrition Info</label>
+                              <textarea value={selectedCrop.nutritionInfo || ''} onChange={e => setSelectedCrop({...selectedCrop, nutritionInfo: e.target.value})} placeholder="Nutritional highlights (e.g. High in Vitamin C, Iron, etc.)" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600 h-20 resize-none" />
                            </div>
                         </div>
 

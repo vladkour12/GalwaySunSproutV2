@@ -31,6 +31,11 @@ export interface CropType {
   color: string;
   summary?: string; // Notes
   imageUrl?: string;
+  category?: string; // e.g., 'Spicy', 'Mild', 'Peppery', 'Nutty', 'Sweet'
+  optimalTemperature?: number; // Celsius
+  storageDays?: number; // Shelf life in days
+  growingTips?: string; // Additional growing instructions
+  nutritionInfo?: string; // Nutritional highlights
 }
 
 export interface Tray {
