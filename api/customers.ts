@@ -41,19 +41,33 @@ export default async function handler(req: Request) {
             email = EXCLUDED.email,
             notes = EXCLUDED.notes;
       `;
-      return new Response(JSON.stringify({ message: 'Saved' }), { status: 200 });
+      return new Response(JSON.stringify({ message: 'Saved' }), { 
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     if (req.method === 'DELETE') {
         const { searchParams } = new URL(req.url);
         const id = searchParams.get('id');
-        if (!id) return new Response('Missing ID', { status: 400 });
+        if (!id) {
+          return new Response(JSON.stringify({ error: 'Missing ID' }), { 
+            status: 400,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
         
         await sql`DELETE FROM customers WHERE id = ${id}`;
-        return new Response(JSON.stringify({ message: 'Deleted' }), { status: 200 });
+        return new Response(JSON.stringify({ message: 'Deleted' }), { 
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
     }
 
-    return new Response('Method not allowed', { status: 405 });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), { 
+      status: 405,
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (error) {
     return new Response(JSON.stringify({ error: (error as Error).message }), { 
         status: 500,
