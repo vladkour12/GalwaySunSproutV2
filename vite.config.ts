@@ -20,6 +20,9 @@ export default defineConfig(({ mode }) => {
           '@': path.resolve(__dirname, '.'),
         }
       },
-      assetsInclude: ['**/*.json']
+      assetsInclude: ['**/*.json'],
+      optimizeDeps: {
+        exclude: ['manifest.json']
+      }
     };
 });
