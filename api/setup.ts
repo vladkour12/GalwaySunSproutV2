@@ -30,9 +30,26 @@ export default async function handler(request: Request) {
         pkg_weight_large NUMERIC,
         color TEXT,
         summary TEXT,
-        image_url TEXT
+        image_url TEXT,
+        category TEXT,
+        optimal_temperature NUMERIC,
+        storage_days NUMERIC,
+        growing_tips TEXT,
+        nutrition_info TEXT
       );
     `;
+
+    // Add new columns if they don't exist (for existing databases)
+    try {
+      await sql`ALTER TABLE crops ADD COLUMN IF NOT EXISTS category TEXT`;
+      await sql`ALTER TABLE crops ADD COLUMN IF NOT EXISTS optimal_temperature NUMERIC`;
+      await sql`ALTER TABLE crops ADD COLUMN IF NOT EXISTS storage_days NUMERIC`;
+      await sql`ALTER TABLE crops ADD COLUMN IF NOT EXISTS growing_tips TEXT`;
+      await sql`ALTER TABLE crops ADD COLUMN IF NOT EXISTS nutrition_info TEXT`;
+    } catch (e) {
+      // Ignore errors if columns already exist
+      console.warn('Column migration note:', (e as Error).message);
+    }
 
     // 2. Customers Table
     await sql`
