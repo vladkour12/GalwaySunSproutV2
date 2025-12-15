@@ -2,11 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  height: 100%;
+  height: -webkit-fill-available; /* iOS Safari */
+}
+
 body {
   font-family: 'Inter', sans-serif;
   background: linear-gradient(135deg, #f0fdfa 0%, #f1f5f9 100%);
   color: #0f172a;
   -webkit-tap-highlight-color: transparent;
+  min-height: 100vh;
+  min-height: -webkit-fill-available; /* iOS Safari */
+  /* Prevent overscroll bounce on iOS */
+  overscroll-behavior: none;
+  overscroll-behavior-y: contain;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: -webkit-fill-available; /* iOS Safari */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 h1, h2, h3, h4, h5, h6 {
