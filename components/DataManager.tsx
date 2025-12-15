@@ -129,8 +129,23 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) =
       
       // Then sync crops
       console.log('Seeding crops to database...');
+      console.log('Syncing crops with imageUrls:', INITIAL_CROPS.map(c => ({ name: c.name, imageUrl: c.imageUrl })));
       await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
       console.log('Sync completed successfully');
+      
+      // Force refresh local state from remote after sync
+      try {
+        const { refreshLocalFromRemote } = await import('../services/syncService');
+        const refreshed = await refreshLocalFromRemote();
+        console.log('Refreshed local state from database:', refreshed.crops.length, 'crops loaded');
+        refreshed.crops.forEach(crop => {
+          if (crop.imageUrl) {
+            console.log(`Loaded crop ${crop.name}: imageUrl = ${crop.imageUrl}`);
+          }
+        });
+      } catch (refreshError) {
+        console.error('Failed to refresh local state:', refreshError);
+      }
       
       setSyncStatus('success');
       setTimeout(() => {

@@ -745,7 +745,15 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                 {/* Crop Image with Stage Badge */}
                                                 <div className={`relative w-full aspect-square rounded-lg flex items-center justify-center text-[10px] font-bold shadow-sm overflow-hidden border ${nextStageInfo.isOverdue ? 'border-red-300' : isHarvestReady ? 'border-teal-300' : 'border-slate-200'} ${crop.color?.split(' ')[0] || 'bg-slate-200'}`}>
                                                    {crop.imageUrl ? (
-                                                      <img src={crop.imageUrl} alt={crop.name} className="w-full h-full object-cover" />
+                                                      <img 
+                                                         src={crop.imageUrl} 
+                                                         alt={crop.name} 
+                                                         className="w-full h-full object-cover"
+                                                         onError={(e) => {
+                                                            console.warn(`Failed to load image for ${crop.name}:`, crop.imageUrl);
+                                                            e.currentTarget.style.display = 'none';
+                                                         }}
+                                                      />
                                                    ) : (
                                                       <span className="text-slate-600">{crop.name.substring(0,2).toUpperCase()}</span>
                                                    )}
@@ -1076,7 +1084,15 @@ const CropManager: React.FC<CropManagerProps> = ({
                            {/* Small Picture Left */}
                            <div className={`w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center text-sm font-bold shadow-inner relative overflow-hidden ${crop.color?.split(' ')[0] || 'bg-slate-200'}`}>
                               {crop.imageUrl ? (
-                                 <img src={crop.imageUrl} alt={crop.name} className="w-full h-full object-cover" />
+                                 <img 
+                                    src={crop.imageUrl} 
+                                    alt={crop.name} 
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                       console.warn(`Failed to load image for ${crop.name}:`, crop.imageUrl);
+                                       e.currentTarget.style.display = 'none';
+                                    }}
+                                 />
                               ) : (
                                  <span>{crop.name.substring(0,2)}</span>
                               )}
@@ -1583,7 +1599,15 @@ const CropManager: React.FC<CropManagerProps> = ({
                         {/* 1. Big Picture Hero */}
                         <div className="w-full aspect-video rounded-2xl bg-slate-100 overflow-hidden relative shadow-inner">
                            {selectedCrop.imageUrl ? (
-                              <img src={selectedCrop.imageUrl} alt={selectedCrop.name} className="w-full h-full object-cover" />
+                              <img 
+                                 src={selectedCrop.imageUrl} 
+                                 alt={selectedCrop.name} 
+                                 className="w-full h-full object-cover"
+                                 onError={(e) => {
+                                    console.warn(`Failed to load image for ${selectedCrop.name}:`, selectedCrop.imageUrl);
+                                    e.currentTarget.style.display = 'none';
+                                 }}
+                              />
                            ) : (
                               <div className={`w-full h-full flex items-center justify-center ${selectedCrop.color?.split(' ')[0] || 'bg-slate-200'}`}>
                                  <Sprout className="w-16 h-16 opacity-50" />
