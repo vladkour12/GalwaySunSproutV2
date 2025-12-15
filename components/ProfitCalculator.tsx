@@ -155,7 +155,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
     return quickPackagingCalc(packagingCostPerBag, packagingWeightPerBag, yieldValue);
   }, [yieldPerTray, packagingCostPerBag, packagingWeightPerBag]);
 
-  // Effect: Auto-populate when crop changes (only if values are empty/default)
+  // Effect: Auto-populate when crop changes
   useEffect(() => {
     if (!selectedCropId) return;
     
@@ -165,27 +165,23 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
         const yieldVal = crop.estimatedYieldPerTray || 0;
         setYieldPerTray(yieldVal);
 
-        // 2. Set Price per 100g (only if not already set by user)
-        if (pricePer100g === 0 || pricePer100g === savedValues.pricePer100g) {
-            let calculatedPrice100g = crop.revenuePer100g || 6.00;
-            setPricePer100g(Number(calculatedPrice100g.toFixed(2)));
-        }
+        // 2. Set Price per 100g (auto-populate from crop data)
+        let calculatedPrice100g = crop.revenuePer100g || 6.00;
+        setPricePer100g(Number(calculatedPrice100g.toFixed(2)));
         
-        // 3. Calculate Seed Cost (only if not already set by user)
-        if (seedCost === 0 || seedCost === savedValues.seedCost) {
-            let calculatedSeedCost = 0;
-            if (crop.seedingRate && crop.seedingRate > 0) {
-                // Prioritize Large pack as it's the likely bulk purchase for business
-                if (crop.price1kg) {
-                     const weight = crop.pkgWeightLarge || 1000;
-                     calculatedSeedCost = (crop.seedingRate / weight) * crop.price1kg;
-                } else if (crop.price500g) {
-                     const weight = crop.pkgWeightSmall || 500;
-                     calculatedSeedCost = (crop.seedingRate / weight) * crop.price500g;
-                }
+        // 3. Calculate Seed Cost (auto-populate from crop data)
+        let calculatedSeedCost = 0;
+        if (crop.seedingRate && crop.seedingRate > 0) {
+            // Prioritize Large pack as it's the likely bulk purchase for business
+            if (crop.price1kg) {
+                 const weight = crop.pkgWeightLarge || 1000;
+                 calculatedSeedCost = (crop.seedingRate / weight) * crop.price1kg;
+            } else if (crop.price500g) {
+                 const weight = crop.pkgWeightSmall || 500;
+                 calculatedSeedCost = (crop.seedingRate / weight) * crop.price500g;
             }
-            setSeedCost(Number(calculatedSeedCost.toFixed(2)));
         }
+        setSeedCost(Number(calculatedSeedCost.toFixed(2)));
     }
   }, [selectedCropId, state.crops]);
 
