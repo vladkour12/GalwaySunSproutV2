@@ -13,7 +13,29 @@ interface ProfitCalculatorProps {
 
 const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
   // --- State ---
-  const [selectedCropId, setSelectedCropId] = useState<string>('');
+  // Load saved selected crop ID
+  const savedSelectedCropId = (() => {
+    try {
+      const saved = localStorage.getItem('galway_profit_calc_selected_crop');
+      return saved || '';
+    } catch (e) {
+      return '';
+    }
+  })();
+  const [selectedCropId, setSelectedCropId] = useState<string>(savedSelectedCropId);
+  
+  // Save selected crop ID when it changes
+  useEffect(() => {
+    try {
+      if (selectedCropId) {
+        localStorage.setItem('galway_profit_calc_selected_crop', selectedCropId);
+      } else {
+        localStorage.removeItem('galway_profit_calc_selected_crop');
+      }
+    } catch (e) {
+      console.warn('Failed to save selected crop ID', e);
+    }
+  }, [selectedCropId]);
   
   // Load saved values from localStorage on mount
   const loadSavedValues = (): {
