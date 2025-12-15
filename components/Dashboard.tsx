@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { AppState, Stage } from '../types';
 import { getFarmAlerts } from '../services/alertService';
 import { 
@@ -14,7 +14,8 @@ import {
   Bell, 
   ChevronRight,
   ArrowRight,
-  Clock
+  Clock,
+  X
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { motion } from 'framer-motion';
@@ -40,7 +41,34 @@ const item = {
 };
 
 const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
-  
+  // --- Dismissed Alerts State (persisted in localStorage) ---
+  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('galway_dismissed_alerts');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setDismissedAlerts(new Set(parsed));
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load dismissed alerts from localStorage', e);
+    }
+  }, []);
+
+  const handleDismissAlert = (alertId: string) => {
+    const newDismissed = new Set(dismissedAlerts);
+    newDismissed.add(alertId);
+    setDismissedAlerts(newDismissed);
+    try {
+      localStorage.setItem('galway_dismissed_alerts', JSON.stringify(Array.from(newDismissed)));
+    } catch (e) {
+      console.warn('Failed to save dismissed alerts to localStorage', e);
+    }
+  };
+
   // --- Data Calculations ---
 
   const activeTrays = useMemo(() => 
@@ -78,9 +106,14 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
   }, [activeTrays, state.crops]);
 
   // --- Smart Alerts Logic ---
-  const smartAlerts = useMemo(() => {
+  const allAlerts = useMemo(() => {
     return getFarmAlerts(state);
   }, [state]);
+
+  // Filter out dismissed alerts
+  const smartAlerts = useMemo(() => {
+    return allAlerts.filter(alert => !dismissedAlerts.has(alert.id));
+  }, [allAlerts, dismissedAlerts]);
 
   // --- Recent Activity Logic ---
   const recentActivity = useMemo(() => {
@@ -313,15 +346,31 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
                      }
 
                      return (
-                        <div key={alert.id} className={`p-4 rounded-2xl border flex items-center justify-between transition-transform hover:scale-[1.02] cursor-pointer ${styles}`} onClick={() => onNavigate(alert.linkTo || 'crops')}>
-                           <div className="flex items-center space-x-3">
+                        <div key={alert.id} className={`p-4 rounded-2xl border flex items-center justify-between transition-transform hover:scale-[1.02] ${styles}`}>
+                           <div 
+                              className="flex items-center space-x-3 flex-1 cursor-pointer"
+                              onClick={() => onNavigate(alert.linkTo || 'crops')}
+                           >
                               <Icon className={`w-5 h-5 ${iconColor}`} />
                               <div>
                                  <p className={`text-sm font-bold ${titleColor}`}>{alert.title}</p>
                                  <p className={`text-xs ${msgColor}`}>{alert.message}</p>
                               </div>
                            </div>
-                           <ChevronRight className={`w-4 h-4 opacity-50 ${iconColor}`} />
+                           <div className="flex items-center space-x-2">
+                              <button
+                                 onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDismissAlert(alert.id);
+                                 }}
+                                 className={`p-2 rounded-lg transition-colors ${iconColor} hover:bg-white/50 active:bg-white/70`}
+                                 title="Mark as done"
+                                 style={{ touchAction: 'manipulation' }}
+                              >
+                                 <X className="w-4 h-4" />
+                              </button>
+                              <ChevronRight className={`w-4 h-4 opacity-50 ${iconColor} cursor-pointer`} onClick={() => onNavigate(alert.linkTo || 'crops')} />
+                           </div>
                         </div>
                      );
                   })
