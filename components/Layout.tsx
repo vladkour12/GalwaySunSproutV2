@@ -130,7 +130,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -2, scale: 0.995 }}
               transition={{ duration: 0.08, ease: "easeOut" }}
-              style={{ minHeight: 0 }} // Prevent motion div from preserving height
+              style={{ position: 'relative', zIndex: 1 }} // Ensure content is above any background elements
             >
               {children}
             </motion.div>

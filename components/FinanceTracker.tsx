@@ -233,9 +233,9 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
               <h2 className="text-2xl font-bold text-slate-800 tracking-tight">{viewMode === 'transactions' ? 'Finances' : 'Customers'}</h2>
               <p className="text-xs text-slate-500 font-medium">{viewMode === 'transactions' ? 'Cash Flow & Records' : 'Client Management'}</p>
            </div>
-           <div className="flex bg-slate-100 p-1 rounded-xl">
-              <button onClick={() => setViewMode('transactions')} className={`p-2 rounded-lg transition-all ${viewMode === 'transactions' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}><LayoutGrid className="w-5 h-5" /></button>
-              <button onClick={() => setViewMode('customers')} className={`p-2 rounded-lg transition-all ${viewMode === 'customers' ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-400'}`}><Users className="w-5 h-5" /></button>
+           <div className="flex bg-slate-100 p-1 rounded-xl relative z-10">
+              <button onClick={() => setViewMode('transactions')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-lg transition-all ${viewMode === 'transactions' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}><LayoutGrid className="w-5 h-5" /></button>
+              <button onClick={() => setViewMode('customers')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-lg transition-all ${viewMode === 'customers' ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-400'}`}><Users className="w-5 h-5" /></button>
            </div>
         </div>
 
@@ -244,7 +244,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
             whileHover={isTouchUI ? undefined : { scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
             onClick={() => { if (showTxForm) { setShowTxForm(false); resetForm(); } else { setShowTxForm(true); resetForm(); } }}
-            style={{ touchAction: 'manipulation' }}
+            style={{ touchAction: 'manipulation', position: 'relative', zIndex: 10 }}
             className={`w-full py-3 rounded-2xl shadow-lg flex items-center justify-center text-sm font-bold transition-all ${showTxForm ? 'bg-slate-100 text-slate-600 shadow-none' : 'bg-slate-900 text-white shadow-slate-200'}`}
           >
             {showTxForm ? 'Cancel Entry' : <><Plus className="w-4 h-4 mr-2" /> Add Transaction</>}
@@ -254,7 +254,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
             whileHover={isTouchUI ? undefined : { scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
             onClick={openNewCustomerModal}
-            style={{ touchAction: 'manipulation' }}
+            style={{ touchAction: 'manipulation', position: 'relative', zIndex: 10 }}
             className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-2xl shadow-lg shadow-teal-200 flex items-center justify-center text-sm font-bold transition-all"
           >
             <Plus className="w-4 h-4 mr-2" /> Add Customer
@@ -343,9 +343,9 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
               transition={{ delay: 0.1 }}
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
-              <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+              <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 relative z-0">
                 <h4 className="text-sm font-bold text-slate-800 mb-4">Cash Flow (Last 7 Days)</h4>
-                <div ref={chartRef1} className="h-48 w-full" style={{ minHeight: 192, position: 'relative' }}>
+                <div ref={chartRef1} className="h-48 w-full" style={{ minHeight: 192, position: 'relative', pointerEvents: 'none' }}>
                   {chartWidth > 0 && (
                     <BarChart width={chartWidth} height={192} data={cashFlowData}>
                       <XAxis dataKey="date" hide />
@@ -357,9 +357,9 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                 </div>
                 {isTouchUI && <p className="mt-2 text-[10px] text-slate-400 font-bold">Charts are view-only on mobile.</p>}
               </div>
-              <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+              <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 relative z-0">
                 <h4 className="text-sm font-bold text-slate-800 mb-4">Expenses by Category</h4>
-                <div ref={chartRef2} className="h-48 w-full" style={{ minHeight: 192, position: 'relative' }}>
+                <div ref={chartRef2} className="h-48 w-full" style={{ minHeight: 192, position: 'relative', pointerEvents: 'none' }}>
                   {chartWidth > 0 && (
                     <PieChart width={chartWidth} height={192}>
                       <Pie data={expenseCategoryData} innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value" isAnimationActive={false}>
