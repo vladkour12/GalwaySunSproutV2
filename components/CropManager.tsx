@@ -594,7 +594,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                   </motion.div>
                )}
                
-               {/* Group trays by location for better organization */}
+               {/* Group trays by shelf location - 4 trays per shelf */}
                {(() => {
                   const groupedByLocation = activeTrays.reduce((acc, tray) => {
                      const location = tray.location || 'Unassigned';
@@ -603,121 +603,155 @@ const CropManager: React.FC<CropManagerProps> = ({
                      return acc;
                   }, {} as Record<string, typeof activeTrays>);
 
-                  return Object.entries(groupedByLocation).map(([location, trays]) => (
-                     <div key={location} className="space-y-3">
-                        {/* Location Header (only show if multiple locations) */}
-                        {Object.keys(groupedByLocation).length > 1 && (
-                           <div className="flex items-center gap-2 px-2">
-                              <MapPin className="w-4 h-4 text-slate-400" />
-                              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">{location}</h3>
-                              <div className="flex-1 h-px bg-slate-100"></div>
-                              <span className="text-xs font-bold text-slate-400">{trays.length}</span>
+                  // Sort locations naturally (Shelf 1, Shelf 2, etc.)
+                  const sortedLocations = Object.keys(groupedByLocation).sort((a, b) => {
+                     const numA = parseInt(a.replace(/\D/g, '')) || 999;
+                     const numB = parseInt(b.replace(/\D/g, '')) || 999;
+                     if (numA !== numB) return numA - numB;
+                     return a.localeCompare(b);
+                  });
+
+                  return sortedLocations.map((location, locationIndex) => {
+                     const trays = groupedByLocation[location];
+                     // Group trays into shelves of 4
+                     const shelves: (typeof trays)[] = [];
+                     for (let i = 0; i < trays.length; i += 4) {
+                        shelves.push(trays.slice(i, i + 4));
+                     }
+
+                     return (
+                        <div key={location} className="space-y-4">
+                           {/* Shelf Location Header */}
+                           <div className="flex items-center gap-3 px-3 py-2 bg-gradient-to-r from-slate-50 to-transparent rounded-2xl border border-slate-100">
+                              <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-teal-100 text-teal-700">
+                                 <MapPin className="w-4 h-4" />
+                              </div>
+                              <div className="flex-1">
+                                 <h3 className="text-sm font-bold text-slate-800">{location}</h3>
+                                 <p className="text-xs text-slate-500">{trays.length} {trays.length === 1 ? 'tray' : 'trays'}</p>
+                              </div>
+                              {trays.length > 4 && (
+                                 <div className="text-xs font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded-lg">
+                                    {shelves.length} {shelves.length === 1 ? 'shelf' : 'shelves'}
+                                 </div>
+                              )}
                            </div>
-                        )}
 
-                        {/* Tray Cards */}
-                        <div className="grid grid-cols-1 gap-3">
-                           {trays.map(tray => {
-                              const crop = state.crops.find(c => c.id === tray.cropTypeId);
-                              if (!crop) return null;
-
-                              const harvestDate = getTargetHarvestDate(tray, crop);
-                              const nextStageInfo = getTimeToNextStage(tray, crop);
-                              const isHarvestReady = tray.stage === Stage.HARVEST_READY;
-
-                              return (
-                                 <motion.div 
-                                    key={tray.id}
-                                    layoutId={tray.id}
-                                    initial={{ opacity: 0, y: 5 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    onClick={() => setSelectedTray(tray)}
-                                    className={`group bg-white rounded-3xl border-2 ${nextStageInfo.isOverdue ? 'border-red-300 bg-gradient-to-br from-red-50 to-white shadow-red-100' : isHarvestReady ? 'border-teal-300 bg-gradient-to-br from-teal-50 to-white shadow-teal-100' : 'border-slate-200 hover:border-teal-200'} shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer relative overflow-hidden`}
-                                    whileHover={{ scale: 1.01 }}
-                                    whileTap={{ scale: 0.99 }}
-                                 >
-                                    {/* Overdue Pulse Effect */}
-                                    {nextStageInfo.isOverdue && (
-                                       <div className="absolute inset-0 border-2 border-red-400 rounded-3xl animate-pulse opacity-50"></div>
-                                    )}
-                                    
-                                    <div className="p-4 flex items-start gap-4 relative z-10">
-                                       {/* Left: Enhanced Crop Image */}
-                                       <div className={`relative w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center text-sm font-bold shadow-lg overflow-hidden border-2 ${nextStageInfo.isOverdue ? 'border-red-300' : isHarvestReady ? 'border-teal-300' : 'border-white'} ${crop.color?.split(' ')[0] || 'bg-slate-200'}`}>
-                                          {crop.imageUrl ? (
-                                             <img src={crop.imageUrl} alt={crop.name} className="w-full h-full object-cover" />
-                                          ) : (
-                                             <span className="text-slate-600">{crop.name.substring(0,2).toUpperCase()}</span>
-                                          )}
-                                          {/* Stage Indicator Badge */}
-                                          <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center ${
-                                             tray.stage === Stage.SEED || tray.stage === Stage.SOAK ? 'bg-slate-500' :
-                                             tray.stage === Stage.GERMINATION ? 'bg-blue-500' :
-                                             tray.stage === Stage.BLACKOUT ? 'bg-purple-500' :
-                                             tray.stage === Stage.LIGHT ? 'bg-amber-500' :
-                                             'bg-teal-500'
-                                          }`}>
-                                             <div className="w-2 h-2 bg-white rounded-full"></div>
-                                          </div>
-                                       </div>
-
-                                       {/* Middle: Enhanced Info */}
-                                       <div className="flex-1 min-w-0">
-                                          <div className="flex items-start justify-between gap-2 mb-2">
-                                             <div className="flex-1 min-w-0">
-                                                <h3 className="text-base font-bold text-slate-900 mb-1 truncate">{crop.name}</h3>
-                                                {tray.location && Object.keys(groupedByLocation).length === 1 && (
-                                                   <div className="flex items-center gap-1 text-xs text-slate-500">
-                                                      <MapPin className="w-3 h-3" />
-                                                      <span>{tray.location}</span>
-                                                   </div>
-                                                )}
-                                             </div>
-                                             {/* Stage Badge */}
-                                             <span className={`text-[10px] px-2.5 py-1 rounded-xl font-bold uppercase tracking-wide shadow-sm ${getStageColor(tray.stage)}`}>
-                                                {tray.stage}
-                                             </span>
-                                          </div>
-
-                                          {/* Progress/Status Bar */}
-                                          <div className="mb-3">
-                                             {isHarvestReady ? (
-                                                <div className="flex items-center gap-2 text-teal-600">
-                                                   <CheckCircle className="w-4 h-4" />
-                                                   <span className="text-sm font-bold">Ready to Harvest</span>
-                                                </div>
-                                             ) : (
-                                                <div className="space-y-1.5">
-                                                   <div className="flex items-center justify-between text-xs">
-                                                      <span className="text-slate-500 font-medium">Harvest Ready:</span>
-                                                      <span className="font-bold text-slate-700">{formatShortDate(harvestDate)}</span>
-                                                   </div>
-                                                   <div className="flex items-center justify-between">
-                                                      <span className={`text-xs font-medium ${nextStageInfo.isOverdue ? 'text-red-600' : 'text-teal-600'}`}>
-                                                         Next:
-                                                      </span>
-                                                      <span className={`text-xs font-bold ${nextStageInfo.isOverdue ? 'text-red-600' : 'text-slate-700'}`}>
-                                                         {nextStageInfo.text}
-                                                      </span>
-                                                   </div>
-                                                </div>
-                                             )}
-                                          </div>
-                                       </div>
-
-                                       {/* Right: Quick Action Indicator */}
-                                       {nextStageInfo.isOverdue && (
-                                          <div className="flex-shrink-0 pt-1">
-                                             <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                                          </div>
-                                       )}
+                           {/* Render shelves (4 trays per shelf) */}
+                           {shelves.map((shelfTrays, shelfIndex) => (
+                              <div key={shelfIndex} className="space-y-3">
+                                 {shelves.length > 1 && (
+                                    <div className="flex items-center gap-2 px-2">
+                                       <div className="w-px h-4 bg-slate-200"></div>
+                                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                          {location} - Row {shelfIndex + 1}
+                                       </span>
                                     </div>
-                                 </motion.div>
-                              );
-                           })}
+                                 )}
+                                 
+                                 {/* 4-tray grid */}
+                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    {shelfTrays.map(tray => {
+                                       const crop = state.crops.find(c => c.id === tray.cropTypeId);
+                                       if (!crop) return null;
+
+                                       const harvestDate = getTargetHarvestDate(tray, crop);
+                                       const nextStageInfo = getTimeToNextStage(tray, crop);
+                                       const isHarvestReady = tray.stage === Stage.HARVEST_READY;
+
+                                       return (
+                                          <motion.div 
+                                             key={tray.id}
+                                             layoutId={tray.id}
+                                             initial={{ opacity: 0, scale: 0.95 }}
+                                             animate={{ opacity: 1, scale: 1 }}
+                                             onClick={() => setSelectedTray(tray)}
+                                             className={`group bg-white rounded-2xl border-2 ${nextStageInfo.isOverdue ? 'border-red-300 bg-gradient-to-br from-red-50 to-white' : isHarvestReady ? 'border-teal-300 bg-gradient-to-br from-teal-50 to-white' : 'border-slate-200 hover:border-teal-200'} shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer relative overflow-hidden`}
+                                             whileHover={{ scale: 1.02 }}
+                                             whileTap={{ scale: 0.98 }}
+                                          >
+                                             {/* Overdue Pulse Effect */}
+                                             {nextStageInfo.isOverdue && (
+                                                <div className="absolute inset-0 border-2 border-red-400 rounded-2xl animate-pulse opacity-50 z-0"></div>
+                                             )}
+                                             
+                                             <div className="p-3 flex flex-col gap-2 relative z-10">
+                                                {/* Crop Image with Stage Badge */}
+                                                <div className="relative w-full aspect-square rounded-xl flex items-center justify-center text-xs font-bold shadow-md overflow-hidden border-2 ${nextStageInfo.isOverdue ? 'border-red-300' : isHarvestReady ? 'border-teal-300' : 'border-white'} ${crop.color?.split(' ')[0] || 'bg-slate-200'}">
+                                                   {crop.imageUrl ? (
+                                                      <img src={crop.imageUrl} alt={crop.name} className="w-full h-full object-cover" />
+                                                   ) : (
+                                                      <span className="text-slate-600">{crop.name.substring(0,2).toUpperCase()}</span>
+                                                   )}
+                                                   {/* Stage Indicator Badge */}
+                                                   <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${
+                                                      tray.stage === Stage.SEED || tray.stage === Stage.SOAK ? 'bg-slate-500' :
+                                                      tray.stage === Stage.GERMINATION ? 'bg-blue-500' :
+                                                      tray.stage === Stage.BLACKOUT ? 'bg-purple-500' :
+                                                      tray.stage === Stage.LIGHT ? 'bg-amber-500' :
+                                                      'bg-teal-500'
+                                                   }`}>
+                                                      <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                                                   </div>
+                                                </div>
+
+                                                {/* Crop Name & Stage */}
+                                                <div className="space-y-1.5">
+                                                   <div className="flex items-start justify-between gap-1">
+                                                      <h3 className="text-xs font-bold text-slate-900 truncate flex-1">{crop.name}</h3>
+                                                      {nextStageInfo.isOverdue && (
+                                                         <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse flex-shrink-0 mt-0.5"></div>
+                                                      )}
+                                                   </div>
+                                                   <span className={`inline-block text-[9px] px-2 py-0.5 rounded-lg font-bold uppercase tracking-wide ${getStageColor(tray.stage)}`}>
+                                                      {tray.stage}
+                                                   </span>
+                                                </div>
+
+                                                {/* Status Info */}
+                                                <div className="space-y-1 pt-1 border-t border-slate-100">
+                                                   {isHarvestReady ? (
+                                                      <div className="flex items-center gap-1.5 text-teal-600">
+                                                         <CheckCircle className="w-3 h-3 flex-shrink-0" />
+                                                         <span className="text-[10px] font-bold">Ready</span>
+                                                      </div>
+                                                   ) : (
+                                                      <>
+                                                         <div className="flex items-center justify-between text-[10px]">
+                                                            <span className="text-slate-500">Harvest:</span>
+                                                            <span className="font-bold text-slate-700">{formatShortDate(harvestDate)}</span>
+                                                         </div>
+                                                         <div className="flex items-center justify-between">
+                                                            <span className={`text-[10px] font-medium ${nextStageInfo.isOverdue ? 'text-red-600' : 'text-teal-600'}`}>
+                                                               Next:
+                                                            </span>
+                                                            <span className={`text-[10px] font-bold ${nextStageInfo.isOverdue ? 'text-red-600' : 'text-slate-700'}`}>
+                                                               {nextStageInfo.text}
+                                                            </span>
+                                                         </div>
+                                                      </>
+                                                   )}
+                                                </div>
+                                             </div>
+                                          </motion.div>
+                                       );
+                                    })}
+                                    
+                                    {/* Fill empty slots if less than 4 trays */}
+                                    {Array.from({ length: 4 - shelfTrays.length }).map((_, emptyIndex) => (
+                                       <div key={`empty-${emptyIndex}`} className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 flex items-center justify-center">
+                                          <div className="text-center">
+                                             <Sprout className="w-6 h-6 text-slate-300 mx-auto mb-1" />
+                                             <span className="text-[9px] text-slate-400 font-medium">Empty</span>
+                                          </div>
+                                       </div>
+                                    ))}
+                                 </div>
+                              </div>
+                           ))}
                         </div>
-                     </div>
-                  ));
+                     );
+                  });
                })()}
             </div>
          )}
