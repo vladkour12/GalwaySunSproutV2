@@ -21,7 +21,15 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
   useEffect(() => {
     const el = mainRef.current;
     if (!el) return;
+    // Reset scroll immediately
     el.scrollTop = 0;
+    // Force a layout recalculation after a brief delay to clear any lingering height issues
+    const id = window.setTimeout(() => {
+      el.scrollTop = 0;
+      // Force reflow to ensure layout is clean
+      void el.offsetHeight;
+    }, 50);
+    return () => window.clearTimeout(id);
   }, [currentView]);
 
   // Make bottom padding match the fixed dock height (prevents excessive blank scroll space).
@@ -46,9 +54,9 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
     ro?.observe(dockEl);
     window.addEventListener('resize', measure);
 
-    // Fallback for browsers where layout settles late (mobile).
-    const settleId = window.setTimeout(measure, 250);
-    const settleId2 = window.setTimeout(measure, 800);
+    // Re-measure after view changes to fix bottom padding (especially after navigating from crop page)
+    const settleId = window.setTimeout(measure, 100);
+    const settleId2 = window.setTimeout(measure, 300);
 
     return () => {
       window.clearTimeout(settleId);
@@ -56,7 +64,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
       ro?.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, []);
+  }, [currentView]); // Recalculate when view changes to fix bottom spacing issues
 
   const navItems = [
     { id: 'dashboard', label: 'Overview', icon: Leaf },
