@@ -161,6 +161,15 @@ const CropManager: React.FC<CropManagerProps> = ({
   const [activeTab, setActiveTab] = useState<'production' | 'varieties' | 'plan' | 'calendar'>(savedCropManagerPrefs.activeTab);
   const [plannerMode, setPlannerMode] = useState<'event' | 'recurring'>(savedCropManagerPrefs.plannerMode);
 
+  // Force re-render every minute to update countdown timers
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTick(prev => prev + 1);
+    }, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, []);
+
   // Save preferences when they change
   useEffect(() => {
     saveCropManagerPreferences({ activeTab, plannerMode });
