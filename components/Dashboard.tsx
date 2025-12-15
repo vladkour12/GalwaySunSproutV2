@@ -187,7 +187,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
     >
       {/* Top Header */}
       <motion.div variants={item} className="flex flex-col space-y-1 mb-2">
-        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Farm Overview</h2>
+        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Business Overview</h2>
         <p className="text-slate-500 text-sm">Welcome back. Here's what's happening in the shed.</p>
       </motion.div>
 
