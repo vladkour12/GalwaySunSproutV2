@@ -91,6 +91,22 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) =
     try {
       console.log('Starting sync...', { cropCount: INITIAL_CROPS.length });
       
+      // Check if we're in development without API routes
+      const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (isLocalDev) {
+        // Try to detect if API routes are available
+        try {
+          await fetch('/api/version', { method: 'GET' });
+        } catch {
+          alert('⚠️ API routes are not available in local development.\n\n' +
+                'The sync will work automatically when deployed to Vercel.\n\n' +
+                'To test locally, run: npm run dev:vercel');
+          setSyncStatus('error');
+          setTimeout(() => setSyncStatus('idle'), 3000);
+          return;
+        }
+      }
+      
       // First ensure database is set up (this adds missing columns)
       try {
         console.log('Running database setup...');
@@ -115,6 +131,8 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) =
     } catch (error: any) {
       console.error('Sync failed with error:', error);
       const errorMessage = error?.message || error?.toString() || 'Unknown error';
+      const is404 = error?.status === 404;
+      
       console.error('Error details:', {
         message: errorMessage,
         stack: error?.stack,
@@ -122,8 +140,17 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) =
         status: error?.status
       });
       
-      // Show detailed error in alert
-      alert(`Sync failed: ${errorMessage}\n\nCheck browser console (F12) for more details.`);
+      // Show helpful error message for 404s
+      if (is404) {
+        alert('⚠️ API routes not available (404 error).\n\n' +
+              'API routes only work when:\n' +
+              '• Deployed to Vercel (sync will work automatically)\n' +
+              '• Running locally with: npm run dev:vercel\n\n' +
+              'Your code is ready - sync will work after deployment!');
+      } else {
+        alert(`Sync failed: ${errorMessage}\n\nCheck browser console (F12) for more details.`);
+      }
+      
       setSyncStatus('error');
       setTimeout(() => setSyncStatus('idle'), 5000);
     }

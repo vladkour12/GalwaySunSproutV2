@@ -67,12 +67,20 @@ export const flushSyncQueueOnce = async (): Promise<SyncResult> => {
   if (items.length === 0) return { didSync: true, processed: 0, remaining: 0 };
 
   let processed = 0;
+  let skipped = 0;
   for (const item of items) {
     try {
       await applyQueueItemRemote(item);
       await removeSyncQueueItem(item.id);
       processed += 1;
-    } catch (e) {
+    } catch (e: any) {
+      // Skip 404 errors for delete operations (item already doesn't exist)
+      if (e?.status === 404 && item.op === 'delete') {
+        await removeSyncQueueItem(item.id);
+        skipped += 1;
+        continue;
+      }
+      
       const next: SyncQueueItem = {
         ...item,
         attempts: (item.attempts ?? 0) + 1,
@@ -82,7 +90,7 @@ export const flushSyncQueueOnce = async (): Promise<SyncResult> => {
       return {
         didSync: false,
         processed,
-        remaining: items.length - processed,
+        remaining: items.length - processed - skipped,
         error: next.lastError ?? 'Unknown sync error',
       };
     }
