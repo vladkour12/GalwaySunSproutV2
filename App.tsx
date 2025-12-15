@@ -13,12 +13,30 @@ import { getLocalStateSnapshot, saveState, upsertLocalEntity, deleteLocalEntity 
 import { flushSyncQueueOnce, refreshLocalFromRemote, queueUpsert, queueDelete } from './services/syncService';
 import { api } from './services/api';
 
-const Dashboard = React.lazy(() => import('./components/Dashboard'));
-const CropManager = React.lazy(() => import('./components/CropManager'));
-const FinanceTracker = React.lazy(() => import('./components/FinanceTracker'));
-const AIAssistant = React.lazy(() => import('./components/AIAssistant'));
-const DataManager = React.lazy(() => import('./components/DataManager'));
-const ProfitCalculator = React.lazy(() => import('./components/ProfitCalculator'));
+const Dashboard = React.lazy(() => import('./components/Dashboard').catch(err => {
+  console.error('Failed to load Dashboard:', err);
+  throw err;
+}));
+const CropManager = React.lazy(() => import('./components/CropManager').catch(err => {
+  console.error('Failed to load CropManager:', err);
+  throw err;
+}));
+const FinanceTracker = React.lazy(() => import('./components/FinanceTracker').catch(err => {
+  console.error('Failed to load FinanceTracker:', err);
+  throw err;
+}));
+const AIAssistant = React.lazy(() => import('./components/AIAssistant').catch(err => {
+  console.error('Failed to load AIAssistant:', err);
+  throw err;
+}));
+const DataManager = React.lazy(() => import('./components/DataManager').catch(err => {
+  console.error('Failed to load DataManager:', err);
+  throw err;
+}));
+const ProfitCalculator = React.lazy(() => import('./components/ProfitCalculator').catch(err => {
+  console.error('Failed to load ProfitCalculator:', err);
+  throw err;
+}));
 
 const ViewLoading: React.FC = () => (
   <div className="min-h-[240px] flex items-center justify-center text-slate-400 text-sm font-bold">

@@ -141,19 +141,8 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) =
       await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
       console.log('Sync completed successfully - all crop images saved to database');
       
-      // Force refresh local state from remote after sync
-      try {
-        const { refreshLocalFromRemote } = await import('../services/syncService');
-        const refreshed = await refreshLocalFromRemote();
-        console.log('Refreshed local state from database:', refreshed.crops.length, 'crops loaded');
-        refreshed.crops.forEach(crop => {
-          if (crop.imageUrl) {
-            console.log(`Loaded crop ${crop.name}: imageUrl = ${crop.imageUrl}`);
-          }
-        });
-      } catch (refreshError) {
-        console.error('Failed to refresh local state:', refreshError);
-      }
+      // Note: refreshLocalFromRemote will be called automatically by App.tsx's sync loop
+      // No need to manually refresh here to avoid circular dependencies
       
       setSyncStatus('success');
       setTimeout(() => {
