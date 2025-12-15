@@ -85,6 +85,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
     { id: 'calculator', label: 'Profit', icon: Calculator },
     { id: 'finance', label: 'Finance', icon: Euro },
     { id: 'data', label: 'Data', icon: Database },
+    { id: 'ai', label: 'Assistant', icon: Sparkles },
   ] as const;
 
   return (
