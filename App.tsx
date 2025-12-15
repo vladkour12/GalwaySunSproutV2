@@ -111,16 +111,29 @@ const App: React.FC = () => {
 
         if (!isCancelled) {
           if (!hasLocalData) setDidForceBoot(true);
-          setAppState(
-            hasLocalData
-              ? local
-              : {
-                  crops: INITIAL_CROPS,
-                  trays: [],
-                  transactions: [],
-                  customers: INITIAL_CUSTOMERS,
-                }
-          );
+          const initialState = hasLocalData
+            ? local
+            : {
+                crops: INITIAL_CROPS,
+                trays: [],
+                transactions: [],
+                customers: INITIAL_CUSTOMERS,
+              };
+          
+          // Save initial state with image conversion for offline access
+          if (!hasLocalData) {
+            (async () => {
+              try {
+                const { saveState } = await import('./services/storage');
+                await saveState(initialState, true);
+                console.log('Initial crops saved with base64 images for offline access');
+              } catch (error) {
+                console.warn('Failed to save initial state with images:', error);
+              }
+            })();
+          }
+          
+          setAppState(initialState);
           setIsLoading(false);
           setLoadPhase('Ready');
         }

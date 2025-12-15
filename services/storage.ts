@@ -1,5 +1,6 @@
 
 import { AppState, CropType, Tray, Transaction, Customer } from '../types';
+import { convertCropImagesToBase64 } from '../utils/imageConverter';
 
 const DB_NAME = 'GalwaySunSproutsDB';
 const DB_VERSION = 3; // Incremented for schema migration
@@ -130,7 +131,8 @@ const initDB = (): Promise<IDBDatabase> => {
 };
 
 // Save the entire application state into separated stores
-export const saveState = async (state: AppState): Promise<void> => {
+// Optionally convert image URLs to base64 for offline storage
+export const saveState = async (state: AppState, convertImages = false): Promise<void> => {
   try {
     const db = await initDB();
     return new Promise((resolve, reject) => {
@@ -157,8 +159,16 @@ export const saveState = async (state: AppState): Promise<void> => {
       // We do NOT clear images store on every save to avoid rewriting large blobs.
       // We only add/update images. Cleanup of unused images can be a separate maintenance task.
 
-      // 1. Save Crops & Handle Images
-      state.crops.forEach(crop => {
+      // 1. Convert images to base64 if requested
+      let cropsToSave = state.crops;
+      if (convertImages) {
+        console.log('Converting crop images to base64 for local storage...');
+        cropsToSave = await convertCropImagesToBase64(state.crops);
+        console.log(`Converted ${cropsToSave.filter(c => c.imageUrl?.startsWith('data:')).length} crop images to base64`);
+      }
+
+      // 2. Save Crops & Handle Images
+      cropsToSave.forEach(crop => {
         if (crop.imageUrl && crop.imageUrl.startsWith('data:')) {
            // It's a heavy base64 string. 
            // Save content to images store

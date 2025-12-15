@@ -165,7 +165,8 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
       console.log(`Crop ${crop.name}: imageUrl = ${crop.imageUrl}`);
     });
     
-    await saveState(state);
+    // Save to local storage with image conversion for offline access
+    await saveState(state, true);
     return state;
   } catch (e) {
     const msg = (e as Error)?.message ?? String(e);
