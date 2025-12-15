@@ -11,6 +11,7 @@ import { getFarmAlerts } from './services/alertService';
 import { Sprout } from 'lucide-react';
 import { getLocalStateSnapshot, saveState, upsertLocalEntity, deleteLocalEntity } from './services/storage';
 import { flushSyncQueueOnce, refreshLocalFromRemote, queueUpsert, queueDelete } from './services/syncService';
+import { api } from './services/api';
 
 const Dashboard = React.lazy(() => import('./components/Dashboard'));
 const CropManager = React.lazy(() => import('./components/CropManager'));
@@ -140,15 +141,36 @@ const App: React.FC = () => {
           // Only overwrite local snapshot when queue is drained (avoid clobbering offline edits).
           try {
             setSyncMessage('Refreshing…');
+            
+            // Ensure database is set up first
+            try {
+              await api.setup();
+            } catch (setupError) {
+              console.warn('Database setup warning (may already exist):', setupError);
+            }
+            
             const fresh = await refreshLocalFromRemote();
             if (!isCancelled) setAppState(fresh);
             setSyncStatus('idle');
             setSyncMessage(null);
-          } catch (e) {
+            setLoadError(null); // Clear any previous errors if sync succeeds
+          } catch (e: any) {
             if (isCancelled) return;
+            console.error('Failed to refresh from remote:', e);
+            
+            // Check if it's a network/connection error vs database error
+            const errorMsg = e?.message || String(e);
+            const isNetworkError = errorMsg.includes('fetch') || errorMsg.includes('network') || errorMsg.includes('Failed to fetch');
+            
             setSyncStatus('error');
-            setSyncMessage('Offline mode (sync failed)');
-            setLoadError('Working offline. Database sync is currently unavailable.');
+            if (isNetworkError) {
+              setSyncMessage('Offline mode (network error)');
+              setLoadError('Working offline. Database sync is currently unavailable.');
+            } else {
+              // Database error - might need setup
+              setSyncMessage('Database connection issue');
+              setLoadError(`Database sync error: ${errorMsg}. Try clicking "Sync Crops to DB" in Data Manager to initialize the database.`);
+            }
           }
         })();
 
@@ -195,9 +217,23 @@ const App: React.FC = () => {
         const result = await flushSyncQueueOnce();
         if (!result.didSync) {
           setSyncStatus('error');
-          setSyncMessage('Offline mode (sync failed)');
-          setLoadError('Working offline. Database sync is currently unavailable.');
+          // Only show error if it's not just skipped 404s
+          if (result.remaining > 0) {
+            const isNetworkError = result.error?.includes('fetch') || result.error?.includes('network') || result.error?.includes('Failed to fetch');
+            if (isNetworkError) {
+              setSyncMessage('Offline mode (network error)');
+              setLoadError('Working offline. Database sync is currently unavailable.');
+            } else {
+              setSyncMessage('Sync error');
+              // Don't overwrite loadError for non-network errors - might be temporary
+            }
+          }
           return;
+        }
+        
+        // Clear error on successful sync
+        if (result.processed > 0 || result.remaining === 0) {
+          setLoadError(null);
         }
 
         // If we actually pushed changes, refresh snapshot so other devices stay consistent.
