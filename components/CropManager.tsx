@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { saveCropManagerPreferences, loadCropManagerPreferences } from '../utils/persistence';
+import { saveCropManagerPreferences, loadCropManagerPreferences, STORAGE_KEYS, saveToStorage, loadFromStorage } from '../utils/persistence';
 import { AppState, CropType, Stage, Tray, Customer, Alert } from '../types';
 import { getFarmAlerts } from '../services/alertService';
 import { STAGE_FLOW } from '../constants';
@@ -197,27 +197,15 @@ const CropManager: React.FC<CropManagerProps> = ({
 
   // Load Orders from LocalStorage on mount
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('galway_orders');
-      if (!saved) return;
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed)) {
-        setRecurringOrders(parsed);
-      }
-    } catch (e) {
-      // localStorage can throw in some environments (e.g. Safari private mode / blocked storage).
-      console.warn('Failed to load orders from localStorage', e);
+    const saved = loadFromStorage<RecurringOrder[]>(STORAGE_KEYS.ORDERS, []);
+    if (saved.length > 0) {
+      setRecurringOrders(saved);
     }
   }, []);
 
   // Save Orders
   useEffect(() => {
-    try {
-      localStorage.setItem('galway_orders', JSON.stringify(recurringOrders));
-    } catch (e) {
-      // Avoid crashing the entire app due to storage quota/security restrictions.
-      console.warn('Failed to persist orders to localStorage', e);
-    }
+    saveToStorage(STORAGE_KEYS.ORDERS, recurringOrders);
   }, [recurringOrders]);
 
   useEffect(() => {

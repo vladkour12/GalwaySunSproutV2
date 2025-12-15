@@ -6,6 +6,7 @@ import CustomSelect from './CustomSelect';
 import { quickElectricityCalc } from '../utils/electricityCalculator';
 import { quickSoilCalc } from '../utils/soilCalculator';
 import { quickPackagingCalc } from '../utils/packagingCalculator';
+import { saveToStorage, loadFromStorage, STORAGE_KEYS } from '../utils/persistence';
 
 interface ProfitCalculatorProps {
   state: AppState;
@@ -14,93 +15,40 @@ interface ProfitCalculatorProps {
 const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
   // --- State ---
   // Load saved selected crop ID
-  const savedSelectedCropId = (() => {
-    try {
-      const saved = localStorage.getItem('galway_profit_calc_selected_crop');
-      return saved || '';
-    } catch (e) {
-      return '';
-    }
-  })();
+  const savedSelectedCropId = loadFromStorage<string>('galway_profit_calc_selected_crop', '');
   const [selectedCropId, setSelectedCropId] = useState<string>(savedSelectedCropId);
   
   // Save selected crop ID when it changes
   useEffect(() => {
-    try {
-      if (selectedCropId) {
-        localStorage.setItem('galway_profit_calc_selected_crop', selectedCropId);
-      } else {
+    if (selectedCropId) {
+      saveToStorage('galway_profit_calc_selected_crop', selectedCropId);
+    } else {
+      try {
         localStorage.removeItem('galway_profit_calc_selected_crop');
+      } catch (e) {
+        // ignore
       }
-    } catch (e) {
-      console.warn('Failed to save selected crop ID', e);
     }
   }, [selectedCropId]);
   
   // Load saved values from localStorage on mount
-  const loadSavedValues = (): {
-    pricePer100g: number;
-    seedCost: number;
-    soilCost: number;
-    elecCost: number;
-    waterCost: number;
-    packagingCost: number;
-    elecWattagePerShelf: number;
-    elecTraysPerShelf: number;
-    elecHoursPerDay: number;
-    elecRatePerKwh: number;
-    soilCostPerBag: number;
-    soilVolumePerBag: number;
-    soilVolumePerTray: number;
-    packagingCostPerBag: number;
-    packagingWeightPerBag: number;
-  } => {
-    try {
-      const saved = localStorage.getItem('galway_profit_calc_settings');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return {
-          pricePer100g: parsed.pricePer100g || 0,
-          seedCost: parsed.seedCost || 0,
-          soilCost: parsed.soilCost ?? 0.50,
-          elecCost: parsed.elecCost ?? 0.85,
-          waterCost: parsed.waterCost ?? 0.15,
-          packagingCost: parsed.packagingCost ?? 0.40,
-          elecWattagePerShelf: parsed.elecWattagePerShelf ?? 100,
-          elecTraysPerShelf: parsed.elecTraysPerShelf ?? 4,
-          elecHoursPerDay: parsed.elecHoursPerDay ?? 16,
-          elecRatePerKwh: parsed.elecRatePerKwh ?? 0.32,
-          soilCostPerBag: parsed.soilCostPerBag ?? 12.00,
-          soilVolumePerBag: parsed.soilVolumePerBag ?? 50,
-          soilVolumePerTray: parsed.soilVolumePerTray ?? 3,
-          packagingCostPerBag: parsed.packagingCostPerBag ?? 0.40,
-          packagingWeightPerBag: parsed.packagingWeightPerBag ?? 100,
-        };
-      }
-    } catch (e) {
-      console.warn('Failed to load profit calculator settings', e);
-    }
-    // Defaults
-    return {
-      pricePer100g: 0,
-      seedCost: 0,
-      soilCost: 0.50,
-      elecCost: 0.85,
-      waterCost: 0.15,
-      packagingCost: 0.40,
-      elecWattagePerShelf: 100,
-      elecTraysPerShelf: 4,
-      elecHoursPerDay: 16,
-      elecRatePerKwh: 0.32,
-      soilCostPerBag: 12.00,
-      soilVolumePerBag: 50,
-      soilVolumePerTray: 3,
-      packagingCostPerBag: 0.40,
-      packagingWeightPerBag: 100,
-    };
-  };
-
-  const savedValues = loadSavedValues();
+  const savedValues = loadFromStorage(STORAGE_KEYS.PROFIT_CALC, {
+    pricePer100g: 0,
+    seedCost: 0,
+    soilCost: 0.50,
+    elecCost: 0.85,
+    waterCost: 0.15,
+    packagingCost: 0.40,
+    elecWattagePerShelf: 100,
+    elecTraysPerShelf: 4,
+    elecHoursPerDay: 16,
+    elecRatePerKwh: 0.32,
+    soilCostPerBag: 12.00,
+    soilVolumePerBag: 50,
+    soilVolumePerTray: 3,
+    packagingCostPerBag: 0.40,
+    packagingWeightPerBag: 100,
+  });
   
   // Inputs
   const [pricePer100g, setPricePer100g] = useState<number>(savedValues.pricePer100g);
@@ -132,28 +80,23 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
 
   // Save values to localStorage whenever they change
   useEffect(() => {
-    try {
-      const settings = {
-        pricePer100g,
-        seedCost,
-        soilCost,
-        elecCost,
-        waterCost,
-        packagingCost,
-        elecWattagePerShelf,
-        elecTraysPerShelf,
-        elecHoursPerDay,
-        elecRatePerKwh,
-        soilCostPerBag,
-        soilVolumePerBag,
-        soilVolumePerTray,
-        packagingCostPerBag,
-        packagingWeightPerBag,
-      };
-      localStorage.setItem('galway_profit_calc_settings', JSON.stringify(settings));
-    } catch (e) {
-      console.warn('Failed to save profit calculator settings', e);
-    }
+    saveToStorage(STORAGE_KEYS.PROFIT_CALC, {
+      pricePer100g,
+      seedCost,
+      soilCost,
+      elecCost,
+      waterCost,
+      packagingCost,
+      elecWattagePerShelf,
+      elecTraysPerShelf,
+      elecHoursPerDay,
+      elecRatePerKwh,
+      soilCostPerBag,
+      soilVolumePerBag,
+      soilVolumePerTray,
+      packagingCostPerBag,
+      packagingWeightPerBag,
+    });
   }, [pricePer100g, seedCost, soilCost, elecCost, waterCost, packagingCost, elecWattagePerShelf, elecTraysPerShelf, elecHoursPerDay, elecRatePerKwh, soilCostPerBag, soilVolumePerBag, soilVolumePerTray, packagingCostPerBag, packagingWeightPerBag]);
   
   const selectedCrop = state.crops.find(c => c.id === selectedCropId);
@@ -233,9 +176,10 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
     setPackagingWeightPerBag(100);
     // Clear localStorage to use defaults
     try {
-      localStorage.removeItem('galway_profit_calc_settings');
+      localStorage.removeItem(STORAGE_KEYS.PROFIT_CALC);
+      localStorage.removeItem('galway_profit_calc_selected_crop');
     } catch (e) {
-      console.warn('Failed to clear profit calculator settings', e);
+      // ignore
     }
   };
 

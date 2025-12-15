@@ -6,6 +6,7 @@ const STORAGE_KEYS = {
   PROFIT_CALC: 'galway_profit_calc_settings',
   DISMISSED_ALERTS: 'galway_dismissed_alerts',
   FINANCE_PREFS: 'galway_finance_preferences',
+  CROP_MANAGER_PREFS: 'galway_crop_manager_prefs',
   ORDERS: 'galway_orders',
 } as const;
 

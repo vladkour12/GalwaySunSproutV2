@@ -525,21 +525,29 @@ const App: React.FC = () => {
   }, []);
 
   // --- Dismissed Alerts State (shared across components) ---
-  const [dismissedAlerts, setDismissedAlerts] = React.useState<Set<string>>(new Set());
-
-  React.useEffect(() => {
-    try {
-      const saved = localStorage.getItem('galway_dismissed_alerts');
-      if (saved) {
+  const [dismissedAlerts, setDismissedAlerts] = React.useState<Set<string>>(() => {
+    const saved = localStorage.getItem('galway_dismissed_alerts');
+    if (saved) {
+      try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          setDismissedAlerts(new Set(parsed));
+          return new Set(parsed);
         }
+      } catch (e) {
+        // ignore
       }
-    } catch (e) {
-      console.warn('Failed to load dismissed alerts from localStorage', e);
     }
-  }, []);
+    return new Set();
+  });
+
+  // Save dismissed alerts when they change
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('galway_dismissed_alerts', JSON.stringify(Array.from(dismissedAlerts)));
+    } catch (e) {
+      // ignore
+    }
+  }, [dismissedAlerts]);
 
   // Listen for storage events to sync dismissed alerts across tabs
   React.useEffect(() => {
@@ -551,7 +559,7 @@ const App: React.FC = () => {
             setDismissedAlerts(new Set(parsed));
           }
         } catch (e) {
-          console.warn('Failed to parse dismissed alerts from storage event', e);
+          // ignore
         }
       }
     };
