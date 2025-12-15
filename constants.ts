@@ -18,7 +18,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 10.90,
     color: 'bg-red-100 text-red-800 border-red-200',
     summary: 'Creamy, earthy, nutty, slightly sweet taste.',
-    imageUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Adzuki_Red_Bean.PNG'
   },
   {
     id: 'alfalfa',
@@ -36,7 +36,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 15.00,
     color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     summary: 'Mild, fresh taste. High in vitamins.',
-    imageUrl: 'https://images.unsplash.com/photo-1593351415075-3bac9f45c877?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/alfaalfa.PNG'
   },
   {
     id: 'amaranth',
@@ -54,7 +54,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 84.00,
     color: 'bg-rose-100 text-rose-800 border-rose-200',
     summary: 'Mild, slightly nutty. Red-pink stems.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Red_Amaranth.png'
   },
   {
     id: 'arugula',
@@ -72,7 +72,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 30.00,
     color: 'bg-green-100 text-green-800 border-green-200',
     summary: 'Peppery, sour taste. Fast grower.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/arugula.PNG'
   },
   {
     id: 'asian-mix',
@@ -90,7 +90,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 45.00,
     color: 'bg-orange-100 text-orange-800 border-orange-200',
     summary: 'Spicy taste. Mix of red and green leaves.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/asian_micro_mix.PNG'
   },
   {
     id: 'basil-cinnamon',
@@ -108,7 +108,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 120.00,
     color: 'bg-purple-100 text-purple-800 border-purple-200',
     summary: 'Basilicious mint and fresh cinnamon taste.',
-    imageUrl: 'https://images.unsplash.com/photo-1618375531912-867984bdfbc8?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/basil.PNG'
   },
   {
     id: 'beet-red',
@@ -126,7 +126,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 30.00,
     color: 'bg-red-100 text-red-800 border-red-200',
     summary: 'Earthy flavor. Red stems.',
-    imageUrl: 'https://images.unsplash.com/photo-1627993074811-9a7217351657?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Beet_Red.PNG'
   },
   {
     id: 'beet-bulls',
@@ -144,7 +144,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 30.00,
     color: 'bg-rose-100 text-rose-800 border-rose-200',
     summary: 'Earthy flavor. Purple stems and leaves.',
-    imageUrl: 'https://images.unsplash.com/photo-1599583737526-a006c0993098?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Beet_bulls_blood.PNG'
   },
   {
     id: 'broccoli',
@@ -180,7 +180,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 24.95,
     color: 'bg-lime-100 text-lime-800 border-lime-200',
     summary: 'Green, salad taste. Pink stems.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/buckwheat.PNG'
   },
   {
     id: 'dill',
@@ -198,7 +198,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 29.00,
     color: 'bg-green-100 text-green-800 border-green-200',
     summary: 'Sweet, savory, grassy lemon notes.',
-    imageUrl: 'https://images.unsplash.com/photo-1523986390376-de784e86396d?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Dill_Dakota.PNG'
   },
   {
     id: 'fenugreek',
@@ -216,7 +216,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 30.00,
     color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     summary: 'Curry, garam masala taste.',
-    imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Fenugreek.PNG'
   },
   {
     id: 'kale',
@@ -234,7 +234,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 40.00,
     color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     summary: 'Bitter, sweet taste. Purple stems.',
-    imageUrl: 'https://images.unsplash.com/photo-1524179091875-bf99a9a6af57?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Kale_Red_Russian.PNG'
   },
   {
     id: 'kohlrabi',
@@ -252,7 +252,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 26.00,
     color: 'bg-purple-100 text-purple-800 border-purple-200',
     summary: 'Light cabbage taste. Deep violet leaves.',
-    imageUrl: 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Kolhrabi.PNG'
   },
   {
     id: 'komatsuna',
@@ -270,7 +270,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 29.00,
     color: 'bg-red-100 text-red-800 border-red-200',
     summary: 'Mild sweetness. Green to purple leaves.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Komatsuna.PNG'
   },
   {
     id: 'lemon-balm',
@@ -288,7 +288,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 149.50,
     color: 'bg-green-100 text-green-800 border-green-200',
     summary: 'Fresh lemon taste. Slow grower.',
-    imageUrl: 'https://images.unsplash.com/photo-1605663864774-748f5f858a08?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Lemon_Balm.PNG'
   },
   {
     id: 'lentils',
@@ -306,7 +306,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 7.50,
     color: 'bg-orange-100 text-orange-800 border-orange-200',
     summary: 'Neutral, raw taste.',
-    imageUrl: 'https://images.unsplash.com/photo-1596791242385-055f654b9d03?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Lentils.PNG'
   },
   {
     id: 'lupine',
@@ -324,7 +324,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 7.50,
     color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     summary: 'Umami mild nutty sweet taste.',
-    imageUrl: 'https://images.unsplash.com/photo-1596791242385-055f654b9d03?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Lupine.PNG'
   },
   {
     id: 'marigold',
@@ -342,7 +342,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 70.00,
     color: 'bg-orange-100 text-orange-800 border-orange-200',
     summary: 'Citrus, spicy taste.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Marigold_Beauty.PNG'
   },
   {
     id: 'melon',
@@ -360,7 +360,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 78.90,
     color: 'bg-green-100 text-green-800 border-green-200',
     summary: 'Sweet, crispy taste.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Melon_Cantaloupe.PNG'
   },
   {
     id: 'mizuna',
@@ -378,7 +378,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 39.00,
     color: 'bg-lime-100 text-lime-800 border-lime-200',
     summary: 'Spicy taste. White green stems.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Mizuna_Green.PNG'
   },
   {
     id: 'mung',
@@ -396,7 +396,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 6.80,
     color: 'bg-green-100 text-green-800 border-green-200',
     summary: 'Neutral taste. Crunchy.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Mung_Bean.PNG'
   },
   {
     id: 'mustard',
@@ -414,7 +414,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 30.00,
     color: 'bg-red-100 text-red-800 border-red-200',
     summary: 'Spicy taste. Red leaves.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Mustard_Red_Giant.PNG'
   },
   {
     id: 'popcorn',
@@ -432,7 +432,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 12.90,
     color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     summary: 'Sugary, sweet taste. Yellow shoots.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/PopCorn.PNG'
   },
   {
     id: 'daikon',
@@ -450,7 +450,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 20.10,
     color: 'bg-white text-slate-800 border-slate-200',
     summary: 'Spicy taste. White stems.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Radish_Daikon.PNG'
   },
   {
     id: 'rambo',
@@ -468,7 +468,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 31.20,
     color: 'bg-rose-100 text-rose-800 border-rose-200',
     summary: 'Spicy taste. Deep purple leaves.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Radish_Red_Rambo.PNG'
   },
   {
     id: 'sorrel',
@@ -488,7 +488,7 @@ export const INITIAL_CROPS: CropType[] = [
     pkgWeightLarge: 100,
     color: 'bg-red-100 text-red-800 border-red-200',
     summary: 'Lemony, sour taste. Red veins.',
-    imageUrl: 'https://images.unsplash.com/photo-1627993074811-9a7217351657?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Sorrel_Red_Veined.PNG'
   },
   {
     id: 'sunflower',
@@ -506,7 +506,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 9.20,
     color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     summary: 'Sweet taste. Crunchy.',
-    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Sunflower_Big.PNG'
   },
   {
     id: 'turnip',
@@ -524,7 +524,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 16.00,
     color: 'bg-purple-100 text-purple-800 border-purple-200',
     summary: 'Sweet with pepper spice.',
-    imageUrl: 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?auto=format&fit=crop&q=80&w=400'
+    imageUrl: '/images/crops/Turnip.PNG'
   }
 ];
 
