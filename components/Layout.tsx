@@ -92,28 +92,15 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
       {/* Header */}
       <header className="sticky top-0 z-40 px-6 py-4 bg-white/80 backdrop-blur-md border-b border-slate-200/50 supports-[backdrop-filter]:bg-white/60">
         <div className="max-w-4xl mx-auto flex justify-between items-center relative">
-            {/* Left: AI Assistant Button */}
-            <button
-               onClick={() => onNavigate('ai')}
-               className={`relative z-10 flex items-center gap-2 px-3 py-2 rounded-xl transition-colors ${
-                  currentView === 'ai' 
-                     ? 'bg-teal-100 text-teal-700' 
-                     : 'text-slate-400 hover:bg-slate-50 hover:text-teal-600'
-               }`}
-               title="AI Assistant"
-            >
-               <Sparkles className={`w-5 h-5 ${currentView === 'ai' ? 'text-teal-600' : ''}`} />
-               {currentView === 'ai' && (
-                  <span className="text-sm font-bold">Assistant</span>
-               )}
-            </button>
-
             {/* Absolute Centered Title */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none">
                 <h1 className="text-xl font-bold tracking-tight text-slate-800">Galway Sun Sprouts</h1>
             </div>
 
-            {/* Right: Logout Button */}
+            {/* Spacer to balance flex */}
+            <div></div>
+
+            {/* Logout Button */}
             <button 
                onClick={onLogout}
                className="relative z-10 p-2 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
