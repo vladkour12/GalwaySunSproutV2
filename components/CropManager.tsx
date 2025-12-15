@@ -677,7 +677,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                                              
                                              <div className="p-3 flex flex-col gap-2 relative z-10">
                                                 {/* Crop Image with Stage Badge */}
-                                                <div className="relative w-full aspect-square rounded-xl flex items-center justify-center text-xs font-bold shadow-md overflow-hidden border-2 ${nextStageInfo.isOverdue ? 'border-red-300' : isHarvestReady ? 'border-teal-300' : 'border-white'} ${crop.color?.split(' ')[0] || 'bg-slate-200'}">
+                                                <div className={`relative w-full aspect-square rounded-xl flex items-center justify-center text-xs font-bold shadow-md overflow-hidden border-2 ${nextStageInfo.isOverdue ? 'border-red-300' : isHarvestReady ? 'border-teal-300' : 'border-white'} ${crop.color?.split(' ')[0] || 'bg-slate-200'}`}>
                                                    {crop.imageUrl ? (
                                                       <img src={crop.imageUrl} alt={crop.name} className="w-full h-full object-cover" />
                                                    ) : (
