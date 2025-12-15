@@ -20,12 +20,6 @@ export default defineConfig(({ mode }) => {
           '@': path.resolve(__dirname, '.'),
         }
       },
-      build: {
-        rollupOptions: {
-          input: {
-            main: './index.html'
-          }
-        }
-      }
+      assetsInclude: ['**/*.json']
     };
 });
