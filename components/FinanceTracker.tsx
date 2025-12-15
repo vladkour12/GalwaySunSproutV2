@@ -5,6 +5,7 @@ import { ArrowDownLeft, ArrowUpRight, Plus, LayoutGrid, Users, User, Mail, Trash
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomSelect from './CustomSelect';
+import { saveFinancePreferences, loadFinancePreferences } from '../utils/persistence';
 
 interface FinanceTrackerProps {
   state: AppState;
@@ -87,10 +88,17 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
 
   // Removed redundant chart deferral effect, using manual width instead
 
-  const [viewMode, setViewMode] = useState<'transactions' | 'customers'>('transactions');
+  // Load saved preferences
+  const savedPrefs = loadFinancePreferences();
+  const [viewMode, setViewMode] = useState<'transactions' | 'customers'>(savedPrefs.viewMode);
   const [showTxForm, setShowTxForm] = useState(false);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
-  const [timeRange, setTimeRange] = useState<'month' | 'last_month' | 'year' | 'all'>('month');
+  const [timeRange, setTimeRange] = useState<'month' | 'last_month' | 'year' | 'all'>(savedPrefs.timeRange);
+
+  // Save preferences when they change
+  useEffect(() => {
+    saveFinancePreferences({ viewMode, timeRange });
+  }, [viewMode, timeRange]);
 
   // Transaction Form State
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
