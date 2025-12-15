@@ -2,37 +2,37 @@
  * Packaging Cost Calculator
  * 
  * Calculates cost per tray based on:
- * - Cost per container/unit
+ * - Cost per bag
  * - Yield per tray
- * - Weight per container
+ * - Weight per bag (default 100g)
  */
 
 export interface PackagingCalculationParams {
-  costPerContainer: number; // € per container/clamshell/box
-  weightPerContainer: number; // grams per container (e.g., 100g, 500g)
+  costPerBag: number; // € per bag
+  weightPerBag: number; // grams per bag (default 100g)
   yieldPerTray: number; // grams per tray
 }
 
 export interface PackagingCostBreakdown {
-  containersPerTray: number; // Number of containers needed
+  bagsPerTray: number; // Number of bags needed
   totalCostPerTray: number; // € per tray
   costPer100g: number; // € per 100g packaged
 }
 
 export function calculatePackagingCost(params: PackagingCalculationParams): PackagingCostBreakdown {
-  const { costPerContainer, weightPerContainer, yieldPerTray } = params;
+  const { costPerBag, weightPerBag, yieldPerTray } = params;
 
-  // Number of containers needed per tray
-  const containersPerTray = Math.ceil(yieldPerTray / weightPerContainer);
+  // Number of bags needed per tray
+  const bagsPerTray = Math.ceil(yieldPerTray / weightPerBag);
 
   // Total cost per tray
-  const totalCostPerTray = containersPerTray * costPerContainer;
+  const totalCostPerTray = bagsPerTray * costPerBag;
 
   // Cost per 100g (useful for comparison)
   const costPer100g = (totalCostPerTray / yieldPerTray) * 100;
 
   return {
-    containersPerTray,
+    bagsPerTray,
     totalCostPerTray,
     costPer100g
   };
@@ -40,15 +40,16 @@ export function calculatePackagingCost(params: PackagingCalculationParams): Pack
 
 /**
  * Quick calculation helper for standard setup
+ * Default: 100g per bag
  */
 export function quickPackagingCalc(
-  costPerContainer: number = 0.40,
-  weightPerContainer: number = 100, // 100g container
+  costPerBag: number = 0.40,
+  weightPerBag: number = 100, // 100g per bag
   yieldPerTray: number = 300 // 300g per tray
 ): PackagingCostBreakdown {
   return calculatePackagingCost({
-    costPerContainer,
-    weightPerContainer,
+    costPerBag,
+    weightPerBag,
     yieldPerTray
   });
 }

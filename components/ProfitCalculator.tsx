@@ -44,8 +44,8 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
   
   // Packaging calculation helper
   const [showPackagingCalc, setShowPackagingCalc] = useState(false);
-  const [packagingCostPerContainer, setPackagingCostPerContainer] = useState(0.40);
-  const [packagingWeightPerContainer, setPackagingWeightPerContainer] = useState(100); // grams
+  const [packagingCostPerBag, setPackagingCostPerBag] = useState(0.40);
+  const [packagingWeightPerBag, setPackagingWeightPerBag] = useState(100); // grams per bag
   
   const selectedCrop = state.crops.find(c => c.id === selectedCropId);
   const elecCalc = useMemo(() => {
@@ -65,8 +65,8 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
   
   const packagingCalc = useMemo(() => {
     if (!selectedCrop || !yieldPerTray) return null;
-    return quickPackagingCalc(packagingCostPerContainer, packagingWeightPerContainer, yieldPerTray);
-  }, [selectedCrop, yieldPerTray, packagingCostPerContainer, packagingWeightPerContainer]);
+    return quickPackagingCalc(packagingCostPerBag, packagingWeightPerBag, yieldPerTray);
+  }, [selectedCrop, yieldPerTray, packagingCostPerBag, packagingWeightPerBag]);
 
   useEffect(() => {
     // Force re-measure on load and resize
@@ -448,25 +448,25 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                                <div>
-                                  <label className="text-[10px] font-bold text-blue-700 uppercase">€ per Container</label>
-                                  <input type="number" value={packagingCostPerContainer} step="0.01" onChange={e => setPackagingCostPerContainer(parseFloat(e.target.value) || 0.40)} className="w-full p-1.5 bg-white border border-blue-200 rounded text-xs font-bold" />
+                                  <label className="text-[10px] font-bold text-blue-700 uppercase">€ per Bag</label>
+                                  <input type="number" value={packagingCostPerBag} step="0.01" onChange={e => setPackagingCostPerBag(parseFloat(e.target.value) || 0.40)} className="w-full p-1.5 bg-white border border-blue-200 rounded text-xs font-bold" />
                                </div>
                                <div>
-                                  <label className="text-[10px] font-bold text-blue-700 uppercase">g per Container</label>
-                                  <input type="number" value={packagingWeightPerContainer} onChange={e => setPackagingWeightPerContainer(parseInt(e.target.value) || 100)} className="w-full p-1.5 bg-white border border-blue-200 rounded text-xs font-bold" />
+                                  <label className="text-[10px] font-bold text-blue-700 uppercase">g per Bag</label>
+                                  <input type="number" value={packagingWeightPerBag} onChange={e => setPackagingWeightPerBag(parseInt(e.target.value) || 100)} className="w-full p-1.5 bg-white border border-blue-200 rounded text-xs font-bold" />
                                </div>
                             </div>
                             <div className="pt-2 border-t border-blue-200 space-y-1">
                                <div className="flex justify-between text-blue-800">
-                                  <span className="font-medium">Containers per Tray:</span>
-                                  <span className="font-bold">{packagingCalc.containersPerTray}</span>
+                                  <span className="font-medium">Bags per Tray:</span>
+                                  <span className="font-bold">{packagingCalc.bagsPerTray}</span>
                                </div>
                                <div className="flex justify-between text-blue-800">
                                   <span className="font-medium">Cost per Tray:</span>
                                   <span className="font-bold">€{packagingCalc.totalCostPerTray.toFixed(2)}</span>
                                </div>
                                <div className="text-[10px] text-blue-600">
-                                  ({yieldPerTray}g yield ÷ {packagingWeightPerContainer}g per container = {packagingCalc.containersPerTray} containers)
+                                  ({yieldPerTray}g yield ÷ {packagingWeightPerBag}g per bag = {packagingCalc.bagsPerTray} bags)
                                </div>
                                <button
                                   type="button"
