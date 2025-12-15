@@ -524,8 +524,43 @@ const App: React.FC = () => {
     // TODO: Clear DB?
   }, []);
 
+  // --- Dismissed Alerts State (shared across components) ---
+  const [dismissedAlerts, setDismissedAlerts] = React.useState<Set<string>>(new Set());
+
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem('galway_dismissed_alerts');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setDismissedAlerts(new Set(parsed));
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load dismissed alerts from localStorage', e);
+    }
+  }, []);
+
+  // Listen for storage events to sync dismissed alerts across tabs
+  React.useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'galway_dismissed_alerts' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) {
+            setDismissedAlerts(new Set(parsed));
+          }
+        } catch (e) {
+          console.warn('Failed to parse dismissed alerts from storage event', e);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   // --- Alert Calculation for Badge & Notifications ---
-  const alerts = React.useMemo(() => {
+  const allAlerts = React.useMemo(() => {
      try {
         if (!Array.isArray(appState.trays) || !Array.isArray(appState.crops)) return [];
         return getFarmAlerts(appState);
@@ -535,7 +570,26 @@ const App: React.FC = () => {
      }
   }, [appState]);
 
+  // Filter out dismissed alerts for the badge count
+  const alerts = React.useMemo(() => {
+    return allAlerts.filter(alert => !dismissedAlerts.has(alert.id));
+  }, [allAlerts, dismissedAlerts]);
+
   const alertCount = alerts.length;
+
+  // Handler to dismiss an alert (shared across components)
+  const handleDismissAlert = React.useCallback((alertId: string) => {
+    setDismissedAlerts(prev => {
+      const newDismissed = new Set(prev);
+      newDismissed.add(alertId);
+      try {
+        localStorage.setItem('galway_dismissed_alerts', JSON.stringify(Array.from(newDismissed)));
+      } catch (e) {
+        console.warn('Failed to save dismissed alerts to localStorage', e);
+      }
+      return newDismissed;
+    });
+  }, []);
 
   // --- Rendering ---
 
@@ -633,7 +687,7 @@ const App: React.FC = () => {
 
   const renderView = () => {
     switch (currentView) {
-      case 'dashboard': return <Dashboard state={appState} onNavigate={setCurrentView} />;
+      case 'dashboard': return <Dashboard state={appState} onNavigate={setCurrentView} dismissedAlerts={dismissedAlerts} onDismissAlert={handleDismissAlert} />;
       case 'crops': return (
           <CropManager 
             state={appState} 

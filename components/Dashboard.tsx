@@ -23,6 +23,8 @@ import { motion } from 'framer-motion';
 interface DashboardProps {
   state: AppState;
   onNavigate: (view: any) => void;
+  dismissedAlerts?: Set<string>;
+  onDismissAlert?: (alertId: string) => void;
 }
 
 const container = {
@@ -40,34 +42,7 @@ const item = {
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 500, damping: 25, mass: 0.5 } }
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
-  // --- Dismissed Alerts State (persisted in localStorage) ---
-  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('galway_dismissed_alerts');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          setDismissedAlerts(new Set(parsed));
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to load dismissed alerts from localStorage', e);
-    }
-  }, []);
-
-  const handleDismissAlert = (alertId: string) => {
-    const newDismissed = new Set(dismissedAlerts);
-    newDismissed.add(alertId);
-    setDismissedAlerts(newDismissed);
-    try {
-      localStorage.setItem('galway_dismissed_alerts', JSON.stringify(Array.from(newDismissed)));
-    } catch (e) {
-      console.warn('Failed to save dismissed alerts to localStorage', e);
-    }
-  };
+const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlerts = new Set(), onDismissAlert }) => {
 
   // --- Data Calculations ---
 
@@ -361,7 +336,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate }) => {
                               <button
                                  onClick={(e) => {
                                     e.stopPropagation();
-                                    handleDismissAlert(alert.id);
+                                    onDismissAlert?.(alert.id);
                                  }}
                                  className={`p-2 rounded-lg transition-colors ${iconColor} hover:bg-white/50 active:bg-white/70`}
                                  title="Mark as done"
