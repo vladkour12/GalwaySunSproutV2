@@ -18,7 +18,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 10.90,
     color: 'bg-red-100 text-red-800 border-red-200',
     summary: 'Creamy, earthy, nutty, slightly sweet taste.',
-    imageUrl: 'https://images.unsplash.com/photo-1592323719001-c3b047242823?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'alfalfa',
@@ -36,7 +36,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 15.00,
     color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     summary: 'Mild, fresh taste. High in vitamins.',
-    imageUrl: 'https://images.unsplash.com/photo-1556786513-39322eb67e6c?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1593351415075-3bac9f45c877?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'amaranth',
@@ -54,7 +54,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 84.00,
     color: 'bg-rose-100 text-rose-800 border-rose-200',
     summary: 'Mild, slightly nutty. Red-pink stems.',
-    imageUrl: 'https://images.unsplash.com/photo-1628186173070-d9d116c49987?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'arugula',
@@ -72,7 +72,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 30.00,
     color: 'bg-green-100 text-green-800 border-green-200',
     summary: 'Peppery, sour taste. Fast grower.',
-    imageUrl: 'https://images.unsplash.com/photo-1594254848035-716499317535?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'asian-mix',
@@ -90,7 +90,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 45.00,
     color: 'bg-orange-100 text-orange-800 border-orange-200',
     summary: 'Spicy taste. Mix of red and green leaves.',
-    imageUrl: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'basil-cinnamon',
@@ -180,7 +180,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 24.95,
     color: 'bg-lime-100 text-lime-800 border-lime-200',
     summary: 'Green, salad taste. Pink stems.',
-    imageUrl: 'https://images.unsplash.com/photo-1515543237350-b3eca475d47d?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'dill',
@@ -270,7 +270,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 29.00,
     color: 'bg-red-100 text-red-800 border-red-200',
     summary: 'Mild sweetness. Green to purple leaves.',
-    imageUrl: 'https://images.unsplash.com/photo-1628186173070-d9d116c49987?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'lemon-balm',
@@ -342,7 +342,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 70.00,
     color: 'bg-orange-100 text-orange-800 border-orange-200',
     summary: 'Citrus, spicy taste.',
-    imageUrl: 'https://images.unsplash.com/photo-1515543904379-3d757afe72e3?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'melon',
@@ -360,7 +360,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 78.90,
     color: 'bg-green-100 text-green-800 border-green-200',
     summary: 'Sweet, crispy taste.',
-    imageUrl: 'https://images.unsplash.com/photo-1515543904379-3d757afe72e3?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'mizuna',
@@ -378,7 +378,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 39.00,
     color: 'bg-lime-100 text-lime-800 border-lime-200',
     summary: 'Spicy taste. White green stems.',
-    imageUrl: 'https://images.unsplash.com/photo-1628186173070-d9d116c49987?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'mung',
@@ -396,7 +396,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 6.80,
     color: 'bg-green-100 text-green-800 border-green-200',
     summary: 'Neutral taste. Crunchy.',
-    imageUrl: 'https://images.unsplash.com/photo-1515543904379-3d757afe72e3?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'mustard',
@@ -414,7 +414,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 30.00,
     color: 'bg-red-100 text-red-800 border-red-200',
     summary: 'Spicy taste. Red leaves.',
-    imageUrl: 'https://images.unsplash.com/photo-1594254848035-716499317535?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'popcorn',
@@ -450,7 +450,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 20.10,
     color: 'bg-white text-slate-800 border-slate-200',
     summary: 'Spicy taste. White stems.',
-    imageUrl: 'https://images.unsplash.com/photo-1515543904379-3d757afe72e3?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'rambo',
@@ -468,7 +468,7 @@ export const INITIAL_CROPS: CropType[] = [
     price1kg: 31.20,
     color: 'bg-rose-100 text-rose-800 border-rose-200',
     summary: 'Spicy taste. Deep purple leaves.',
-    imageUrl: 'https://images.unsplash.com/photo-1515543904379-3d757afe72e3?auto=format&fit=crop&q=80&w=400'
+    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'sorrel',
