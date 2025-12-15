@@ -155,10 +155,14 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
     
     // Log image URLs for debugging
     console.log('Loaded crops from database:', crops.length);
-    crops.forEach(crop => {
-      if (crop.imageUrl) {
-        console.log(`Crop ${crop.name}: imageUrl = ${crop.imageUrl}`);
-      }
+    const cropsWithImages = crops.filter(c => c.imageUrl);
+    const cropsWithoutImages = crops.filter(c => !c.imageUrl);
+    console.log(`Crops with images: ${cropsWithImages.length}/${crops.length}`);
+    if (cropsWithoutImages.length > 0) {
+      console.warn('Crops without images:', cropsWithoutImages.map(c => c.name));
+    }
+    cropsWithImages.forEach(crop => {
+      console.log(`Crop ${crop.name}: imageUrl = ${crop.imageUrl}`);
     });
     
     await saveState(state);

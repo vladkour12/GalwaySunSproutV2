@@ -129,9 +129,17 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) =
       
       // Then sync crops
       console.log('Seeding crops to database...');
-      console.log('Syncing crops with imageUrls:', INITIAL_CROPS.map(c => ({ name: c.name, imageUrl: c.imageUrl })));
+      const cropsWithImages = INITIAL_CROPS.filter(c => c.imageUrl);
+      const cropsWithoutImages = INITIAL_CROPS.filter(c => !c.imageUrl);
+      console.log(`Syncing ${INITIAL_CROPS.length} crops (${cropsWithImages.length} with images, ${cropsWithoutImages.length} without)`);
+      if (cropsWithoutImages.length > 0) {
+        console.warn('Crops without images:', cropsWithoutImages.map(c => c.name));
+      }
+      cropsWithImages.forEach(crop => {
+        console.log(`  - ${crop.name}: ${crop.imageUrl}`);
+      });
       await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
-      console.log('Sync completed successfully');
+      console.log('Sync completed successfully - all crop images saved to database');
       
       // Force refresh local state from remote after sync
       try {
