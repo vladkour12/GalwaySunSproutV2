@@ -196,6 +196,12 @@ const CropManager: React.FC<CropManagerProps> = ({
   const [draggedTray, setDraggedTray] = useState<Tray | null>(null);
   const [dragOverLocation, setDragOverLocation] = useState<string | null>(null);
   const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  
+  // Tray editing state
+  const [isEditingTray, setIsEditingTray] = useState(false);
+  const [editingTrayNotes, setEditingTrayNotes] = useState('');
+  const [editingTrayLocation, setEditingTrayLocation] = useState('');
   
   // Event Planner State
   const [plannerCropId, setPlannerCropId] = useState('');
@@ -816,45 +822,62 @@ const CropManager: React.FC<CropManagerProps> = ({
                            scale: draggedTray?.id === tray.id ? 0.95 : 1,
                            zIndex: draggedTray?.id === tray.id ? 50 : 1
                         }}
-                        onClick={() => {
-                           if (!draggedTray) {
+                        onClick={(e) => {
+                           // Only open modal if not dragging
+                           if (!isDragging && !draggedTray) {
                               setSelectedTray(tray);
+                              setIsEditingTray(false);
+                              setEditingTrayNotes(tray.notes || '');
+                              setEditingTrayLocation(tray.location || '');
                            }
                         }}
                         draggable
                         onDragStart={(e) => {
+                           setIsDragging(true);
                            setDraggedTray(tray);
                            e.dataTransfer.effectAllowed = 'move';
                            e.dataTransfer.setData('text/plain', tray.id);
                         }}
                         onDragEnd={() => {
+                           setIsDragging(false);
                            setDraggedTray(null);
                            setDragOverLocation(null);
                         }}
                         onTouchStart={(e) => {
                            const touch = e.touches[0];
                            setTouchStartPos({ x: touch.clientX, y: touch.clientY });
-                           setDraggedTray(tray);
+                           setIsDragging(false);
                         }}
                         onTouchMove={(e) => {
-                           if (draggedTray && touchStartPos) {
+                           if (touchStartPos) {
                               const touch = e.touches[0];
-                              const element = document.elementFromPoint(touch.clientX, touch.clientY);
-                              const dropZone = element?.closest('[data-drop-zone]');
-                              if (dropZone) {
-                                 const location = dropZone.getAttribute('data-location');
-                                 if (location && location !== tray.location) {
-                                    setDragOverLocation(location);
+                              const deltaX = Math.abs(touch.clientX - touchStartPos.x);
+                              const deltaY = Math.abs(touch.clientY - touchStartPos.y);
+                              
+                              // Only start dragging if moved more than 10px (to distinguish from tap)
+                              if (deltaX > 10 || deltaY > 10) {
+                                 if (!isDragging) {
+                                    setIsDragging(true);
+                                    setDraggedTray(tray);
+                                 }
+                                 
+                                 const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                                 const dropZone = element?.closest('[data-drop-zone]');
+                                 if (dropZone) {
+                                    const location = dropZone.getAttribute('data-location');
+                                    if (location && location !== tray.location) {
+                                       setDragOverLocation(location);
+                                    } else {
+                                       setDragOverLocation(null);
+                                    }
                                  } else {
                                     setDragOverLocation(null);
                                  }
-                              } else {
-                                 setDragOverLocation(null);
                               }
                            }
                         }}
                         onTouchEnd={(e) => {
-                           if (draggedTray && touchStartPos) {
+                           if (isDragging && draggedTray && touchStartPos) {
                               const touch = e.changedTouches[0];
                               setTimeout(() => {
                                  const element = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -867,9 +890,12 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  }
                                  setDraggedTray(null);
                                  setDragOverLocation(null);
+                                 setIsDragging(false);
                                  setTouchStartPos(null);
                               }, 50);
                            } else {
+                              // It was just a tap, not a drag
+                              setIsDragging(false);
                               setTouchStartPos(null);
                            }
                         }}
@@ -923,10 +949,15 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                 <div className="space-y-1.5">
                                                    <div className="flex items-start justify-between gap-1">
                                                       <h3 className="text-xs font-bold text-slate-900 truncate flex-1">{crop.name}</h3>
-                           {nextStageInfo.isOverdue && (
-                                                         <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse flex-shrink-0 mt-0.5"></div>
-                           )}
-                        </div>
+                                                      <div className="flex items-center gap-1 flex-shrink-0">
+                                                         {tray.notes && (
+                                                            <Info className="w-3 h-3 text-blue-500" title="Has notes" />
+                                                         )}
+                                                         {nextStageInfo.isOverdue && (
+                                                            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                                                         )}
+                                                      </div>
+                                                   </div>
                                                    <span className={`inline-block text-[9px] px-2 py-0.5 rounded-lg font-bold uppercase tracking-wide ${getStageColor(tray.stage)}`}>
                                   {tray.stage}
                                </span>
@@ -1053,7 +1084,17 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  return (
                                     <div 
                                        key={tIdx} 
-                                       onClick={() => { if (task.trayId) { const t = state.trays.find(x => x.id === task.trayId); if (t) setSelectedTray(t); } }}
+                                       onClick={() => { 
+                                          if (task.trayId) { 
+                                             const t = state.trays.find(x => x.id === task.trayId); 
+                                             if (t) {
+                                                setSelectedTray(t);
+                                                setIsEditingTray(false);
+                                                setEditingTrayNotes(t.notes || '');
+                                                setEditingTrayLocation(t.location || '');
+                                             }
+                                          } 
+                                       }}
                                        className={`flex items-start space-x-3 p-3 rounded-2xl border transition-all ${task.trayId ? 'cursor-pointer active:scale-[0.98] hover:shadow-md' : ''} ${
                                           task.type === 'alert' ? 'bg-red-50 border-red-100' : 
                                           task.type === 'harvest' ? 'bg-teal-50 border-teal-100' : 
@@ -1703,7 +1744,12 @@ const CropManager: React.FC<CropManagerProps> = ({
                         <h3 className="text-xl font-bold text-slate-800">{state.crops.find(c => c.id === selectedTray.cropTypeId)?.name}</h3>
                         <p className="text-sm text-slate-500 font-medium">{selectedTray.location}</p>
                      </div>
-                     <button onClick={() => setSelectedTray(null)} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5" /></button>
+                     <button onClick={() => { 
+                        setSelectedTray(null); 
+                        setIsEditingTray(false);
+                        setEditingTrayNotes('');
+                        setEditingTrayLocation('');
+                     }} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5" /></button>
                   </div>
 
                   {/* Status Card */}
@@ -1732,15 +1778,87 @@ const CropManager: React.FC<CropManagerProps> = ({
                      </button>
                   )}
 
-                  {/* Secondary Actions */}
-                  <div className="grid grid-cols-2 gap-3 pt-2">
-                     <button className="py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl flex items-center justify-center hover:bg-slate-50 transition-colors">
-                        <MoreHorizontal className="w-4 h-4 mr-2" /> Edit Info
-                     </button>
-                     <button onClick={() => { if(confirm('Delete tray?')) { onDeleteTray(selectedTray.id); setSelectedTray(null); } }} className="py-3 bg-red-50 text-red-600 font-bold rounded-xl flex items-center justify-center hover:bg-red-100 transition-colors">
-                        <Trash2 className="w-4 h-4 mr-2" /> Delete
-                     </button>
-                  </div>
+                  {/* Tray Info Section */}
+                  {isEditingTray ? (
+                     <div className="space-y-4 pt-2 border-t border-slate-200">
+                        <div>
+                           <label className="text-[10px] font-bold uppercase text-slate-400 block mb-2">Location</label>
+                           <input 
+                              type="text" 
+                              value={editingTrayLocation} 
+                              onChange={e => setEditingTrayLocation(e.target.value)}
+                              placeholder="e.g. Shelf 1, Shelf 2-A"
+                              className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold"
+                           />
+                        </div>
+                        <div>
+                           <label className="text-[10px] font-bold uppercase text-slate-400 block mb-2 flex items-center">
+                              <Info className="w-3 h-3 mr-1" />
+                              Notes / Information
+                           </label>
+                           <textarea 
+                              value={editingTrayNotes} 
+                              onChange={e => setEditingTrayNotes(e.target.value)}
+                              placeholder="Add notes about this tray (e.g. special conditions, observations, etc.)"
+                              className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600 h-24 resize-none"
+                           />
+                        </div>
+                        <div className="flex gap-3">
+                           <button 
+                              onClick={() => {
+                                 onUpdateTray(selectedTray.id, { 
+                                    notes: editingTrayNotes,
+                                    location: editingTrayLocation
+                                 });
+                                 setIsEditingTray(false);
+                              }}
+                              className="flex-1 py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 transition-colors"
+                           >
+                              Save Changes
+                           </button>
+                           <button 
+                              onClick={() => {
+                                 setIsEditingTray(false);
+                                 setEditingTrayNotes(selectedTray.notes || '');
+                                 setEditingTrayLocation(selectedTray.location || '');
+                              }}
+                              className="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors"
+                           >
+                              Cancel
+                           </button>
+                        </div>
+                     </div>
+                  ) : (
+                     <>
+                        {/* Display Notes if they exist */}
+                        {selectedTray.notes && (
+                           <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
+                              <div className="flex items-center mb-2">
+                                 <Info className="w-3.5 h-3.5 mr-1.5 text-blue-600" />
+                                 <h4 className="text-xs font-bold text-blue-800 uppercase tracking-wider">Notes</h4>
+                              </div>
+                              <p className="text-sm text-blue-900 leading-relaxed">{selectedTray.notes}</p>
+                           </div>
+                        )}
+                        
+                        {/* Secondary Actions */}
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                           <button 
+                              onClick={() => {
+                                 setIsEditingTray(true);
+                                 setEditingTrayNotes(selectedTray.notes || '');
+                                 setEditingTrayLocation(selectedTray.location || '');
+                              }}
+                              className="py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl flex items-center justify-center hover:bg-slate-50 transition-colors"
+                           >
+                              <Edit2 className="w-4 h-4 mr-2" /> {selectedTray.notes ? 'Edit Info' : 'Add Info'}
+                           </button>
+                           <button onClick={() => { if(confirm('Delete tray?')) { onDeleteTray(selectedTray.id); setSelectedTray(null); } }} className="py-3 bg-red-50 text-red-600 font-bold rounded-xl flex items-center justify-center hover:bg-red-100 transition-colors">
+                              <Trash2 className="w-4 h-4 mr-2" /> Delete
+                           </button>
+                        </div>
+                     </>
+                  )}
                </motion.div>
             </motion.div>
          )}
