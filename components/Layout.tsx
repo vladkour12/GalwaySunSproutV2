@@ -132,9 +132,12 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
         className="sticky top-0 z-40 px-6 py-4 bg-white/95 backdrop-blur-xl border-b border-slate-200/60 supports-[backdrop-filter]:bg-white/80 shadow-sm"
       >
         <div className="max-w-4xl mx-auto flex justify-between items-center relative">
+            {/* Spacer for left side (balances layout) */}
+            <div className="w-10"></div>
+            
             {/* Business Name - Centered */}
             <motion.div 
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none"
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none"
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1 }}
@@ -144,15 +147,15 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                 </h1>
             </motion.div>
 
-            {/* Logout Button */}
+            {/* Logout Button - Right Side, Smaller */}
             <motion.button 
                onClick={onLogout}
-               className="relative z-10 p-2.5 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
+               className="relative z-10 p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
                title="Sign Out / Back to Website"
                whileHover={{ scale: 1.05 }}
                whileTap={{ scale: 0.95 }}
             >
-               <LogOut className="w-5 h-5" />
+               <LogOut className="w-4 h-4" />
             </motion.button>
         </div>
       </motion.header>
