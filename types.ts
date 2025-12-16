@@ -80,7 +80,7 @@ export interface AppState {
   customers: Customer[];
 }
 
-export type View = 'dashboard' | 'crops' | 'finance' | 'ai' | 'data' | 'calculator';
+export type View = 'dashboard' | 'crops' | 'finance' | 'data' | 'calculator';
 
 export interface Alert {
   id: string;

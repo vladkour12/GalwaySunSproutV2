@@ -26,10 +26,6 @@ const FinanceTracker = React.lazy(() => import('./components/FinanceTracker').ca
   console.error('Failed to load FinanceTracker:', err);
   throw err;
 }));
-const AIAssistant = React.lazy(() => import('./components/AIAssistant').catch(err => {
-  console.error('Failed to load AIAssistant:', err);
-  throw err;
-}));
 const DataManager = React.lazy(() => import('./components/DataManager').catch(err => {
   console.error('Failed to load DataManager:', err);
   throw err;
@@ -858,7 +854,6 @@ const App: React.FC = () => {
           />
         );
       case 'data': return <DataManager state={appState} onImport={handleImportState} onReset={handleResetState} />;
-      case 'ai': return <AIAssistant state={appState} />;
       default: return <Dashboard state={appState} onNavigate={setCurrentView} />;
     }
   };

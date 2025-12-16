@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { View } from '../types';
-import { Leaf, Sprout, Euro, Sparkles, Database, Calculator, LogOut } from 'lucide-react';
+import { Leaf, Sprout, Euro, Database, Calculator, LogOut } from 'lucide-react';
 import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
 
 interface LayoutProps {
@@ -103,7 +103,6 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
     { id: 'calculator', label: 'Profit', icon: Calculator, color: 'from-blue-500 to-cyan-500' },
     { id: 'finance', label: 'Finance', icon: Euro, color: 'from-amber-500 to-orange-500' },
     { id: 'data', label: 'Data', icon: Database, color: 'from-purple-500 to-pink-500' },
-    { id: 'ai', label: 'Assistant', icon: Sparkles, color: 'from-indigo-500 to-purple-500' },
   ] as const, []);
 
   return (
@@ -114,10 +113,9 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
         animate={{ y: 0, opacity: 1 }}
         className="sticky top-0 z-40 px-6 py-4 bg-white/95 backdrop-blur-xl border-b border-slate-200/60 supports-[backdrop-filter]:bg-white/80 shadow-sm"
       >
-        <div className="max-w-4xl mx-auto flex justify-end items-center relative">
-            {/* Absolute Centered Title */}
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
+            {/* Business Name - Moved to Left */}
             <motion.div 
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none"
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1 }}
@@ -130,7 +128,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
             {/* Logout Button */}
             <motion.button 
                onClick={onLogout}
-               className="relative z-10 p-2.5 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
+               className="p-2.5 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
                title="Sign Out / Back to Website"
                whileHover={{ scale: 1.05 }}
                whileTap={{ scale: 0.95 }}
