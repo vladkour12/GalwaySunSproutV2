@@ -106,7 +106,17 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
   ] as const, []);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans text-slate-900 selection:bg-teal-200 selection:text-teal-900" style={{ minHeight: '100vh' }}>
+    <div className="min-h-screen flex flex-col font-sans text-slate-900 selection:bg-teal-200 selection:text-teal-900 relative" style={{ minHeight: '100vh' }}>
+      {/* Logo Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <img 
+          src="/logo.png" 
+          alt="Galway Sun Sprouts Logo" 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-[0.03] object-contain"
+          style={{ maxWidth: '80vw', maxHeight: '80vh' }}
+        />
+      </div>
+      
       {/* Header - Enhanced */}
       <motion.header 
         initial={{ y: -20, opacity: 0 }}
@@ -142,7 +152,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
       {/* Main Content with Transition */}
       <main
         ref={mainRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden"
+        className="flex-1 overflow-y-auto overflow-x-hidden relative z-10"
         style={{ 
           paddingBottom: `calc(${bottomPadPx}px + env(safe-area-inset-bottom))`,
           minHeight: 0, // Prevent flex item from growing beyond content on large screens
