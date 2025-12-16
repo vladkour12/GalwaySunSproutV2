@@ -107,13 +107,21 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
 
   return (
     <div className="min-h-screen flex flex-col font-sans text-slate-900 selection:bg-teal-200 selection:text-teal-900 relative" style={{ minHeight: '100vh' }}>
-      {/* Logo Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      {/* Logo Background - Fixed position to prevent movement on scroll */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
         <img 
           src="/logo.png" 
           alt="Galway Sun Sprouts Logo" 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] opacity-[0.4] object-contain"
-          style={{ maxWidth: '95vw', maxHeight: '95vh' }}
+          className="w-[1200px] h-[1200px] opacity-[0.4] object-contain"
+          style={{ 
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            maxWidth: '95vw', 
+            maxHeight: '95vh',
+            willChange: 'transform'
+          }}
         />
       </div>
       
@@ -124,22 +132,24 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
         className="sticky top-0 z-40 px-6 py-4 bg-white/95 backdrop-blur-xl border-b border-slate-200/60 supports-[backdrop-filter]:bg-white/80 shadow-sm"
       >
         <div className="max-w-4xl mx-auto flex justify-between items-center relative">
-            {/* Business Name - Centered */}
+            {/* Logo - Centered */}
             <motion.div 
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none"
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1 }}
             >
-                <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                  Galway Sun Sprouts
-                </h1>
+                <img 
+                  src="/logo.png" 
+                  alt="Galway Sun Sprouts" 
+                  className="h-8 w-auto object-contain"
+                />
             </motion.div>
 
             {/* Logout Button */}
             <motion.button 
                onClick={onLogout}
-               className="relative z-10 p-2.5 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
+               className="relative z-10 ml-auto p-2.5 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
                title="Sign Out / Back to Website"
                whileHover={{ scale: 1.05 }}
                whileTap={{ scale: 0.95 }}

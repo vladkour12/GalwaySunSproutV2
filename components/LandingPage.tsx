@@ -92,14 +92,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <motion.div 
-              whileHover={{ rotate: [0, -10, 10, 0] }}
-              transition={{ duration: 0.5 }}
-              className="w-10 h-10 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-500/30"
-            >
-              <Sprout className="w-5 h-5" />
-            </motion.div>
-            <span className="text-xl font-bold tracking-tight text-slate-900 font-outfit">Galway Sun Sprouts</span>
+            <img 
+              src="/logo.png" 
+              alt="Galway Sun Sprouts" 
+              className="h-10 w-auto object-contain"
+            />
           </motion.div>
           
           <motion.button
@@ -400,7 +397,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-500/30">
               <Sprout className="w-5 h-5" />
             </div>
-            <span className="font-bold text-slate-900 text-lg font-outfit">Galway Sun Sprouts</span>
+            <img 
+              src="/logo.png" 
+              alt="Galway Sun Sprouts" 
+              className="h-8 w-auto object-contain"
+            />
           </div>
           <p className="text-slate-500 text-sm">© {new Date().getFullYear()} Urban Microgreens Farm. Galway, Ireland.</p>
         </div>
