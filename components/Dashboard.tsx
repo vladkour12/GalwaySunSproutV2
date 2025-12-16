@@ -178,7 +178,6 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
 
   const [showCharts, setShowCharts] = React.useState(false);
   const [showValueBreakdown, setShowValueBreakdown] = useState(false);
-  const [showAlertsPopup, setShowAlertsPopup] = useState(false);
 
   // Defer chart rendering to ensure DOM size is ready (fixes Recharts width(-1) error)
   React.useEffect(() => {
@@ -341,9 +340,81 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
         </motion.div>
       </div>
 
-      {/* --- Activity Section --- */}
-      <div className="grid grid-cols-1 gap-6">
+      {/* --- Alerts & Activity Section --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
          
+         {/* Smart Alerts */}
+         <motion.div variants={item} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+            <div className="flex items-center space-x-2 mb-4">
+               <Bell className="w-5 h-5 text-slate-400" />
+               <h3 className="font-bold text-slate-800">Action Needed</h3>
+            </div>
+            
+            <div className="space-y-3">
+               {smartAlerts.length === 0 ? (
+                  <div className="py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                     <CheckCircle className="w-8 h-8 text-teal-300 mx-auto mb-2" />
+                     <p className="text-sm font-medium text-slate-500">Everything looks good!</p>
+                  </div>
+               ) : (
+                  smartAlerts.map(alert => {
+                     let styles = "bg-slate-50 border-slate-100";
+                     let iconColor = "text-slate-500";
+                     let titleColor = "text-slate-800";
+                     let msgColor = "text-slate-600";
+                     let Icon = AlertCircle;
+
+                     if (alert.type === 'urgent') {
+                        styles = "bg-red-50 border-red-100";
+                        iconColor = "text-red-500";
+                        titleColor = "text-red-800";
+                        msgColor = "text-red-600";
+                     } else if (alert.type === 'warning') {
+                        styles = "bg-amber-50 border-amber-100";
+                        iconColor = "text-amber-500";
+                        titleColor = "text-amber-800";
+                        msgColor = "text-amber-600";
+                     } else if (alert.type === 'routine') {
+                        styles = "bg-blue-50 border-blue-100";
+                        iconColor = "text-blue-500";
+                        titleColor = "text-blue-800";
+                        msgColor = "text-blue-600";
+                        Icon = Droplets;
+                     }
+
+                     return (
+                        <div key={alert.id} className={`p-4 rounded-2xl border flex items-center justify-between transition-transform hover:scale-[1.02] ${styles}`}>
+                           <div 
+                              className="flex items-center space-x-3 flex-1 cursor-pointer"
+                              onClick={() => onNavigate(alert.linkTo || 'crops')}
+                           >
+                              <Icon className={`w-5 h-5 ${iconColor}`} />
+                              <div>
+                                 <p className={`text-sm font-bold ${titleColor}`}>{alert.title}</p>
+                                 <p className={`text-xs ${msgColor}`}>{alert.message}</p>
+                              </div>
+                           </div>
+                           <div className="flex items-center space-x-2">
+                              <button
+                                 onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDismissAlert?.(alert.id);
+                                 }}
+                                 className={`p-2 rounded-lg transition-colors ${iconColor} hover:bg-white/50 active:bg-white/70`}
+                                 title="Mark as done"
+                                 style={{ touchAction: 'manipulation' }}
+                              >
+                                 <X className="w-4 h-4" />
+                              </button>
+                              <ChevronRight className={`w-4 h-4 opacity-50 ${iconColor} cursor-pointer`} onClick={() => onNavigate(alert.linkTo || 'crops')} />
+                           </div>
+                        </div>
+                     );
+                  })
+               )}
+            </div>
+         </motion.div>
+
          {/* Recent Activity */}
          <motion.div variants={item} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
             <div className="flex items-center justify-between mb-4">
@@ -615,132 +686,6 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Small Alerts Button & Popup */}
-      {smartAlerts.length > 0 && (
-        <>
-          {/* Floating Button */}
-          <motion.button
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setShowAlertsPopup(true)}
-            className="fixed bottom-24 right-6 z-40 bg-red-500 text-white rounded-full shadow-lg shadow-red-500/50 p-3 flex items-center justify-center"
-          >
-            <Bell className="w-5 h-5" />
-            {smartAlerts.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-white text-red-500 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-red-500">
-                {smartAlerts.length}
-              </span>
-            )}
-          </motion.button>
-
-          {/* Alerts Popup Modal */}
-          <AnimatePresence>
-            {showAlertsPopup && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
-                onClick={() => setShowAlertsPopup(false)}
-              >
-                <motion.div
-                  initial={{ scale: 0.95, y: 10 }}
-                  animate={{ scale: 1, y: 0 }}
-                  exit={{ scale: 0.95, y: 10 }}
-                  className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl max-h-[80vh] overflow-y-auto"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {/* Header */}
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-2">
-                      <Bell className="w-5 h-5 text-slate-600" />
-                      <h3 className="text-lg font-bold text-slate-800">Action Needed</h3>
-                      {smartAlerts.length > 0 && (
-                        <span className="bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
-                          {smartAlerts.length}
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => setShowAlertsPopup(false)}
-                      className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Alerts List */}
-                  <div className="space-y-3">
-                    {smartAlerts.map(alert => {
-                      let styles = "bg-slate-50 border-slate-100";
-                      let iconColor = "text-slate-500";
-                      let titleColor = "text-slate-800";
-                      let msgColor = "text-slate-600";
-                      let Icon = AlertCircle;
-
-                      if (alert.type === 'urgent') {
-                        styles = "bg-red-50 border-red-100";
-                        iconColor = "text-red-500";
-                        titleColor = "text-red-800";
-                        msgColor = "text-red-600";
-                      } else if (alert.type === 'warning') {
-                        styles = "bg-amber-50 border-amber-100";
-                        iconColor = "text-amber-500";
-                        titleColor = "text-amber-800";
-                        msgColor = "text-amber-600";
-                      } else if (alert.type === 'routine') {
-                        styles = "bg-blue-50 border-blue-100";
-                        iconColor = "text-blue-500";
-                        titleColor = "text-blue-800";
-                        msgColor = "text-blue-600";
-                        Icon = Droplets;
-                      }
-
-                      return (
-                        <div key={alert.id} className={`p-4 rounded-2xl border flex items-center justify-between transition-transform hover:scale-[1.02] ${styles}`}>
-                          <div
-                            className="flex items-center space-x-3 flex-1 cursor-pointer"
-                            onClick={() => {
-                              setShowAlertsPopup(false);
-                              onNavigate(alert.linkTo || 'crops');
-                            }}
-                          >
-                            <Icon className={`w-5 h-5 ${iconColor}`} />
-                            <div>
-                              <p className={`text-sm font-bold ${titleColor}`}>{alert.title}</p>
-                              <p className={`text-xs ${msgColor}`}>{alert.message}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onDismissAlert?.(alert.id);
-                              }}
-                              className={`p-2 rounded-lg transition-colors ${iconColor} hover:bg-white/50 active:bg-white/70`}
-                              title="Mark as done"
-                              style={{ touchAction: 'manipulation' }}
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                            <ChevronRight className={`w-4 h-4 opacity-50 ${iconColor} cursor-pointer`} onClick={() => {
-                              setShowAlertsPopup(false);
-                              onNavigate(alert.linkTo || 'crops');
-                            }} />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </>
-      )}
     </motion.div>
   );
 };

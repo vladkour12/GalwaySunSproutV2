@@ -16,7 +16,9 @@ export default async function handler(req: Request) {
         amount: Number(r.amount),
         description: r.description,
         customerId: r.customer_id,
-        payee: r.payee
+        payee: r.payee,
+        receiptImage: r.receipt_image || undefined,
+        isBusinessExpense: r.is_business_expense || false
       }));
       return new Response(JSON.stringify(transactions), { 
           status: 200, 
@@ -27,7 +29,7 @@ export default async function handler(req: Request) {
     if (req.method === 'POST') {
       const txn = await req.json();
       await sql`
-        INSERT INTO transactions (id, date, type, category, amount, description, customer_id, payee)
+        INSERT INTO transactions (id, date, type, category, amount, description, customer_id, payee, receipt_image, is_business_expense)
         VALUES (
             ${txn.id}, 
             ${txn.date}, 
@@ -35,8 +37,10 @@ export default async function handler(req: Request) {
             ${txn.category}, 
             ${txn.amount}, 
             ${txn.description}, 
-            ${txn.customerId}, 
-            ${txn.payee}
+            ${txn.customerId || null}, 
+            ${txn.payee || null},
+            ${txn.receiptImage || null},
+            ${txn.isBusinessExpense || false}
         )
         ON CONFLICT (id) DO UPDATE SET
             date = EXCLUDED.date,
@@ -45,7 +49,9 @@ export default async function handler(req: Request) {
             amount = EXCLUDED.amount,
             description = EXCLUDED.description,
             customer_id = EXCLUDED.customer_id,
-            payee = EXCLUDED.payee;
+            payee = EXCLUDED.payee,
+            receipt_image = EXCLUDED.receipt_image,
+            is_business_expense = EXCLUDED.is_business_expense;
       `;
       return new Response(JSON.stringify({ message: 'Saved' }), { 
         status: 200,

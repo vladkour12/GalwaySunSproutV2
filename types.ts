@@ -71,6 +71,8 @@ export interface Transaction {
   description: string;
   customerId?: string; // Optional link to a customer
   payee?: string; // Business/Restaurant/Vendor Name
+  receiptImage?: string; // Base64 encoded receipt/document image
+  isBusinessExpense?: boolean; // Flag for business expenses (lights, shed upgrades, etc.)
 }
 
 export interface AppState {

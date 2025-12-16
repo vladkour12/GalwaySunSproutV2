@@ -101,9 +101,19 @@ export default async function handler(request: Request) {
         amount NUMERIC,
         description TEXT,
         customer_id TEXT REFERENCES customers(id),
-        payee TEXT
+        payee TEXT,
+        receipt_image TEXT,
+        is_business_expense BOOLEAN
       );
     `;
+    
+    // Add new columns if they don't exist (for existing databases)
+    try {
+      await sql`ALTER TABLE transactions ADD COLUMN IF NOT EXISTS receipt_image TEXT`;
+      await sql`ALTER TABLE transactions ADD COLUMN IF NOT EXISTS is_business_expense BOOLEAN`;
+    } catch (e) {
+      console.warn('Column migration note:', (e as Error).message);
+    }
 
     return new Response(JSON.stringify({ message: 'Database setup complete' }), {
       status: 200,

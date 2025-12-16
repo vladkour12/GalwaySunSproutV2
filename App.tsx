@@ -560,7 +560,7 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const handleAddTransaction = useCallback(async (type: 'income' | 'expense', amount: number, category: string, desc: string, customerId?: string, payee?: string) => {
+  const handleAddTransaction = useCallback(async (type: 'income' | 'expense', amount: number, category: string, desc: string, customerId?: string, payee?: string, receiptImage?: string, isBusinessExpense?: boolean) => {
     const newTx: Transaction = {
       id: Math.random().toString(36).substr(2, 9),
       date: new Date().toISOString(),

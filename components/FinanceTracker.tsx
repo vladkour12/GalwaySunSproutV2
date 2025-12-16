@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { AppState, Customer, Transaction } from '../types';
-import { ArrowDownLeft, ArrowUpRight, Plus, LayoutGrid, Users, User, Mail, Trash2, Edit2, Calendar, Store, ShoppingBag, Utensils, Zap, Package, Sprout, Layers, Megaphone, Download, X, DollarSign } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Plus, LayoutGrid, Users, User, Mail, Trash2, Edit2, Calendar, Store, ShoppingBag, Utensils, Zap, Package, Sprout, Layers, Megaphone, Download, X, DollarSign, Receipt, Upload, Image as ImageIcon, Building2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomSelect from './CustomSelect';
@@ -9,7 +9,7 @@ import { saveFinancePreferences, loadFinancePreferences } from '../utils/persist
 
 interface FinanceTrackerProps {
   state: AppState;
-  onAddTransaction: (type: 'income' | 'expense', amount: number, category: string, desc: string, customerId?: string, payee?: string) => void;
+  onAddTransaction: (type: 'income' | 'expense', amount: number, category: string, desc: string, customerId?: string, payee?: string, receiptImage?: string, isBusinessExpense?: boolean) => void;
   onUpdateTransaction: (transaction: Transaction) => void;
   onDeleteTransaction: (id: string) => void;
   onAddCustomer: (customer: Customer) => void;
@@ -90,10 +90,20 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
 
   // Load saved preferences
   const savedPrefs = loadFinancePreferences();
-  const [viewMode, setViewMode] = useState<'transactions' | 'customers'>(savedPrefs.viewMode);
+  const [viewMode, setViewMode] = useState<'transactions' | 'customers' | 'expenses'>(savedPrefs.viewMode || 'transactions');
   const [showTxForm, setShowTxForm] = useState(false);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [timeRange, setTimeRange] = useState<'month' | 'last_month' | 'year' | 'all'>(savedPrefs.timeRange);
+  
+  // Business Expense Form State
+  const [expenseAmount, setExpenseAmount] = useState('');
+  const [expenseCategory, setExpenseCategory] = useState('');
+  const [expenseDescription, setExpenseDescription] = useState('');
+  const [expenseDate, setExpenseDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [expensePayee, setExpensePayee] = useState('');
+  const [expenseReceipt, setExpenseReceipt] = useState<string>('');
+  const [editingExpense, setEditingExpense] = useState<Transaction | null>(null);
 
   // Save preferences when they change
   useEffect(() => {
@@ -238,12 +248,17 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between items-center">
            <div>
-              <h2 className="text-2xl font-bold text-slate-800 tracking-tight">{viewMode === 'transactions' ? 'Finances' : 'Customers'}</h2>
-              <p className="text-xs text-slate-500 font-medium">{viewMode === 'transactions' ? 'Cash Flow & Records' : 'Client Management'}</p>
+              <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
+                {viewMode === 'transactions' ? 'Finances' : viewMode === 'customers' ? 'Customers' : 'Business Expenses'}
+              </h2>
+              <p className="text-xs text-slate-500 font-medium">
+                {viewMode === 'transactions' ? 'Cash Flow & Records' : viewMode === 'customers' ? 'Client Management' : 'Track Business Spending'}
+              </p>
            </div>
            <div className="flex bg-slate-100 p-1 rounded-xl relative z-10">
               <button onClick={() => setViewMode('transactions')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-lg transition-all ${viewMode === 'transactions' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}><LayoutGrid className="w-5 h-5" /></button>
               <button onClick={() => setViewMode('customers')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-lg transition-all ${viewMode === 'customers' ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-400'}`}><Users className="w-5 h-5" /></button>
+              <button onClick={() => setViewMode('expenses')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-lg transition-all ${viewMode === 'expenses' ? 'bg-white text-purple-700 shadow-sm' : 'text-slate-400'}`}><Building2 className="w-5 h-5" /></button>
            </div>
         </div>
 
@@ -257,7 +272,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
           >
             {showTxForm ? 'Cancel Entry' : <><Plus className="w-4 h-4 mr-2" /> Add Transaction</>}
           </motion.button>
-        ) : (
+        ) : viewMode === 'customers' ? (
           <motion.button
             whileHover={isTouchUI ? undefined : { scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
@@ -266,6 +281,29 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
             className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-2xl shadow-lg shadow-teal-200 flex items-center justify-center text-sm font-bold transition-all"
           >
             <Plus className="w-4 h-4 mr-2" /> Add Customer
+          </motion.button>
+        ) : (
+          <motion.button
+            whileHover={isTouchUI ? undefined : { scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            onClick={() => { 
+              if (showExpenseForm) { 
+                setShowExpenseForm(false); 
+                setExpenseAmount(''); 
+                setExpenseCategory(''); 
+                setExpenseDescription(''); 
+                setExpensePayee(''); 
+                setExpenseReceipt(''); 
+                setEditingExpense(null);
+                setExpenseDate(new Date().toISOString().split('T')[0]);
+              } else { 
+                setShowExpenseForm(true); 
+              } 
+            }}
+            style={{ touchAction: 'manipulation', position: 'relative', zIndex: 10 }}
+            className={`w-full py-3 rounded-2xl shadow-lg flex items-center justify-center text-sm font-bold transition-all ${showExpenseForm ? 'bg-slate-100 text-slate-600 shadow-none' : 'bg-purple-600 text-white shadow-purple-200'}`}
+          >
+            {showExpenseForm ? 'Cancel' : <><Plus className="w-4 h-4 mr-2" /> Add Business Expense</>}
           </motion.button>
         )}
       </div>
@@ -471,6 +509,378 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
          </motion.div>
       )}
       </AnimatePresence>
+
+      {/* Business Expenses Tab */}
+      {viewMode === 'expenses' && (
+        <div className="space-y-6">
+          {/* Expense Form */}
+          <AnimatePresence>
+            {showExpenseForm && (
+              <motion.form 
+                initial={{ height: 0, opacity: 0 }} 
+                animate={{ height: 'auto', opacity: 1 }} 
+                exit={{ height: 0, opacity: 0 }} 
+                transition={{ duration: 0.3, ease: 'easeInOut' }} 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!expenseAmount || !expenseCategory) return;
+                  
+                  if (editingExpense) {
+                    onUpdateTransaction({
+                      ...editingExpense,
+                      type: 'expense',
+                      amount: parseFloat(expenseAmount),
+                      category: expenseCategory,
+                      description: expenseDescription,
+                      payee: expensePayee,
+                      date: new Date(expenseDate).toISOString(),
+                      receiptImage: expenseReceipt,
+                      isBusinessExpense: true
+                    });
+                    setEditingExpense(null);
+                  } else {
+                    onAddTransaction('expense', parseFloat(expenseAmount), expenseCategory, expenseDescription, undefined, expensePayee, expenseReceipt, true);
+                  }
+                  
+                  setShowExpenseForm(false);
+                  setExpenseAmount('');
+                  setExpenseCategory('');
+                  setExpenseDescription('');
+                  setExpensePayee('');
+                  setExpenseReceipt('');
+                  setExpenseDate(new Date().toISOString().split('T')[0]);
+                }}
+                className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 space-y-5 relative overflow-hidden"
+              >
+                <div className="pointer-events-none absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400 to-pink-500"></div>
+                <h3 className="text-sm font-bold text-slate-800">{editingExpense ? 'Edit Business Expense' : 'New Business Expense'}</h3>
+                
+                <div className="space-y-4">
+                  <div className="relative">
+                    <span className="absolute left-4 top-3.5 text-slate-400 font-medium">€</span>
+                    <input 
+                      type="number" 
+                      value={expenseAmount} 
+                      onChange={e => setExpenseAmount(e.target.value)} 
+                      onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()} 
+                      className="w-full pl-8 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-lg font-bold text-slate-800 focus:ring-2 focus:ring-purple-100 placeholder:text-slate-300 transition-all" 
+                      placeholder="0.00" 
+                      required 
+                    />
+                  </div>
+                  
+                  <div className="relative">
+                    <Calendar className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
+                    <input 
+                      type="date" 
+                      value={expenseDate} 
+                      onChange={e => setExpenseDate(e.target.value)} 
+                      className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-base font-bold text-slate-700 focus:ring-2 focus:ring-purple-100 outline-none" 
+                      required
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="relative">
+                      <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] text-purple-600 font-bold z-10">Category</label>
+                      <CustomSelect 
+                        value={expenseCategory} 
+                        onChange={(val) => setExpenseCategory(val)} 
+                        options={[
+                          { value: "", label: 'Select Category...' },
+                          { value: "Lights", label: 'Lights / Lighting' },
+                          { value: "Shed Upgrade", label: 'Shed Upgrade' },
+                          { value: "Equipment", label: 'Equipment' },
+                          { value: "Infrastructure", label: 'Infrastructure' },
+                          { value: "Tools", label: 'Tools' },
+                          { value: "Maintenance", label: 'Maintenance' },
+                          { value: "Other", label: 'Other Business Expense' }
+                        ]}
+                      />
+                    </div>
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        value={expensePayee} 
+                        onChange={e => setExpensePayee(e.target.value)} 
+                        placeholder="Vendor / Store Name" 
+                        className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-base font-medium text-slate-700 focus:ring-2 focus:ring-purple-100 placeholder:text-slate-300 outline-none" 
+                      />
+                    </div>
+                  </div>
+                  
+                  <input 
+                    type="text" 
+                    value={expenseDescription} 
+                    onChange={e => setExpenseDescription(e.target.value)} 
+                    className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-base font-medium text-slate-700 focus:ring-2 focus:ring-purple-100 placeholder:text-slate-300 outline-none" 
+                    placeholder="Description (e.g. LED Grow Lights for Shelf 1)" 
+                  />
+                  
+                  {/* Receipt Upload */}
+                  <div className="space-y-2">
+                    <label className="block text-xs font-bold text-purple-600 uppercase tracking-wider">Receipt / Document</label>
+                    <div className="space-y-3">
+                      {expenseReceipt ? (
+                        <div className="relative">
+                          <img 
+                            src={expenseReceipt} 
+                            alt="Receipt" 
+                            className="w-full h-48 object-contain rounded-xl border-2 border-purple-200 bg-slate-50"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setExpenseReceipt('')}
+                            className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-purple-300 rounded-xl cursor-pointer bg-purple-50 hover:bg-purple-100 transition-colors">
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                              <Upload className="w-8 h-8 mb-2 text-purple-500" />
+                              <p className="text-sm font-bold text-purple-600">Click to upload receipt</p>
+                              <p className="text-xs text-purple-400 mt-1">or take a photo</p>
+                            </div>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              capture="environment"
+                              className="hidden" 
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setExpenseReceipt(reader.result as string);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                          </label>
+                          <label className="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
+                            <div className="flex items-center justify-center pt-3 pb-3">
+                              <ImageIcon className="w-5 h-5 mr-2 text-slate-500" />
+                              <p className="text-sm font-bold text-slate-600">Choose from gallery</p>
+                            </div>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              className="hidden" 
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setExpenseReceipt(reader.result as string);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="pt-2 flex gap-3">
+                  <button 
+                    type="button" 
+                    onClick={() => { 
+                      setShowExpenseForm(false); 
+                      setExpenseAmount(''); 
+                      setExpenseCategory(''); 
+                      setExpenseDescription(''); 
+                      setExpensePayee(''); 
+                      setExpenseReceipt(''); 
+                      setEditingExpense(null);
+                      setExpenseDate(new Date().toISOString().split('T')[0]);
+                    }} 
+                    className="flex-1 py-3.5 rounded-2xl border border-slate-200 text-slate-500 font-bold hover:bg-slate-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="flex-1 py-3.5 rounded-2xl bg-purple-600 text-white font-bold hover:bg-purple-700 shadow-lg shadow-purple-200 transition-colors"
+                  >
+                    {editingExpense ? 'Update Expense' : 'Save Expense'}
+                  </button>
+                </div>
+              </motion.form>
+            )}
+          </AnimatePresence>
+
+          {/* Total Business Expenses */}
+          {(() => {
+            const businessExpenses = state.transactions.filter(t => t.isBusinessExpense === true);
+            const totalSpent = businessExpenses.reduce((sum, t) => sum + t.amount, 0);
+            
+            return (
+              <div className="bg-gradient-to-br from-purple-900 to-purple-800 text-white p-6 rounded-3xl shadow-xl shadow-purple-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-purple-200 text-xs font-bold uppercase tracking-wider mb-1">Total Business Expenses</p>
+                    <h3 className="text-3xl font-bold text-white tracking-tight">€{totalSpent.toFixed(2)}</h3>
+                  </div>
+                  <div className="p-3 bg-white/10 backdrop-blur-md rounded-xl text-purple-200">
+                    <Building2 className="w-6 h-6" />
+                  </div>
+                </div>
+                <p className="text-purple-200 text-xs">{businessExpenses.length} expense{businessExpenses.length !== 1 ? 's' : ''} recorded</p>
+              </div>
+            );
+          })()}
+
+          {/* Business Expenses List */}
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h3 className="font-bold text-slate-800 flex items-center">
+                <Receipt className="w-4 h-4 mr-2 text-purple-600" />
+                Business Expenses
+              </h3>
+              <div className="w-40">
+                <CustomSelect 
+                  value={timeRange}
+                  onChange={(val) => setTimeRange(val as any)}
+                  options={[
+                    { value: "month", label: "This Month" },
+                    { value: "last_month", label: "Last Month" },
+                    { value: "year", label: "This Year" },
+                    { value: "all", label: "All Time" }
+                  ]}
+                  className="text-xs"
+                />
+              </div>
+            </div>
+            
+            <div className="divide-y divide-slate-50">
+              {(() => {
+                const businessExpenses = state.transactions
+                  .filter(t => t.isBusinessExpense === true)
+                  .filter(t => {
+                    if (timeRange === 'all') return true;
+                    const d = new Date(t.date);
+                    if (isNaN(d.getTime())) return false;
+                    const now = new Date();
+                    const currentMonth = now.getMonth();
+                    const currentYear = now.getFullYear();
+                    if (timeRange === 'month') return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+                    if (timeRange === 'last_month') {
+                      const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+                      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+                      return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
+                    }
+                    if (timeRange === 'year') return d.getFullYear() === currentYear;
+                    return true;
+                  })
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                
+                if (businessExpenses.length === 0) {
+                  return (
+                    <div className="p-8 text-center text-slate-400">
+                      <Building2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-sm">No business expenses recorded yet.</p>
+                    </div>
+                  );
+                }
+                
+                return businessExpenses.map(expense => (
+                  <motion.div 
+                    key={expense.id} 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 hover:bg-slate-50 transition-colors group"
+                  >
+                    <div className="flex items-start gap-4">
+                      {/* Receipt Thumbnail */}
+                      {expense.receiptImage ? (
+                        <div className="flex-shrink-0">
+                          <img 
+                            src={expense.receiptImage} 
+                            alt="Receipt" 
+                            className="w-20 h-20 object-cover rounded-xl border-2 border-purple-200 cursor-pointer hover:border-purple-400 transition-colors"
+                            onClick={() => {
+                              // Open full size image in modal
+                              const modal = document.createElement('div');
+                              modal.className = 'fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4';
+                              modal.onclick = () => modal.remove();
+                              const img = document.createElement('img');
+                              img.src = expense.receiptImage!;
+                              img.className = 'max-w-full max-h-full object-contain rounded-xl';
+                              modal.appendChild(img);
+                              document.body.appendChild(modal);
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center flex-shrink-0">
+                          <Receipt className="w-8 h-8 text-slate-300" />
+                        </div>
+                      )}
+                      
+                      {/* Expense Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-bold text-slate-800 text-sm">{expense.description || expense.category}</h4>
+                              <span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">
+                                {expense.category}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-slate-500">
+                              <Calendar className="w-3 h-3" />
+                              <span>{new Date(expense.date).toLocaleDateString()}</span>
+                              {expense.payee && (
+                                <>
+                                  <span>•</span>
+                                  <span>{expense.payee}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-purple-600">€{expense.amount.toFixed(2)}</span>
+                            <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button 
+                                onClick={() => {
+                                  setEditingExpense(expense);
+                                  setExpenseAmount(expense.amount.toString());
+                                  setExpenseCategory(expense.category);
+                                  setExpenseDescription(expense.description);
+                                  setExpensePayee(expense.payee || '');
+                                  setExpenseReceipt(expense.receiptImage || '');
+                                  setExpenseDate(new Date(expense.date).toISOString().split('T')[0]);
+                                  setShowExpenseForm(true);
+                                }}
+                                className="p-2 text-slate-400 hover:text-blue-500 bg-slate-50 rounded-lg active:bg-blue-50"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => onDeleteTransaction(expense.id)} 
+                                className="p-2 text-slate-400 hover:text-red-500 bg-slate-50 rounded-lg active:bg-red-50"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ));
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

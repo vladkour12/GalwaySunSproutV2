@@ -45,7 +45,7 @@ export function clearStorage(key: string): void {
  * Finance Tracker preferences
  */
 export interface FinancePreferences {
-  viewMode: 'transactions' | 'customers';
+  viewMode: 'transactions' | 'customers' | 'expenses';
   timeRange: 'month' | 'last_month' | 'year' | 'all';
 }
 
