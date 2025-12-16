@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { View } from '../types';
-import { Leaf, Sprout, Euro, Database, Calculator, LogOut } from 'lucide-react';
+import { Leaf, Sprout, Euro, Database, Calculator, LogOut, Bell } from 'lucide-react';
 import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
 
 interface LayoutProps {
