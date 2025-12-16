@@ -1,6 +1,6 @@
 
-import React, { useMemo } from 'react';
-import { AppState, Stage } from '../types';
+import React, { useMemo, useState } from 'react';
+import { AppState, Stage, Tray } from '../types';
 import { getFarmAlerts } from '../services/alertService';
 import { 
   ArrowUpRight, 
@@ -15,10 +15,14 @@ import {
   ChevronRight,
   ArrowRight,
   Clock,
-  X
+  X,
+  Info,
+  Package,
+  Scale,
+  MapPin
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface DashboardProps {
   state: AppState;
@@ -173,12 +177,61 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
   }, [activeTrays]);
 
   const [showCharts, setShowCharts] = React.useState(false);
+  const [showValueBreakdown, setShowValueBreakdown] = useState(false);
 
   // Defer chart rendering to ensure DOM size is ready (fixes Recharts width(-1) error)
   React.useEffect(() => {
     const timer = setTimeout(() => setShowCharts(true), 100);
     return () => clearTimeout(timer);
   }, []);
+
+  // Calculate tray breakdown for modal
+  const trayValueBreakdown = useMemo(() => {
+    const readyTrays: Array<{ tray: Tray; cropName: string; crop2Name?: string; yield: number; value: number; location: string }> = [];
+    const maturingTrays: Array<{ tray: Tray; cropName: string; crop2Name?: string; yield: number; value: number; location: string }> = [];
+
+    activeTrays.forEach(tray => {
+      const crop = state.crops.find(c => c.id === tray.cropTypeId);
+      const crop2 = tray.cropTypeId2 ? state.crops.find(c => c.id === tray.cropTypeId2) : null;
+      if (!crop) return;
+
+      let trayYield = 0;
+      let trayValue = 0;
+      
+      if (crop2) {
+        // Half-half tray: average yield of both crops
+        trayYield = ((crop.estimatedYieldPerTray || 0) + (crop2.estimatedYieldPerTray || 0)) / 2;
+        trayValue = (trayYield / 100) * 7.00;
+      } else if (crop.estimatedYieldPerTray) {
+        trayYield = crop.estimatedYieldPerTray;
+        trayValue = (trayYield / 100) * 7.00;
+      } else {
+        trayYield = 0;
+        trayValue = crop.pricePerTray || 0;
+      }
+
+      const trayInfo = {
+        tray,
+        cropName: crop.name,
+        crop2Name: crop2?.name,
+        yield: trayYield,
+        value: trayValue,
+        location: tray.location
+      };
+
+      if (tray.stage === Stage.HARVEST_READY) {
+        readyTrays.push(trayInfo);
+      } else {
+        maturingTrays.push(trayInfo);
+      }
+    });
+
+    // Sort by value descending
+    readyTrays.sort((a, b) => b.value - a.value);
+    maturingTrays.sort((a, b) => b.value - a.value);
+
+    return { readyTrays, maturingTrays };
+  }, [activeTrays, state.crops]);
 
   // Updated Colors: Teal as primary
   const COLORS = ['#0d9488', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444'];
@@ -251,8 +304,9 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
         {/* Metric 3: Revenue Breakdown */}
         <motion.div 
           variants={item}
-          className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 sm:p-5 rounded-3xl shadow-xl shadow-slate-200 col-span-2 relative overflow-hidden"
+          className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 sm:p-5 rounded-3xl shadow-xl shadow-slate-200 col-span-2 relative overflow-hidden cursor-pointer"
           whileHover={{ scale: 1.01 }}
+          onClick={() => setShowValueBreakdown(true)}
         >
            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
               <TrendingUp className="w-24 h-24 text-white" />
@@ -261,7 +315,10 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
            <div className="relative z-10 h-full flex flex-col justify-between">
               <div className="flex justify-between items-start">
                  <div>
-                    <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Potential Value</p>
+                    <div className="flex items-center gap-2 mb-1">
+                       <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Potential Value</p>
+                       <Info className="w-3 h-3 text-slate-400" />
+                    </div>
                     <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">€{financialStats.total.toFixed(2)}</h3>
                  </div>
                  <div className="p-2 bg-white/10 backdrop-blur-md rounded-xl text-teal-400">
@@ -470,6 +527,165 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
             </div>
           </div>
       </motion.div>
+
+      {/* Value Breakdown Modal */}
+      <AnimatePresence>
+        {showValueBreakdown && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setShowValueBreakdown(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.95, y: 10 }} 
+              animate={{ scale: 1, y: 0 }} 
+              exit={{ scale: 0.95, y: 10 }} 
+              className="bg-white w-full max-w-2xl rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800">Potential Value Breakdown</h3>
+                  <p className="text-sm text-slate-500 mt-1">Trays contributing to total value (€7.00 per 100g)</p>
+                </div>
+                <button 
+                  onClick={() => setShowValueBreakdown(false)} 
+                  className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Ready Now Section */}
+              {trayValueBreakdown.readyTrays.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-lg font-bold text-slate-800 flex items-center">
+                      <CheckCircle className="w-5 h-5 mr-2 text-teal-600" />
+                      Ready Now
+                    </h4>
+                    <span className="text-sm font-bold text-teal-600">
+                      €{financialStats.readyValue.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {trayValueBreakdown.readyTrays.map((item) => (
+                      <div 
+                        key={item.tray.id} 
+                        className="bg-teal-50 border border-teal-100 rounded-xl p-4 flex items-center justify-between"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-bold text-slate-800">
+                              {item.crop2Name ? (
+                                <span className="flex items-center gap-1">
+                                  {item.cropName} + {item.crop2Name}
+                                  <Package className="w-3 h-3 text-purple-600" />
+                                </span>
+                              ) : (
+                                item.cropName
+                              )}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-slate-600">
+                            <span className="flex items-center">
+                              <Scale className="w-3 h-3 mr-1" />
+                              {item.yield.toFixed(0)}g yield
+                            </span>
+                            <span className="flex items-center">
+                              <MapPin className="w-3 h-3 mr-1" />
+                              {item.location}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-lg font-bold text-teal-600">€{item.value.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Maturing Section */}
+              {trayValueBreakdown.maturingTrays.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-lg font-bold text-slate-800 flex items-center">
+                      <Clock className="w-5 h-5 mr-2 text-blue-600" />
+                      Maturing
+                    </h4>
+                    <span className="text-sm font-bold text-blue-600">
+                      €{financialStats.maturingValue.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {trayValueBreakdown.maturingTrays.map((item) => (
+                      <div 
+                        key={item.tray.id} 
+                        className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-center justify-between"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-bold text-slate-800">
+                              {item.crop2Name ? (
+                                <span className="flex items-center gap-1">
+                                  {item.cropName} + {item.crop2Name}
+                                  <Package className="w-3 h-3 text-purple-600" />
+                                </span>
+                              ) : (
+                                item.cropName
+                              )}
+                            </span>
+                            <span className="text-xs font-bold text-slate-500 bg-white px-2 py-0.5 rounded">
+                              {item.tray.stage}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-slate-600">
+                            <span className="flex items-center">
+                              <Scale className="w-3 h-3 mr-1" />
+                              {item.yield.toFixed(0)}g yield
+                            </span>
+                            <span className="flex items-center">
+                              <MapPin className="w-3 h-3 mr-1" />
+                              {item.location}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-lg font-bold text-blue-600">€{item.value.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty State */}
+              {trayValueBreakdown.readyTrays.length === 0 && trayValueBreakdown.maturingTrays.length === 0 && (
+                <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                  <Sprout className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+                  <p className="text-slate-500 font-bold text-sm mb-1">No active trays</p>
+                  <p className="text-slate-400 text-xs">Start planting to see value breakdown</p>
+                </div>
+              )}
+
+              {/* Total Summary */}
+              {(trayValueBreakdown.readyTrays.length > 0 || trayValueBreakdown.maturingTrays.length > 0) && (
+                <div className="mt-6 pt-4 border-t border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-slate-600">Total Potential Value</span>
+                    <span className="text-2xl font-bold text-slate-800">€{financialStats.total.toFixed(2)}</span>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

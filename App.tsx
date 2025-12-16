@@ -9,6 +9,7 @@ import { AppState, View, Stage, Transaction, CropType, Customer, Tray } from './
 import { INITIAL_CROPS, MOCK_TRANSACTIONS, INITIAL_CUSTOMERS } from './constants';
 import { getFarmAlerts } from './services/alertService';
 import { Sprout } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { getLocalStateSnapshot, saveState, upsertLocalEntity, deleteLocalEntity } from './services/storage';
 import { flushSyncQueueOnce, refreshLocalFromRemote, queueUpsert, queueDelete } from './services/syncService';
 import { api } from './services/api';
@@ -39,9 +40,18 @@ const ProfitCalculator = React.lazy(() => import('./components/ProfitCalculator'
 }));
 
 const ViewLoading: React.FC = () => (
-  <div className="min-h-[240px] flex items-center justify-center text-slate-400 text-sm font-bold">
-    Loading…
-  </div>
+  <motion.div 
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className="min-h-[240px] flex flex-col items-center justify-center text-slate-400"
+  >
+    <motion.div
+      animate={{ rotate: 360 }}
+      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+      className="w-8 h-8 border-3 border-teal-200 border-t-teal-500 rounded-full mb-3"
+    />
+    <span className="text-sm font-bold">Loading…</span>
+  </motion.div>
 );
 
 const App: React.FC = () => {

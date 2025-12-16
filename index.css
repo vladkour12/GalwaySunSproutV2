@@ -11,8 +11,9 @@ html {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: linear-gradient(135deg, #f0fdfa 0%, #f1f5f9 100%);
+  background-attachment: fixed;
   color: #0f172a;
   -webkit-tap-highlight-color: transparent;
   min-height: 100vh;
@@ -25,6 +26,11 @@ body {
   /* Prevent browser UI from appearing on scroll */
   position: relative;
   overflow-x: hidden;
+  /* Performance optimizations */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  will-change: scroll-position;
 }
 
 #root {
@@ -64,4 +70,31 @@ h1, h2, h3, h4, h5, h6 {
 
 .animate-gradient {
   animation: gradient 3s ease infinite;
+}
+
+/* Performance optimizations */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* GPU acceleration for animations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
