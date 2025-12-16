@@ -186,6 +186,18 @@ const CropManager: React.FC<CropManagerProps> = ({
   // Navigation State (with persistence)
   const savedCropManagerPrefs = loadCropManagerPreferences();
   const [activeTab, setActiveTab] = useState<'production' | 'varieties' | 'plan' | 'calendar'>(savedCropManagerPrefs.activeTab);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Update time every minute for live timers (only when calendar tab is active)
+  useEffect(() => {
+    if (activeTab !== 'calendar') return;
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+    // Also update immediately on mount
+    setCurrentTime(new Date());
+    return () => clearInterval(interval);
+  }, [activeTab]);
   const [plannerMode, setPlannerMode] = useState<'event' | 'recurring'>(savedCropManagerPrefs.plannerMode);
 
   // Crop search and filter state
@@ -454,7 +466,7 @@ const CropManager: React.FC<CropManagerProps> = ({
         currentDay.setDate(today.getDate() + i);
         const dayOfWeek = currentDay.getDay(); // 0-6
   
-        const tasks: { type: string, text: string, sub?: string, icon: any, color: string, trayId?: string, estYield?: number }[] = [];
+        const tasks: { type: string, text: string, sub?: string, icon: any, color: string, trayId?: string, estYield?: number, timeRemaining?: { text: string, isOverdue: boolean }, targetTime?: number }[] = [];
   
         // 0. Overdue / Action Needed (Only for Today) - Sync with Dashboard Alerts
       if (i === 0) {
@@ -515,46 +527,77 @@ const CropManager: React.FC<CropManagerProps> = ({
             : (crop.estimatedYieldPerTray || 0);
 
          if (tray.stage === Stage.SOAK && crop.soakHours > 0) {
-            // Calculate when soaking ends (startDate + soakHours)
-            const soakEndTime = startDate.getTime() + (crop.soakHours * 60 * 60 * 1000);
-            const soakEndDate = new Date(soakEndTime);
-            
-            // Check if soaking ends on the current day
-            if (soakEndDate.toDateString() === currentDay.toDateString()) {
-               const hoursRemaining = Math.round((soakEndTime - new Date().getTime()) / (1000 * 60 * 60));
-               const isOverdue = hoursRemaining < 0;
-               
-               tasks.push({ 
-                  type: 'task', 
-                  text: `Soaking Complete: ${displayName}`, 
-                  sub: tray.location,
-                  icon: Droplet, 
-                  color: isOverdue ? 'text-red-600 bg-red-50' : 'text-blue-600 bg-blue-50',
-                  trayId: tray.id 
-               });
-            }
+            // Soak is usually same day or next day, hard to pin exact date without hours
+            // Skip for calendar view simplicity, handle in dashboard alerts
          } else if (tray.stage === Stage.GERMINATION) {
              stageDuration = crop.germinationDays;
              stageEndDate = addDays(startDate, stageDuration);
              // Don't show scheduled task if it's already shown as overdue action today
              const isOverdue = (new Date().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) > crop.germinationDays + 0.5;
              if (stageEndDate.toDateString() === currentDay.toDateString() && !(i === 0 && isOverdue)) {
-                tasks.push({ type: 'task', text: `Blackout ${displayName} (${tray.location})`, icon: Moon, color: 'text-purple-600 bg-purple-50', trayId: tray.id });
+                const timeInfo = getTimeToNextStage(tray, crop);
+                const targetTime = startDate.getTime() + (crop.germinationDays * 24 * 60 * 60 * 1000);
+                tasks.push({ 
+                  type: 'task', 
+                  text: `Blackout ${displayName} (${tray.location})`, 
+                  icon: Moon, 
+                  color: 'text-purple-600 bg-purple-50', 
+                  trayId: tray.id,
+                  timeRemaining: timeInfo,
+                  targetTime: targetTime
+                });
              }
          } else if (tray.stage === Stage.BLACKOUT) {
              stageDuration = crop.blackoutDays;
              stageEndDate = addDays(startDate, stageDuration);
              const isOverdue = (new Date().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) > crop.blackoutDays + 0.5;
              if (stageEndDate.toDateString() === currentDay.toDateString() && !(i === 0 && isOverdue)) {
-                tasks.push({ type: 'task', text: `Uncover ${displayName} (${tray.location})`, icon: Sun, color: 'text-amber-600 bg-amber-50', trayId: tray.id });
+                const timeInfo = getTimeToNextStage(tray, crop);
+                const targetTime = startDate.getTime() + (crop.blackoutDays * 24 * 60 * 60 * 1000);
+                tasks.push({ 
+                  type: 'task', 
+                  text: `Uncover ${displayName} (${tray.location})`, 
+                  icon: Sun, 
+                  color: 'text-amber-600 bg-amber-50', 
+                  trayId: tray.id,
+                  timeRemaining: timeInfo,
+                  targetTime: targetTime
+                });
              }
          } else if (tray.stage === Stage.LIGHT) {
              stageDuration = crop.lightDays;
              stageEndDate = addDays(startDate, stageDuration);
              const isOverdue = (new Date().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) > crop.lightDays + 2;
              if (stageEndDate.toDateString() === currentDay.toDateString() && !(i === 0 && isOverdue)) {
-                tasks.push({ type: 'harvest', text: `Harvest ${displayName}`, sub: tray.location, icon: CheckCircle, color: 'text-teal-600 bg-teal-50', trayId: tray.id, estYield: estYield });
+                const timeInfo = getTimeToNextStage(tray, crop);
+                const targetTime = startDate.getTime() + (crop.lightDays * 24 * 60 * 60 * 1000);
+                tasks.push({ 
+                  type: 'harvest', 
+                  text: `Harvest ${displayName}`, 
+                  sub: tray.location, 
+                  icon: CheckCircle, 
+                  color: 'text-teal-600 bg-teal-50', 
+                  trayId: tray.id, 
+                  estYield: estYield,
+                  timeRemaining: timeInfo,
+                  targetTime: targetTime
+                });
              }
+         }
+         
+         // Also handle SOAK stage for today's tasks
+         if (tray.stage === Stage.SOAK && crop.soakHours > 0 && i === 0) {
+            const timeInfo = getTimeToNextStage(tray, crop);
+            const targetTime = startDate.getTime() + (crop.soakHours * 60 * 60 * 1000);
+            tasks.push({ 
+              type: 'task', 
+              text: `Move ${displayName} to Germination (${tray.location})`, 
+              icon: Droplet, 
+              color: 'text-blue-600 bg-blue-50', 
+              trayId: tray.id,
+              timeRemaining: timeInfo,
+              targetTime: targetTime
+            });
          }
       });
 
@@ -1205,11 +1248,46 @@ const CropManager: React.FC<CropManagerProps> = ({
                                        <div className="flex-1 min-w-0 pt-0.5">
                                           <div className="flex justify-between items-start">
                                              <p className={`text-sm font-bold leading-tight ${task.type === 'alert' ? 'text-red-800' : 'text-slate-700'}`}>{task.text}</p>
-                                             {task.estYield && (
-                                                <span className="text-[10px] font-bold text-teal-600 bg-white px-1.5 py-0.5 rounded-md shadow-sm border border-teal-100 ml-2">
-                                                   {task.estYield}g
-                                                </span>
-                                             )}
+                                             <div className="flex items-center gap-2 ml-2">
+                                                {task.timeRemaining && task.targetTime && (() => {
+                                                   // Recalculate time remaining based on current time
+                                                   const now = currentTime.getTime();
+                                                   const diff = task.targetTime - now;
+                                                   let timeText = '';
+                                                   let isOverdue = false;
+                                                   
+                                                   if (diff < 0) {
+                                                      timeText = 'Overdue';
+                                                      isOverdue = true;
+                                                   } else {
+                                                      const hours = Math.floor(diff / (1000 * 60 * 60));
+                                                      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                                      if (hours > 0) {
+                                                         timeText = `${hours}h ${minutes}m`;
+                                                      } else {
+                                                         timeText = `${minutes}m`;
+                                                      }
+                                                   }
+                                                   
+                                                   return (
+                                                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
+                                                         isOverdue 
+                                                           ? 'text-red-600 bg-red-50 border border-red-200' 
+                                                           : hours < 2 
+                                                             ? 'text-amber-600 bg-amber-50 border border-amber-200'
+                                                             : 'text-blue-600 bg-blue-50 border border-blue-200'
+                                                      }`}>
+                                                         <Clock className="w-3 h-3 inline mr-1" />
+                                                         {timeText}
+                                                      </span>
+                                                   );
+                                                })()}
+                                                {task.estYield && (
+                                                   <span className="text-[10px] font-bold text-teal-600 bg-white px-1.5 py-0.5 rounded-md shadow-sm border border-teal-100">
+                                                      {task.estYield}g
+                                                   </span>
+                                                )}
+                                             </div>
                                           </div>
                                           {task.sub && <p className={`text-xs mt-0.5 leading-tight ${task.type === 'alert' ? 'text-red-500' : 'text-slate-400'}`}>{task.sub}</p>}
                                        </div>
