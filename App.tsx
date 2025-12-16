@@ -251,6 +251,28 @@ const App: React.FC = () => {
         setSyncStatus('syncing');
         setSyncMessage(reason === 'kick' ? 'Syncing changes…' : 'Syncing…');
 
+        // Check if there are pending local changes
+        const { listSyncQueue } = await import('./services/syncService');
+        const pendingItems = await listSyncQueue();
+        const hasPendingChanges = pendingItems.length > 0;
+
+        // If no pending changes, refresh from remote first to get latest database updates
+        // This prevents overwriting database changes made outside the app
+        if (!hasPendingChanges && reason === 'tab-change') {
+          setSyncMessage('Checking for updates…');
+          try {
+            const fresh = await refreshLocalFromRemote();
+            if (!isCancelled) {
+              setAppState(fresh);
+              setSyncStatus('idle');
+              setSyncMessage(null);
+              return;
+            }
+          } catch (e) {
+            console.warn('Failed to refresh from remote, continuing with sync:', e);
+          }
+        }
+
         const result = await flushSyncQueueOnce();
         if (!result.didSync) {
           setSyncStatus('error');
@@ -274,7 +296,8 @@ const App: React.FC = () => {
         }
 
         // If we actually pushed changes, refresh snapshot so other devices stay consistent.
-        if (result.processed > 0) {
+        // Also refresh if we didn't push changes but there might be remote updates
+        if (result.processed > 0 || (!hasPendingChanges && reason === 'tab-change')) {
           setSyncMessage('Refreshing…');
           const fresh = await refreshLocalFromRemote();
           if (!isCancelled) setAppState(fresh);
@@ -311,6 +334,25 @@ const App: React.FC = () => {
         // Check if there are pending sync items first
         const { listSyncQueue } = await import('./services/storage');
         const pendingItems = await listSyncQueue();
+        
+        // If no pending changes, refresh from remote first to preserve database changes
+        // This prevents the app from overwriting changes made directly in the database
+        if (pendingItems.length === 0) {
+          setSyncStatus('syncing');
+          setSyncMessage('Checking for updates…');
+          try {
+            const fresh = await refreshLocalFromRemote();
+            if (!isCancelled) {
+              setAppState(fresh);
+              setSyncStatus('idle');
+              setSyncMessage(null);
+              return;
+            }
+          } catch (e) {
+            console.warn('Failed to refresh from remote on tab change:', e);
+            // Continue with normal sync if refresh fails
+          }
+        }
         
         // Only sync if there are pending changes
         if (pendingItems.length > 0) {
