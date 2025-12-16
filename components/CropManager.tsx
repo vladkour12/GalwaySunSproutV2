@@ -515,8 +515,24 @@ const CropManager: React.FC<CropManagerProps> = ({
             : (crop.estimatedYieldPerTray || 0);
 
          if (tray.stage === Stage.SOAK && crop.soakHours > 0) {
-            // Soak is usually same day or next day, hard to pin exact date without hours
-            // Skip for calendar view simplicity, handle in dashboard alerts
+            // Calculate when soaking ends (startDate + soakHours)
+            const soakEndTime = startDate.getTime() + (crop.soakHours * 60 * 60 * 1000);
+            const soakEndDate = new Date(soakEndTime);
+            
+            // Check if soaking ends on the current day
+            if (soakEndDate.toDateString() === currentDay.toDateString()) {
+               const hoursRemaining = Math.round((soakEndTime - new Date().getTime()) / (1000 * 60 * 60));
+               const isOverdue = hoursRemaining < 0;
+               
+               tasks.push({ 
+                  type: 'task', 
+                  text: `Soaking Complete: ${displayName}`, 
+                  sub: tray.location,
+                  icon: Droplet, 
+                  color: isOverdue ? 'text-red-600 bg-red-50' : 'text-blue-600 bg-blue-50',
+                  trayId: tray.id 
+               });
+            }
          } else if (tray.stage === Stage.GERMINATION) {
              stageDuration = crop.germinationDays;
              stageEndDate = addDays(startDate, stageDuration);
