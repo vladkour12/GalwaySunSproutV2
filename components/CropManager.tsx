@@ -192,6 +192,11 @@ const CropManager: React.FC<CropManagerProps> = ({
   const [addToShelf, setAddToShelf] = useState(false);
   const [selectedShelfLocation, setSelectedShelfLocation] = useState('');
   
+  // Drag and drop state
+  const [draggedTray, setDraggedTray] = useState<Tray | null>(null);
+  const [dragOverLocation, setDragOverLocation] = useState<string | null>(null);
+  const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
+  
   // Event Planner State
   const [plannerCropId, setPlannerCropId] = useState('');
   const [plannerDate, setPlannerDate] = useState(new Date().toISOString().split('T')[0]);
@@ -716,8 +721,52 @@ const CropManager: React.FC<CropManagerProps> = ({
 
                      return (
                         <div key={location} className="space-y-4">
-                           {/* Shelf Location Header */}
-                           <div className="flex items-center gap-3 px-3 py-2 bg-gradient-to-r from-slate-50 to-transparent rounded-2xl border border-slate-100">
+                           {/* Shelf Location Header - Drop Zone */}
+                           <div 
+                              className={`flex items-center gap-3 px-3 py-2 bg-gradient-to-r from-slate-50 to-transparent rounded-2xl border-2 transition-all ${
+                                 dragOverLocation === location 
+                                    ? 'border-teal-400 bg-teal-50 shadow-lg' 
+                                    : 'border-slate-100'
+                              }`}
+                              onDragOver={(e) => {
+                                 e.preventDefault();
+                                 if (draggedTray && draggedTray.location !== location) {
+                                    setDragOverLocation(location);
+                                 }
+                              }}
+                              onDragLeave={() => {
+                                 setDragOverLocation(null);
+                              }}
+                              onDrop={(e) => {
+                                 e.preventDefault();
+                                 if (draggedTray && draggedTray.location !== location) {
+                                    onUpdateTray(draggedTray.id, { location });
+                                    setDraggedTray(null);
+                                    setDragOverLocation(null);
+                                 }
+                              }}
+                              onTouchEnd={(e) => {
+                                 if (draggedTray && touchStartPos) {
+                                    const touch = e.changedTouches[0];
+                                    // Small delay to ensure touch event completes
+                                    setTimeout(() => {
+                                       const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                                       const dropZone = element?.closest('[data-drop-zone]');
+                                       if (dropZone) {
+                                          const targetLocation = dropZone.getAttribute('data-location');
+                                          if (targetLocation && targetLocation === location && draggedTray.location !== location) {
+                                             onUpdateTray(draggedTray.id, { location });
+                                          }
+                                       }
+                                       setDraggedTray(null);
+                                       setDragOverLocation(null);
+                                       setTouchStartPos(null);
+                                    }, 50);
+                                 }
+                              }}
+                              data-drop-zone
+                              data-location={location}
+                           >
                               <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-teal-100 text-teal-700">
                                  <MapPin className="w-4 h-4" />
                               </div>
@@ -729,6 +778,9 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  <div className="text-xs font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded-lg">
                                     {shelves.length} {shelves.length === 1 ? 'shelf' : 'shelves'}
                                  </div>
+                              )}
+                              {dragOverLocation === location && (
+                                 <div className="text-xs font-bold text-teal-600 animate-pulse">Drop here</div>
                               )}
                            </div>
 
@@ -758,12 +810,72 @@ const CropManager: React.FC<CropManagerProps> = ({
                      <motion.div 
                         key={tray.id}
                         layoutId={tray.id}
-                                             initial={{ opacity: 0, scale: 0.95 }}
-                                             animate={{ opacity: 1, scale: 1 }}
-                        onClick={() => setSelectedTray(tray)}
-                                             className={`group bg-white rounded-2xl border-2 ${nextStageInfo.isOverdue ? 'border-red-300 bg-gradient-to-br from-red-50 to-white' : isHarvestReady ? 'border-teal-300 bg-gradient-to-br from-teal-50 to-white' : 'border-slate-200 hover:border-teal-200'} shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer relative overflow-hidden`}
-                                             whileHover={{ scale: 1.02 }}
-                                             whileTap={{ scale: 0.98 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ 
+                           opacity: draggedTray?.id === tray.id ? 0.5 : 1, 
+                           scale: draggedTray?.id === tray.id ? 0.95 : 1,
+                           zIndex: draggedTray?.id === tray.id ? 50 : 1
+                        }}
+                        onClick={() => {
+                           if (!draggedTray) {
+                              setSelectedTray(tray);
+                           }
+                        }}
+                        draggable
+                        onDragStart={(e) => {
+                           setDraggedTray(tray);
+                           e.dataTransfer.effectAllowed = 'move';
+                           e.dataTransfer.setData('text/plain', tray.id);
+                        }}
+                        onDragEnd={() => {
+                           setDraggedTray(null);
+                           setDragOverLocation(null);
+                        }}
+                        onTouchStart={(e) => {
+                           const touch = e.touches[0];
+                           setTouchStartPos({ x: touch.clientX, y: touch.clientY });
+                           setDraggedTray(tray);
+                        }}
+                        onTouchMove={(e) => {
+                           if (draggedTray && touchStartPos) {
+                              const touch = e.touches[0];
+                              const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                              const dropZone = element?.closest('[data-drop-zone]');
+                              if (dropZone) {
+                                 const location = dropZone.getAttribute('data-location');
+                                 if (location && location !== tray.location) {
+                                    setDragOverLocation(location);
+                                 } else {
+                                    setDragOverLocation(null);
+                                 }
+                              } else {
+                                 setDragOverLocation(null);
+                              }
+                           }
+                        }}
+                        onTouchEnd={(e) => {
+                           if (draggedTray && touchStartPos) {
+                              const touch = e.changedTouches[0];
+                              setTimeout(() => {
+                                 const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                                 const dropZone = element?.closest('[data-drop-zone]');
+                                 if (dropZone) {
+                                    const targetLocation = dropZone.getAttribute('data-location');
+                                    if (targetLocation && targetLocation !== tray.location) {
+                                       onUpdateTray(tray.id, { location: targetLocation });
+                                    }
+                                 }
+                                 setDraggedTray(null);
+                                 setDragOverLocation(null);
+                                 setTouchStartPos(null);
+                              }, 50);
+                           } else {
+                              setTouchStartPos(null);
+                           }
+                        }}
+                        className={`group bg-white rounded-2xl border-2 ${nextStageInfo.isOverdue ? 'border-red-300 bg-gradient-to-br from-red-50 to-white' : isHarvestReady ? 'border-teal-300 bg-gradient-to-br from-teal-50 to-white' : 'border-slate-200 hover:border-teal-200'} shadow-sm hover:shadow-lg transition-all duration-200 cursor-grab active:cursor-grabbing relative overflow-hidden ${draggedTray?.id === tray.id ? 'opacity-50 scale-95 shadow-xl' : ''}`}
+                        whileHover={{ scale: draggedTray ? 1 : 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                      >
                                              {/* Overdue Pulse Effect */}
                                              {nextStageInfo.isOverdue && (
@@ -771,6 +883,15 @@ const CropManager: React.FC<CropManagerProps> = ({
                                              )}
                                              
                                              <div className="p-3 flex flex-col gap-2 relative z-10">
+                                                {/* Drag Handle Indicator */}
+                                                {!draggedTray && (
+                                                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                                      <div className="p-1 bg-slate-800/80 rounded-lg">
+                                                         <MapPin className="w-3 h-3 text-white" />
+                                                      </div>
+                                                   </div>
+                                                )}
+                                                
                                                 {/* Crop Image with Stage Badge */}
                                                 <div className={`relative w-full aspect-square rounded-lg flex items-center justify-center text-[10px] font-bold shadow-sm overflow-hidden border ${nextStageInfo.isOverdue ? 'border-red-300' : isHarvestReady ? 'border-teal-300' : 'border-slate-200'} ${crop.color?.split(' ')[0] || 'bg-slate-200'}`}>
                            {crop.imageUrl ? (
@@ -842,7 +963,33 @@ const CropManager: React.FC<CropManagerProps> = ({
                                     
                                     {/* Fill empty slots if less than 4 trays */}
                                     {Array.from({ length: 4 - shelfTrays.length }).map((_, emptyIndex) => (
-                                       <div key={`empty-${emptyIndex}`} className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 flex items-center justify-center">
+                                       <div 
+                                          key={`empty-${emptyIndex}`} 
+                                          className={`aspect-square rounded-2xl border-2 border-dashed transition-all ${
+                                             dragOverLocation === location && draggedTray 
+                                                ? 'border-teal-400 bg-teal-50' 
+                                                : 'border-slate-200 bg-slate-50/50'
+                                          } flex items-center justify-center`}
+                                          onDragOver={(e) => {
+                                             e.preventDefault();
+                                             if (draggedTray && draggedTray.location !== location) {
+                                                setDragOverLocation(location);
+                                             }
+                                          }}
+                                          onDragLeave={() => {
+                                             setDragOverLocation(null);
+                                          }}
+                                          onDrop={(e) => {
+                                             e.preventDefault();
+                                             if (draggedTray && draggedTray.location !== location) {
+                                                onUpdateTray(draggedTray.id, { location });
+                                                setDraggedTray(null);
+                                                setDragOverLocation(null);
+                                             }
+                                          }}
+                                          data-drop-zone
+                                          data-location={location}
+                                       >
                                           <div className="text-center">
                                              <Sprout className="w-6 h-6 text-slate-300 mx-auto mb-1" />
                                              <span className="text-[9px] text-slate-400 font-medium">Empty</span>
