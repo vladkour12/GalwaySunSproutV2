@@ -1,8 +1,9 @@
 
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
-import { View } from '../types';
-import { Leaf, Sprout, Euro, Database, Calculator, LogOut, Bell } from 'lucide-react';
+import { View, AppState, Stage, Tray, CropType } from '../types';
+import { Leaf, Sprout, Euro, Database, Calculator, LogOut, Bell, X, Clock, AlertCircle, Droplet, Moon, Sun, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
+import { getFarmAlerts } from '../services/alertService';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,13 +11,115 @@ interface LayoutProps {
   onNavigate: (view: View) => void;
   onLogout: () => void;
   alertCount?: number;
+  appState?: AppState;
 }
 
-const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLogout, alertCount = 0 }) => {
+// Helper to get stage duration in hours
+const getStageDurationHours = (stage: Stage, crop: CropType): number => {
+  switch (stage) {
+    case Stage.SEED: return 0;
+    case Stage.SOAK: return crop.soakHours;
+    case Stage.GERMINATION: return crop.germinationDays * 24;
+    case Stage.BLACKOUT: return crop.blackoutDays * 24;
+    case Stage.LIGHT: return crop.lightDays * 24;
+    default: return 0;
+  }
+};
+
+// Helper to get time to next stage
+const getTimeToNextStage = (tray: Tray, crop: CropType) => {
+  const start = new Date(tray.startDate).getTime();
+  const durationHours = getStageDurationHours(tray.stage, crop);
+  
+  if (tray.stage === Stage.HARVEST_READY) return { hours: 0, text: "Harvest Now", isOverdue: false };
+
+  const targetTime = start + (durationHours * 60 * 60 * 1000);
+  const now = new Date().getTime();
+  const diff = targetTime - now;
+
+  if (diff < 0) return { hours: 0, text: "Overdue", isOverdue: true };
+  
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  
+  let text = '';
+  if (hours > 24) {
+    const days = Math.floor(hours / 24);
+    text = `${days}d ${hours % 24}h`;
+  } else if (hours > 0) {
+    text = `${hours}h ${minutes}m`;
+  } else {
+    text = `${minutes}m`;
+  }
+  
+  return { hours, text, isOverdue: false };
+};
+
+const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLogout, alertCount = 0, appState }) => {
   const mainRef = useRef<HTMLElement | null>(null);
   const dockRef = useRef<HTMLDivElement | null>(null);
   const [bottomPadPx, setBottomPadPx] = useState(0);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Update time every minute for live timers
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    setCurrentTime(new Date());
+    return () => clearInterval(interval);
+  }, []);
+  
+  // Calculate upcoming notifications
+  const upcomingNotifications = useMemo(() => {
+    if (!appState) return [];
+    
+    const upcoming: Array<{ tray: Tray; crop: CropType; crop2?: CropType; timeInfo: { hours: number; text: string; isOverdue: boolean }; action: string; icon: any }> = [];
+    const activeTrays = appState.trays.filter(t => t.stage !== Stage.HARVESTED && t.stage !== Stage.COMPOST && t.stage !== Stage.MAINTENANCE);
+    
+    activeTrays.forEach(tray => {
+      const crop = appState.crops.find(c => c.id === tray.cropTypeId);
+      const crop2 = tray.cropTypeId2 ? appState.crops.find(c => c.id === tray.cropTypeId2) : null;
+      if (!crop) return;
+      
+      const timeInfo = getTimeToNextStage(tray, crop);
+      
+      // Only show tasks coming up within 24 hours
+      if (timeInfo.hours > 0 && timeInfo.hours <= 24 && !timeInfo.isOverdue) {
+        let action = '';
+        let icon = Clock;
+        
+        if (tray.stage === Stage.SOAK) {
+          action = `Move ${crop2 ? `${crop.name} + ${crop2.name}` : crop.name} to Germination`;
+          icon = Droplet;
+        } else if (tray.stage === Stage.GERMINATION) {
+          action = `Blackout ${crop2 ? `${crop.name} + ${crop2.name}` : crop.name}`;
+          icon = Moon;
+        } else if (tray.stage === Stage.BLACKOUT) {
+          action = `Uncover ${crop2 ? `${crop.name} + ${crop2.name}` : crop.name}`;
+          icon = Sun;
+        } else if (tray.stage === Stage.LIGHT) {
+          action = `Harvest ${crop2 ? `${crop.name} + ${crop2.name}` : crop.name}`;
+          icon = CheckCircle;
+        }
+        
+        if (action) {
+          upcoming.push({ tray, crop, crop2, timeInfo, action, icon });
+        }
+      }
+    });
+    
+    // Sort by time (soonest first)
+    return upcoming.sort((a, b) => a.timeInfo.hours - b.timeInfo.hours);
+  }, [appState, currentTime]);
+  
+  // Get current alerts
+  const currentAlerts = useMemo(() => {
+    if (!appState) return [];
+    return getFarmAlerts(appState);
+  }, [appState]);
 
   // Haptic feedback for navigation (if supported)
   const triggerHaptic = useCallback(() => {
@@ -139,16 +242,40 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                 </h1>
             </motion.div>
 
-            {/* Logout Button */}
-            <motion.button 
-               onClick={onLogout}
-               className="p-2.5 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
-               title="Sign Out / Back to Website"
-               whileHover={{ scale: 1.05 }}
-               whileTap={{ scale: 0.95 }}
-            >
-               <LogOut className="w-5 h-5" />
-            </motion.button>
+            {/* Right side buttons */}
+            <div className="flex items-center gap-2">
+              {/* Notification Button */}
+              <motion.button 
+                 onClick={() => setShowNotifications(true)}
+                 className="relative w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all duration-200 active:scale-95 flex items-center justify-center"
+                 title={alertCount > 0 ? `${alertCount} notifications` : 'Notifications'}
+                 whileHover={{ scale: 1.05 }}
+                 whileTap={{ scale: 0.95 }}
+              >
+                 <Bell className="w-4 h-4" />
+                 {alertCount > 0 && (
+                   <motion.span 
+                     className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white"
+                     initial={{ scale: 0 }}
+                     animate={{ scale: 1 }}
+                     transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                   >
+                     {alertCount > 9 ? '9+' : alertCount}
+                   </motion.span>
+                 )}
+              </motion.button>
+
+              {/* Logout Button */}
+              <motion.button 
+                 onClick={onLogout}
+                 className="p-2.5 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
+                 title="Sign Out / Back to Website"
+                 whileHover={{ scale: 1.05 }}
+                 whileTap={{ scale: 0.95 }}
+              >
+                 <LogOut className="w-5 h-5" />
+              </motion.button>
+            </div>
         </div>
       </motion.header>
 
@@ -292,6 +419,122 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
           })}
         </motion.div>
       </motion.nav>
+
+      {/* Notifications Modal */}
+      <AnimatePresence>
+        {showNotifications && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setShowNotifications(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.95, y: 10 }} 
+              animate={{ scale: 1, y: 0 }} 
+              exit={{ scale: 0.95, y: 10 }} 
+              className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800">Notifications</h3>
+                  <p className="text-sm text-slate-500 mt-1">Current alerts and upcoming tasks</p>
+                </div>
+                <button 
+                  onClick={() => setShowNotifications(false)} 
+                  className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Current Alerts */}
+              {currentAlerts.length > 0 && (
+                <div className="mb-6">
+                  <h4 className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-3 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-2 text-red-500" />
+                    Action Needed
+                  </h4>
+                  <div className="space-y-2">
+                    {currentAlerts.map((alert) => (
+                      <div 
+                        key={alert.id}
+                        className={`p-4 rounded-xl border ${
+                          alert.type === 'urgent' ? 'bg-red-50 border-red-100' :
+                          alert.type === 'warning' ? 'bg-amber-50 border-amber-100' :
+                          'bg-blue-50 border-blue-100'
+                        }`}
+                      >
+                        <p className="font-bold text-slate-800 text-sm">{alert.title}</p>
+                        <p className="text-xs text-slate-600 mt-1">{alert.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Upcoming Notifications */}
+              {upcomingNotifications.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-3 flex items-center">
+                    <Clock className="w-4 h-4 mr-2 text-blue-500" />
+                    Coming Soon
+                  </h4>
+                  <div className="space-y-2">
+                    {upcomingNotifications.map((notif, idx) => {
+                      const Icon = notif.icon;
+                      return (
+                        <div 
+                          key={`${notif.tray.id}-${idx}`}
+                          className="p-4 rounded-xl border bg-blue-50 border-blue-100 flex items-start justify-between"
+                        >
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Icon className="w-4 h-4 text-blue-600" />
+                              <p className="font-bold text-slate-800 text-sm">{notif.action}</p>
+                            </div>
+                            <p className="text-xs text-slate-600 mt-1">{notif.tray.location}</p>
+                          </div>
+                          <span className="text-xs font-bold text-blue-600 bg-white px-2 py-1 rounded-full border border-blue-200 ml-2 whitespace-nowrap">
+                            {notif.timeInfo.text}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty State */}
+              {currentAlerts.length === 0 && upcomingNotifications.length === 0 && (
+                <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                  <Bell className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+                  <p className="text-slate-500 font-bold text-sm mb-1">No notifications</p>
+                  <p className="text-slate-400 text-xs">All tasks are on schedule</p>
+                </div>
+              )}
+
+              {/* Footer Action */}
+              {(currentAlerts.length > 0 || upcomingNotifications.length > 0) && (
+                <div className="mt-6 pt-4 border-t border-slate-200">
+                  <button
+                    onClick={() => {
+                      setShowNotifications(false);
+                      onNavigate('dashboard');
+                    }}
+                    className="w-full py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 transition-colors"
+                  >
+                    View All in Dashboard
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
