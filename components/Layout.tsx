@@ -120,7 +120,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
             transform: 'translate(-50%, -50%)',
             maxWidth: '95vw', 
             maxHeight: '95vh',
-            willChange: 'transform'
+            pointerEvents: 'none'
           }}
         />
       </div>
@@ -132,7 +132,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
         className="sticky top-0 z-40 px-6 py-4 bg-white/95 backdrop-blur-xl border-b border-slate-200/60 supports-[backdrop-filter]:bg-white/80 shadow-sm"
       >
         <div className="max-w-4xl mx-auto flex justify-between items-center relative">
-            {/* Spacer for left side (balances layout) */}
+            {/* Spacer for left side to balance with logout button */}
             <div className="w-10"></div>
             
             {/* Business Name - Centered */}
@@ -142,20 +142,20 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1 }}
             >
-                <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent whitespace-nowrap">
                   Galway Sun Sprouts
                 </h1>
             </motion.div>
 
-            {/* Logout Button - Right Side, Smaller */}
+            {/* Logout Button */}
             <motion.button 
                onClick={onLogout}
-               className="relative z-10 p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
+               className="relative z-10 p-2.5 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
                title="Sign Out / Back to Website"
                whileHover={{ scale: 1.05 }}
                whileTap={{ scale: 0.95 }}
             >
-               <LogOut className="w-4 h-4" />
+               <LogOut className="w-5 h-5" />
             </motion.button>
         </div>
       </motion.header>
