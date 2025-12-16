@@ -112,8 +112,8 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
         <img 
           src="/logo.png" 
           alt="Galway Sun Sprouts Logo" 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-[0.12] object-contain"
-          style={{ maxWidth: '80vw', maxHeight: '80vh' }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] opacity-[0.25] object-contain"
+          style={{ maxWidth: '90vw', maxHeight: '90vh' }}
         />
       </div>
       
