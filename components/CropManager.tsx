@@ -1782,8 +1782,8 @@ const CropManager: React.FC<CropManagerProps> = ({
                      />
                   </div>
                   
-                  {/* Half-Half Tray Option */}
-                  <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  {/* Half-Half Tray Option - Made More Prominent */}
+                  <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-purple-50 to-teal-50 rounded-xl border-2 border-purple-200 hover:border-purple-300 transition-colors">
                      <input 
                         type="checkbox" 
                         id="halfHalf"
@@ -1792,11 +1792,12 @@ const CropManager: React.FC<CropManagerProps> = ({
                            setIsHalfHalf(e.target.checked);
                            if (!e.target.checked) setPlantCropId2('');
                         }}
-                        className="w-5 h-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                        className="w-6 h-6 rounded border-2 border-purple-400 text-purple-600 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 cursor-pointer"
                      />
-                     <label htmlFor="halfHalf" className="flex items-center text-sm font-bold text-slate-700 cursor-pointer flex-1">
-                        <Package className="w-4 h-4 mr-2 text-teal-600" />
-                        Half-Half Tray (2 crops in 1 tray)
+                     <label htmlFor="halfHalf" className="flex items-center text-base font-bold text-slate-800 cursor-pointer flex-1">
+                        <Package className="w-5 h-5 mr-2 text-purple-600" />
+                        <span>Half-Half Tray</span>
+                        <span className="text-sm text-slate-600 ml-1">(2 crops in 1 tray)</span>
                      </label>
                   </div>
                   
