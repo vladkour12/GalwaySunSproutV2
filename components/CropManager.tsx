@@ -293,26 +293,26 @@ const CropManager: React.FC<CropManagerProps> = ({
 
   const eventSchedule = useMemo(() => {
      try {
-       if (!plannerCropId || !plannerDate) return null;
-       const crop = state.crops.find(c => c.id === plannerCropId);
-       if (!crop) return null;
+     if (!plannerCropId || !plannerDate) return null;
+     const crop = state.crops.find(c => c.id === plannerCropId);
+     if (!crop) return null;
 
-       const target = new Date(plannerDate);
-       if (isNaN(target.getTime())) return null;
+     const target = new Date(plannerDate);
+     if (isNaN(target.getTime())) return null;
 
-       const totalDays = (crop.germinationDays || 0) + (crop.blackoutDays || 0) + (crop.lightDays || 0);
-       
-       // Plant Date = Target - Total Days
-       const plantDate = new Date(target);
-       plantDate.setDate(target.getDate() - totalDays);
-       
-       const germEnd = new Date(plantDate);
-       germEnd.setDate(plantDate.getDate() + (crop.germinationDays || 0));
-       
-       const blackoutEnd = new Date(germEnd);
-       blackoutEnd.setDate(germEnd.getDate() + (crop.blackoutDays || 0));
-       
-       return { crop, plantDate, germEnd, blackoutEnd, harvestDate: target };
+     const totalDays = (crop.germinationDays || 0) + (crop.blackoutDays || 0) + (crop.lightDays || 0);
+     
+     // Plant Date = Target - Total Days
+     const plantDate = new Date(target);
+     plantDate.setDate(target.getDate() - totalDays);
+     
+     const germEnd = new Date(plantDate);
+     germEnd.setDate(plantDate.getDate() + (crop.germinationDays || 0));
+     
+     const blackoutEnd = new Date(germEnd);
+     blackoutEnd.setDate(germEnd.getDate() + (crop.blackoutDays || 0));
+     
+     return { crop, plantDate, germEnd, blackoutEnd, harvestDate: target };
      } catch (e) {
        console.error('Planner (event) crashed', e);
        return null;
@@ -321,37 +321,37 @@ const CropManager: React.FC<CropManagerProps> = ({
 
   const recurringSchedule = useMemo(() => {
     try {
-      if (!recurringCropId || !recurringTargetAmount) return null;
-      const crop = state.crops.find(c => c.id === recurringCropId);
-      if (!crop) return null;
-      
-      const target = parseInt(recurringTargetAmount);
-      if (isNaN(target) || target <= 0) return null;
+    if (!recurringCropId || !recurringTargetAmount) return null;
+    const crop = state.crops.find(c => c.id === recurringCropId);
+    if (!crop) return null;
+    
+    const target = parseInt(recurringTargetAmount);
+    if (isNaN(target) || target <= 0) return null;
 
-      const yieldPerTray = crop.estimatedYieldPerTray || 1;
-      const traysNeeded = Math.ceil(target / yieldPerTray);
-      const totalGrowingDays = (crop.germinationDays || 0) + (crop.blackoutDays || 0) + (crop.lightDays || 0);
-      
-      // Calculate Plant Day Index (0-6)
+    const yieldPerTray = crop.estimatedYieldPerTray || 1;
+    const traysNeeded = Math.ceil(target / yieldPerTray);
+    const totalGrowingDays = (crop.germinationDays || 0) + (crop.blackoutDays || 0) + (crop.lightDays || 0);
+    
+    // Calculate Plant Day Index (0-6)
       const plantDayIndex = (Math.trunc(recurringHarvestDay) - (Math.trunc(totalGrowingDays) % 7) + 7) % 7;
-      
-      // --- New Calculations ---
-      // 1. Weekly Seed Usage
-      const weeklySeedGrams = traysNeeded * (crop.seedingRate || 0);
-      
-      // 2. Weekly Seed Cost (Best Price Logic: 1kg -> 500g -> fallback)
-      let seedCost = 0;
-      if (crop.price1kg) seedCost = (weeklySeedGrams / 1000) * crop.price1kg;
-      else if (crop.price500g) seedCost = (weeklySeedGrams / 500) * crop.price500g;
-      
-      // 3. Weekly Revenue
-      const weeklyRevenue = (target / 100) * (crop.revenuePer100g || 6.00);
+    
+    // --- New Calculations ---
+    // 1. Weekly Seed Usage
+    const weeklySeedGrams = traysNeeded * (crop.seedingRate || 0);
+    
+    // 2. Weekly Seed Cost (Best Price Logic: 1kg -> 500g -> fallback)
+    let seedCost = 0;
+    if (crop.price1kg) seedCost = (weeklySeedGrams / 1000) * crop.price1kg;
+    else if (crop.price500g) seedCost = (weeklySeedGrams / 500) * crop.price500g;
+    
+    // 3. Weekly Revenue
+    const weeklyRevenue = (target / 100) * (crop.revenuePer100g || 6.00);
 
-      // 4. Shelf Capacity Used (Peak Active Trays under lights)
-      const lightBatches = Math.ceil((crop.lightDays || 0) / 7); 
-      const shelfSpace = lightBatches * traysNeeded;
+    // 4. Shelf Capacity Used (Peak Active Trays under lights)
+    const lightBatches = Math.ceil((crop.lightDays || 0) / 7); 
+    const shelfSpace = lightBatches * traysNeeded;
 
-      // 5. Schedule Flow
+    // 5. Schedule Flow
       const plantDayName = safeDayName(plantDayIndex);
       const blackoutStartDayIndex = (plantDayIndex + Math.trunc(crop.germinationDays || 0)) % 7;
       const lightStartDayIndex = (blackoutStartDayIndex + Math.trunc(crop.blackoutDays || 0)) % 7;
@@ -373,26 +373,26 @@ const CropManager: React.FC<CropManagerProps> = ({
         upcomingDates.push(d);
     }
 
-      return {
-        crop,
-        traysNeeded,
-        yieldPerTray,
-        plantDayName,
+    return {
+      crop,
+      traysNeeded,
+      yieldPerTray,
+      plantDayName,
         harvestDayName: safeDayName(recurringHarvestDay),
-        totalGrowingDays,
-        weeklySeedGrams,
-        seedCost,
-        weeklyRevenue,
-        shelfSpace,
-        lightBatches,
-        upcomingDates,
-        timeline: {
+      totalGrowingDays,
+      weeklySeedGrams,
+      seedCost,
+      weeklyRevenue,
+      shelfSpace,
+      lightBatches,
+      upcomingDates,
+      timeline: {
           plant: plantDayName,
           blackout: safeDayName(blackoutStartDayIndex),
           light: safeDayName(lightStartDayIndex),
           harvest: safeDayName(recurringHarvestDay),
         },
-      };
+    };
     } catch (e) {
       console.error('Planner (recurring) crashed', e);
       return null;
@@ -402,46 +402,46 @@ const CropManager: React.FC<CropManagerProps> = ({
   // --- Calendar Data Generation ---
   const calendarDays = useMemo(() => {
       try {
-        const days = [];
-        const today = new Date();
-    
-        for (let i = 0; i < 7; i++) {
-          const currentDay = new Date(today);
-          currentDay.setDate(today.getDate() + i);
-          const dayOfWeek = currentDay.getDay(); // 0-6
-    
-          const tasks: { type: string, text: string, sub?: string, icon: any, color: string, trayId?: string, estYield?: number }[] = [];
-    
-          // 0. Overdue / Action Needed (Only for Today) - Sync with Dashboard Alerts
-          if (i === 0) {
-            const alerts = getFarmAlerts(state);
-            alerts.forEach(alert => {
-              let icon = AlertCircle;
-              let color = "text-red-600 bg-red-50";
-              let type = 'alert'; // Default to alert style
-              
-              if (alert.type === 'urgent') {
-                icon = AlertCircle;
-                color = "text-red-600 bg-red-50";
-              } else if (alert.type === 'warning') {
-                icon = AlertCircle;
-                color = "text-amber-600 bg-amber-50"; 
-              } else if (alert.type === 'routine') {
-                icon = Droplet;
-                color = "text-blue-500 bg-blue-50";
-                type = 'routine';
-              }
+      const days = [];
+      const today = new Date();
+  
+      for (let i = 0; i < 7; i++) {
+        const currentDay = new Date(today);
+        currentDay.setDate(today.getDate() + i);
+        const dayOfWeek = currentDay.getDay(); // 0-6
+  
+        const tasks: { type: string, text: string, sub?: string, icon: any, color: string, trayId?: string, estYield?: number }[] = [];
+  
+        // 0. Overdue / Action Needed (Only for Today) - Sync with Dashboard Alerts
+      if (i === 0) {
+         const alerts = getFarmAlerts(state);
+         alerts.forEach(alert => {
+            let icon = AlertCircle;
+            let color = "text-red-600 bg-red-50";
+            let type = 'alert'; // Default to alert style
+            
+            if (alert.type === 'urgent') {
+               icon = AlertCircle;
+               color = "text-red-600 bg-red-50";
+            } else if (alert.type === 'warning') {
+               icon = AlertCircle;
+               color = "text-amber-600 bg-amber-50"; 
+            } else if (alert.type === 'routine') {
+               icon = Droplet;
+               color = "text-blue-500 bg-blue-50";
+               type = 'routine';
+            }
 
-              tasks.push({
-                type: type,
-                text: alert.title,
-                sub: alert.message,
-                icon: icon,
-                color: color,
-                trayId: alert.trayId
-              });
+            tasks.push({
+               type: type,
+               text: alert.title,
+               sub: alert.message,
+               icon: icon,
+               color: color,
+               trayId: alert.trayId
             });
-          }
+         });
+      }
 
       // 1. Existing Tasks from Active Trays
       
@@ -535,9 +535,9 @@ const CropManager: React.FC<CropManagerProps> = ({
       // Future days don't show generic routines to keep calendar clean.
 
 
-          days.push({ date: currentDay, dayOfWeek, tasks });
-        }
-        return days;
+      days.push({ date: currentDay, dayOfWeek, tasks });
+    }
+    return days;
       } catch (e) {
         console.error('Calendar generation crashed', e);
         return [];
@@ -607,7 +607,7 @@ const CropManager: React.FC<CropManagerProps> = ({
         germinationDays: 3, 
         blackoutDays: 3, 
         lightDays: 7, 
-        estimatedYieldPerTray: 200, 
+        estimatedYieldPerTray: 298, 
         pricePerTray: 10,
         seedingRate: 0,
         price500g: 0,
@@ -654,7 +654,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                   >
                      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-200 mb-4">
                         <Sprout className="w-8 h-8 text-slate-400" />
-                     </div>
+                  </div>
                      <p className="text-slate-500 font-bold text-sm mb-1">No active trays</p>
                      <p className="text-slate-400 text-xs">Start by planting your first crop</p>
                   </motion.div>
@@ -718,24 +718,24 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  {/* 4-tray grid */}
                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                     {shelfTrays.map(tray => {
-                                       const crop = state.crops.find(c => c.id === tray.cropTypeId);
-                                       if (!crop) return null;
+                  const crop = state.crops.find(c => c.id === tray.cropTypeId);
+                  if (!crop) return null;
 
-                                       const harvestDate = getTargetHarvestDate(tray, crop);
-                                       const nextStageInfo = getTimeToNextStage(tray, crop);
-                                       const isHarvestReady = tray.stage === Stage.HARVEST_READY;
+                  const harvestDate = getTargetHarvestDate(tray, crop);
+                  const nextStageInfo = getTimeToNextStage(tray, crop);
+                  const isHarvestReady = tray.stage === Stage.HARVEST_READY;
 
-                                       return (
-                                          <motion.div 
-                                             key={tray.id}
-                                             layoutId={tray.id}
+                  return (
+                     <motion.div 
+                        key={tray.id}
+                        layoutId={tray.id}
                                              initial={{ opacity: 0, scale: 0.95 }}
                                              animate={{ opacity: 1, scale: 1 }}
-                                             onClick={() => setSelectedTray(tray)}
+                        onClick={() => setSelectedTray(tray)}
                                              className={`group bg-white rounded-2xl border-2 ${nextStageInfo.isOverdue ? 'border-red-300 bg-gradient-to-br from-red-50 to-white' : isHarvestReady ? 'border-teal-300 bg-gradient-to-br from-teal-50 to-white' : 'border-slate-200 hover:border-teal-200'} shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer relative overflow-hidden`}
                                              whileHover={{ scale: 1.02 }}
                                              whileTap={{ scale: 0.98 }}
-                                          >
+                     >
                                              {/* Overdue Pulse Effect */}
                                              {nextStageInfo.isOverdue && (
                                                 <div className="absolute inset-0 border-2 border-red-400 rounded-2xl animate-pulse opacity-50 z-0"></div>
@@ -744,7 +744,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                                              <div className="p-3 flex flex-col gap-2 relative z-10">
                                                 {/* Crop Image with Stage Badge */}
                                                 <div className={`relative w-full aspect-square rounded-lg flex items-center justify-center text-[10px] font-bold shadow-sm overflow-hidden border ${nextStageInfo.isOverdue ? 'border-red-300' : isHarvestReady ? 'border-teal-300' : 'border-slate-200'} ${crop.color?.split(' ')[0] || 'bg-slate-200'}`}>
-                                                   {crop.imageUrl ? (
+                           {crop.imageUrl ? (
                                                       <img 
                                                          src={crop.imageUrl} 
                                                          alt={crop.name} 
@@ -754,9 +754,9 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                             e.currentTarget.style.display = 'none';
                                                          }}
                                                       />
-                                                   ) : (
+                           ) : (
                                                       <span className="text-slate-600">{crop.name.substring(0,2).toUpperCase()}</span>
-                                                   )}
+                           )}
                                                    {/* Stage Indicator Badge */}
                                                    <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-white flex items-center justify-center ${
                                                       tray.stage === Stage.SEED || tray.stage === Stage.SOAK ? 'bg-slate-500' :
@@ -773,43 +773,43 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                 <div className="space-y-1.5">
                                                    <div className="flex items-start justify-between gap-1">
                                                       <h3 className="text-xs font-bold text-slate-900 truncate flex-1">{crop.name}</h3>
-                                                      {nextStageInfo.isOverdue && (
+                           {nextStageInfo.isOverdue && (
                                                          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse flex-shrink-0 mt-0.5"></div>
-                                                      )}
-                                                   </div>
+                           )}
+                        </div>
                                                    <span className={`inline-block text-[9px] px-2 py-0.5 rounded-lg font-bold uppercase tracking-wide ${getStageColor(tray.stage)}`}>
-                                                      {tray.stage}
-                                                   </span>
-                                                </div>
+                                  {tray.stage}
+                               </span>
+                        </div>
 
                                                 {/* Status Info */}
                                                 <div className="space-y-1 pt-1 border-t border-slate-100">
-                                                   {isHarvestReady ? (
+                           {isHarvestReady ? (
                                                       <div className="flex items-center gap-1.5 text-teal-600">
                                                          <CheckCircle className="w-3 h-3 flex-shrink-0" />
                                                          <span className="text-[10px] font-bold">Ready</span>
-                                                      </div>
-                                                   ) : (
-                                                      <>
+                              </div>
+                           ) : (
+                              <>
                                                          <div className="flex items-center justify-between text-[10px]">
                                                             <span className="text-slate-500">Harvest:</span>
                                                             <span className="font-bold text-slate-700">{formatShortDate(harvestDate)}</span>
-                                                         </div>
+                                 </div>
                                                          <div className="flex items-center justify-between">
                                                             <span className={`text-[10px] font-medium ${nextStageInfo.isOverdue ? 'text-red-600' : 'text-teal-600'}`}>
                                                                Next:
                                                             </span>
                                                             <span className={`text-[10px] font-bold ${nextStageInfo.isOverdue ? 'text-red-600' : 'text-slate-700'}`}>
-                                                               {nextStageInfo.text}
-                                                            </span>
-                                                         </div>
-                                                      </>
-                                                   )}
+                                       {nextStageInfo.text}
+                                    </span>
+                                 </div>
+                              </>
+                           )}
                                                 </div>
-                                             </div>
-                                          </motion.div>
-                                       );
-                                    })}
+                        </div>
+                     </motion.div>
+                  );
+               })}
                                     
                                     {/* Fill empty slots if less than 4 trays */}
                                     {Array.from({ length: 4 - shelfTrays.length }).map((_, emptyIndex) => (

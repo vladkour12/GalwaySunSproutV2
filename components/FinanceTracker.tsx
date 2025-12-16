@@ -364,7 +364,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                   )}
                 </div>
                 {isTouchUI && <p className="mt-2 text-[10px] text-slate-400 font-bold">Charts are view-only on mobile.</p>}
-              </div>
+             </div>
               <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 relative z-0">
                 <h4 className="text-sm font-bold text-slate-800 mb-4">Expenses by Category</h4>
                 <div ref={chartRef2} className="h-48 w-full" style={{ minHeight: 192, position: 'relative', pointerEvents: 'none' }}>
@@ -379,8 +379,8 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                   )}
                 </div>
                 {isTouchUI && <p className="mt-2 text-[10px] text-slate-400 font-bold">Charts are view-only on mobile.</p>}
-              </div>
-            </motion.div>
+             </div>
+          </motion.div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">

@@ -43,7 +43,7 @@ const item = {
 };
 
 const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlerts = new Set(), onDismissAlert }) => {
-
+  
   // --- Data Calculations ---
 
   const activeTrays = useMemo(() => 
@@ -424,25 +424,25 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
                 <div style={{ width: 192, height: 192 }}>
                   {showCharts && (
                       <PieChart width={192} height={192}>
-                      <Pie
-                        data={chartData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={5}
-                        cornerRadius={4}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        {chartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px', fontWeight: 600 }}
-                      />
-                      </PieChart>
+                    <Pie
+                      data={chartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      cornerRadius={4}
+                      dataKey="value"
+                      stroke="none"
+                    >
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px', fontWeight: 600 }}
+                    />
+                    </PieChart>
                   )}
                 </div>
               ) : (

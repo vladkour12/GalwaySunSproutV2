@@ -45,7 +45,7 @@ export function calculatePackagingCost(params: PackagingCalculationParams): Pack
 export function quickPackagingCalc(
   costPerBag: number = 0.40,
   weightPerBag: number = 100, // 100g per bag
-  yieldPerTray: number = 300 // 300g per tray
+  yieldPerTray: number = 447 // 447g per tray (adjusted for 35cm x 55cm tray)
 ): PackagingCostBreakdown {
   return calculatePackagingCost({
     costPerBag,

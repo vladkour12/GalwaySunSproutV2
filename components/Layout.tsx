@@ -25,7 +25,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLo
     el.scrollTop = 0;
     // Force a layout recalculation after a brief delay to clear any lingering height issues
     const id = window.setTimeout(() => {
-      el.scrollTop = 0;
+    el.scrollTop = 0;
       // Force reflow to ensure layout is clean and reset any cached heights
       void el.offsetHeight;
       // Also trigger a resize event to ensure any listeners recalculate

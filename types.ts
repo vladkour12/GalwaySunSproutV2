@@ -16,7 +16,7 @@ export interface CropType {
   name: string;
   scientificName?: string;
   difficulty?: 'Easy' | 'Medium' | 'Hard' | 'Intermediate' | 'Difficult' | 'Medium-Difficult';
-  seedingRate?: number; // grams per 10x20 tray
+  seedingRate?: number; // grams per 10x20 shallow tray (35cm x 55cm)
   soakHours: number;
   germinationDays: number;
   blackoutDays: number;

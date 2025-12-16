@@ -78,7 +78,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
           className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-400/10 rounded-full blur-3xl" 
         />
       </div>
-
+      
       {/* Navigation */}
       <motion.nav 
         initial={{ y: -20, opacity: 0 }}
@@ -118,12 +118,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 sm:px-6 min-h-screen flex items-center z-10">
         <div className="max-w-7xl mx-auto w-full">
-          <motion.div
+           <motion.div 
             style={{ opacity, y: yTransform }}
             className="text-center max-w-4xl mx-auto"
           >
             {/* Badge */}
-            <motion.div
+           <motion.div 
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
@@ -137,7 +137,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             </motion.div>
 
             {/* Main Heading */}
-            <motion.h1
+            <motion.h1 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
@@ -155,7 +155,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
               </motion.span>
             </motion.h1>
 
-            <motion.p
+            <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.5, ease: "easeOut" }}
@@ -165,7 +165,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             </motion.p>
 
             {/* CTA Buttons */}
-            <motion.div
+            <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.5, ease: "easeOut" }}
@@ -194,7 +194,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             </motion.div>
 
             {/* Stats */}
-            <motion.div
+            <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1, duration: 0.5, ease: "easeOut" }}
@@ -205,13 +205,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                 { label: "Restaurants", value: "15+" },
                 { label: "Weekly Harvest", value: "200+" }
               ].map((stat, i) => (
-                <motion.div
+             <motion.div 
                   key={i}
                   initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
+              animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 1.1 + i * 0.1, duration: 0.4 }}
                   className="text-center"
-                >
+            >
                   <div className="text-3xl sm:text-4xl font-bold text-slate-900 mb-1">{stat.value}</div>
                   <div className="text-sm text-slate-500 font-medium">{stat.label}</div>
                 </motion.div>
@@ -236,7 +236,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             </div>
           ))}
         </motion.div>
-      </div>
+          </div>
 
       {/* Features Section */}
       <section className="relative z-10 py-24 px-4 sm:px-6 bg-white">
@@ -258,7 +258,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, idx) => (
-              <motion.div
+              <motion.div 
                 key={idx}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -324,22 +324,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                   { text: "Flexible delivery" },
                   { text: "Weekly harvest" }
                 ].map((item, i) => (
-                  <motion.div
+            <motion.div 
                     key={i}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
+               initial={{ opacity: 0, x: -20 }}
+               whileInView={{ opacity: 1, x: 0 }}
+               viewport={{ once: true }}
                     transition={{ delay: 0.4 + i * 0.1 }}
                     className="flex items-center gap-2 text-slate-300"
                   >
                     <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                     <span>{item.text}</span>
                   </motion.div>
-                ))}
-              </div>
+                       ))}
+                    </div>
             </motion.div>
 
-            <motion.div
+            <motion.div 
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-100px" }}
@@ -358,7 +358,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                       key={i}
                       initial={{ opacity: 0, scale: 0.8, y: 20 }}
                       whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                      viewport={{ once: true }}
+              viewport={{ once: true }}
                       transition={{ delay: 0.3 + i * 0.1, duration: 0.4, ease: "easeOut" }}
                       whileHover={{ scale: 1.05, y: -5 }}
                       className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 cursor-default"

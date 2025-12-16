@@ -45,7 +45,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
     elecRatePerKwh: 0.32,
     soilCostPerBag: 12.00,
     soilVolumePerBag: 50,
-    soilVolumePerTray: 3,
+    soilVolumePerTray: 4.5,
     packagingCostPerBag: 0.40,
     packagingWeightPerBag: 100,
   });
@@ -116,7 +116,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
   }, [soilCostPerBag, soilVolumePerBag, soilVolumePerTray]);
   
   const packagingCalc = useMemo(() => {
-    const yieldValue = yieldPerTray || 300; // Default to 300g if no crop selected
+    const yieldValue = yieldPerTray || 447; // Default to 447g if no crop selected (adjusted for larger tray)
     return quickPackagingCalc(packagingCostPerBag, packagingWeightPerBag, yieldValue);
   }, [yieldPerTray, packagingCostPerBag, packagingWeightPerBag]);
 
@@ -131,7 +131,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
         setYieldPerTray(yieldVal);
 
         // 2. Set Price per 100g (auto-populate from crop data)
-        let calculatedPrice100g = crop.revenuePer100g || 6.00;
+        let calculatedPrice100g = crop.revenuePer100g || 6.00; 
         setPricePer100g(Number(calculatedPrice100g.toFixed(2)));
         
         // 3. Calculate Seed Cost (auto-populate from crop data)
@@ -171,7 +171,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
     setElecRatePerKwh(0.32);
     setSoilCostPerBag(12.00);
     setSoilVolumePerBag(50);
-    setSoilVolumePerTray(3);
+    setSoilVolumePerTray(4.5);
     setPackagingCostPerBag(0.40);
     setPackagingWeightPerBag(100);
     // Clear localStorage to use defaults
@@ -187,7 +187,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
     <div className="space-y-6">
       <div className="flex flex-col space-y-1 mb-6">
         <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Profit Calculator</h2>
-        <p className="text-slate-500 text-sm">Analyze unit economics per 1020 tray.</p>
+        <p className="text-slate-500 text-sm">Analyze unit economics per 10x20 shallow tray (35cm x 55cm).</p>
       </div>
 
       {/* 1. Crop Selector */}
@@ -284,7 +284,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
 
                    {/* Soil Cost */}
                    <div className="space-y-2">
-                      <div className="grid grid-cols-3 gap-4 items-center">
+                   <div className="grid grid-cols-3 gap-4 items-center">
                          <button
                             type="button"
                             onClick={() => setShowSoilCalc(!showSoilCalc)}
@@ -293,23 +293,23 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                             style={{ touchAction: 'manipulation' }}
                          >
                             <div className="flex items-center">
-                               <Box className="w-3.5 h-3.5 mr-2 text-violet-500" />
+                          <Box className="w-3.5 h-3.5 mr-2 text-violet-500" />
                                <span className="text-xs font-bold text-slate-500">Medium/Soil</span>
                             </div>
                             <Info className="w-3.5 h-3.5 text-violet-500" />
                          </button>
                          <div className="col-span-2 relative" onClick={(e) => e.stopPropagation()}>
-                            <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
-                            <input 
-                               type="number"
-                               value={soilCost || ''}
-                               onChange={(e) => setSoilCost(parseFloat(e.target.value) || 0)}
-                               onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
-                               step="0.01"
+                          <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
+                          <input 
+                             type="number"
+                             value={soilCost || ''}
+                             onChange={(e) => setSoilCost(parseFloat(e.target.value) || 0)}
+                             onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
+                             step="0.01"
                                className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
-                               placeholder="0.00"
-                            />
-                         </div>
+                             placeholder="0.00"
+                          />
+                       </div>
                       </div>
                       
                       {/* Soil Calculator */}
@@ -358,7 +358,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
 
                    {/* Electricity Cost */}
                    <div className="space-y-2">
-                      <div className="grid grid-cols-3 gap-4 items-center">
+                   <div className="grid grid-cols-3 gap-4 items-center">
                          <button
                             type="button"
                             onClick={() => setShowElecCalc(!showElecCalc)}
@@ -367,23 +367,23 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                             style={{ touchAction: 'manipulation' }}
                          >
                             <div className="flex items-center">
-                               <Zap className="w-3.5 h-3.5 mr-2 text-amber-500" />
+                          <Zap className="w-3.5 h-3.5 mr-2 text-amber-500" />
                                <span className="text-xs font-bold text-slate-500">Electricity</span>
                             </div>
                             <Info className="w-3.5 h-3.5 text-amber-500" />
                          </button>
                          <div className="col-span-2 relative" onClick={(e) => e.stopPropagation()}>
-                            <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
-                            <input 
-                               type="number"
-                               value={elecCost || ''}
-                               onChange={(e) => setElecCost(parseFloat(e.target.value) || 0)}
-                               onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
-                               step="0.01"
+                          <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
+                          <input 
+                             type="number"
+                             value={elecCost || ''}
+                             onChange={(e) => setElecCost(parseFloat(e.target.value) || 0)}
+                             onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
+                             step="0.01"
                                className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
-                               placeholder="0.00"
-                            />
-                         </div>
+                             placeholder="0.00"
+                          />
+                       </div>
                       </div>
                       
                       {/* Electricity Calculator */}
@@ -436,7 +436,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
 
                     {/* Packaging Cost */}
                    <div className="space-y-2">
-                      <div className="grid grid-cols-3 gap-4 items-center">
+                   <div className="grid grid-cols-3 gap-4 items-center">
                          <button
                             type="button"
                             onClick={() => setShowPackagingCalc(!showPackagingCalc)}
@@ -445,23 +445,23 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                             style={{ touchAction: 'manipulation' }}
                          >
                             <div className="flex items-center">
-                               <Box className="w-3.5 h-3.5 mr-2 text-blue-500" />
+                          <Box className="w-3.5 h-3.5 mr-2 text-blue-500" />
                                <span className="text-xs font-bold text-slate-500">Packaging</span>
                             </div>
                             <Info className="w-3.5 h-3.5 text-blue-500" />
                          </button>
                          <div className="col-span-2 relative" onClick={(e) => e.stopPropagation()}>
-                            <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
-                            <input 
-                               type="number"
-                               value={packagingCost || ''}
-                               onChange={(e) => setPackagingCost(parseFloat(e.target.value) || 0)}
-                               onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
-                               step="0.01"
+                          <span className="absolute left-3 top-2.5 text-slate-400 text-xs">€</span>
+                          <input 
+                             type="number"
+                             value={packagingCost || ''}
+                             onChange={(e) => setPackagingCost(parseFloat(e.target.value) || 0)}
+                             onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
+                             step="0.01"
                                className="w-full pl-7 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none"
-                               placeholder="0.00"
-                            />
-                         </div>
+                             placeholder="0.00"
+                          />
+                       </div>
                       </div>
                       
                       {/* Packaging Calculator */}
@@ -491,7 +491,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                                   <span className="font-bold">€{packagingCalc.totalCostPerTray.toFixed(2)}</span>
                                </div>
                                <div className="text-[10px] text-blue-600">
-                                  ({(yieldPerTray || 300)}g yield ÷ {packagingWeightPerBag}g per bag = {packagingCalc.bagsPerTray} bags)
+                                  ({(yieldPerTray || 447)}g yield ÷ {packagingWeightPerBag}g per bag = {packagingCalc.bagsPerTray} bags)
                                </div>
                                <button
                                   type="button"

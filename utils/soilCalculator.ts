@@ -10,7 +10,7 @@
 export interface SoilCalculationParams {
   costPerBag: number; // € per bag
   volumePerBag: number; // Liters or kg per bag
-  volumePerTray: number; // Liters or kg per 1020 tray
+  volumePerTray: number; // Liters or kg per 10x20 shallow tray (35cm x 55cm)
 }
 
 export interface SoilCostBreakdown {
@@ -39,7 +39,7 @@ export function calculateSoilCost(params: SoilCalculationParams): SoilCostBreakd
 export function quickSoilCalc(
   costPerBag: number = 12.00,
   volumePerBag: number = 50, // 50L bag
-  volumePerTray: number = 3 // ~3L per 1020 tray
+  volumePerTray: number = 4.5 // ~4.5L per 10x20 shallow tray (35cm x 55cm)
 ): SoilCostBreakdown {
   return calculateSoilCost({
     costPerBag,
