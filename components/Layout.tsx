@@ -462,7 +462,13 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                     {currentAlerts.map((alert) => (
                       <div 
                         key={alert.id}
-                        className={`p-4 rounded-xl border ${
+                        onClick={() => {
+                          setShowNotifications(false);
+                          // Store intent to show calendar tab
+                          localStorage.setItem('galway_show_calendar', 'true');
+                          onNavigate('crops');
+                        }}
+                        className={`p-4 rounded-xl border cursor-pointer hover:shadow-md transition-all ${
                           alert.type === 'urgent' ? 'bg-red-50 border-red-100' :
                           alert.type === 'warning' ? 'bg-amber-50 border-amber-100' :
                           'bg-blue-50 border-blue-100'
@@ -489,7 +495,13 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                       return (
                         <div 
                           key={`${notif.tray.id}-${idx}`}
-                          className="p-4 rounded-xl border bg-blue-50 border-blue-100 flex items-start justify-between"
+                          onClick={() => {
+                            setShowNotifications(false);
+                            // Store intent to show calendar tab
+                            localStorage.setItem('galway_show_calendar', 'true');
+                            onNavigate('crops');
+                          }}
+                          className="p-4 rounded-xl border bg-blue-50 border-blue-100 flex items-start justify-between cursor-pointer hover:shadow-md transition-all"
                         >
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
@@ -523,11 +535,18 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                   <button
                     onClick={() => {
                       setShowNotifications(false);
-                      onNavigate('dashboard');
+                      onNavigate('crops');
+                      // Small delay to ensure navigation happens, then scroll to calendar tab
+                      setTimeout(() => {
+                        const calendarTab = document.querySelector('[data-tab="calendar"]') as HTMLElement;
+                        if (calendarTab) {
+                          calendarTab.click();
+                        }
+                      }, 100);
                     }}
                     className="w-full py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 transition-colors"
                   >
-                    View All in Dashboard
+                    View All in Calendar
                   </button>
                 </div>
               )}

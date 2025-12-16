@@ -185,8 +185,19 @@ const CropManager: React.FC<CropManagerProps> = ({
 }) => {
   // Navigation State (with persistence)
   const savedCropManagerPrefs = loadCropManagerPreferences();
-  const [activeTab, setActiveTab] = useState<'production' | 'varieties' | 'plan' | 'calendar'>(savedCropManagerPrefs.activeTab);
+  // Check if we should show calendar tab (from notification click)
+  const shouldShowCalendar = localStorage.getItem('galway_show_calendar') === 'true';
+  const [activeTab, setActiveTab] = useState<'production' | 'varieties' | 'plan' | 'calendar'>(
+    shouldShowCalendar ? 'calendar' : savedCropManagerPrefs.activeTab
+  );
   const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Clear the calendar flag after using it
+  useEffect(() => {
+    if (shouldShowCalendar) {
+      localStorage.removeItem('galway_show_calendar');
+    }
+  }, [shouldShowCalendar]);
   
   // Update time every minute for live timers (only when calendar tab is active)
   useEffect(() => {
