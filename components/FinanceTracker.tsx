@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomSelect from './CustomSelect';
 import { saveFinancePreferences, loadFinancePreferences } from '../utils/persistence';
+import { compressImage } from '../utils/imageConverter';
 
 interface FinanceTrackerProps {
   state: AppState;
@@ -137,12 +138,15 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
   }, [editingTx]);
 
   const filteredTransactions = useMemo(() => {
-    if (timeRange === 'all') return state.transactions;
+    // Filter out business expenses from regular transactions view
+    const nonBusinessTransactions = state.transactions.filter(t => !t.isBusinessExpense);
+    
+    if (timeRange === 'all') return nonBusinessTransactions;
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
     
-    return state.transactions.filter(t => {
+    return nonBusinessTransactions.filter(t => {
       const d = new Date(t.date);
       if (isNaN(d.getTime())) return false; // Skip invalid dates
       if (timeRange === 'month') return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
@@ -649,14 +653,21 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                               accept="image/*" 
                               capture="environment"
                               className="hidden" 
-                              onChange={(e) => {
+                              onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
-                                  const reader = new FileReader();
-                                  reader.onloadend = () => {
-                                    setExpenseReceipt(reader.result as string);
-                                  };
-                                  reader.readAsDataURL(file);
+                                  try {
+                                    const compressed = await compressImage(file);
+                                    setExpenseReceipt(compressed);
+                                  } catch (error) {
+                                    console.error('Failed to compress image:', error);
+                                    // Fallback to uncompressed
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                      setExpenseReceipt(reader.result as string);
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
                                 }
                               }}
                             />
@@ -670,14 +681,21 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                               type="file" 
                               accept="image/*" 
                               className="hidden" 
-                              onChange={(e) => {
+                              onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
-                                  const reader = new FileReader();
-                                  reader.onloadend = () => {
-                                    setExpenseReceipt(reader.result as string);
-                                  };
-                                  reader.readAsDataURL(file);
+                                  try {
+                                    const compressed = await compressImage(file);
+                                    setExpenseReceipt(compressed);
+                                  } catch (error) {
+                                    console.error('Failed to compress image:', error);
+                                    // Fallback to uncompressed
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                      setExpenseReceipt(reader.result as string);
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
                                 }
                               }}
                             />
