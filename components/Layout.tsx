@@ -535,14 +535,9 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                   <button
                     onClick={() => {
                       setShowNotifications(false);
+                      // Store intent to show calendar tab
+                      localStorage.setItem('galway_show_calendar', 'true');
                       onNavigate('crops');
-                      // Small delay to ensure navigation happens, then scroll to calendar tab
-                      setTimeout(() => {
-                        const calendarTab = document.querySelector('[data-tab="calendar"]') as HTMLElement;
-                        if (calendarTab) {
-                          calendarTab.click();
-                        }
-                      }, 100);
                     }}
                     className="w-full py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 transition-colors"
                   >
