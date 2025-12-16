@@ -41,6 +41,7 @@ export interface CropType {
 export interface Tray {
   id: string;
   cropTypeId: string;
+  cropTypeId2?: string; // Optional second crop for half-half trays
   startDate: string; // ISO string (Start of CURRENT stage)
   plantedAt?: string; // ISO string (Original planting date)
   stage: Stage;

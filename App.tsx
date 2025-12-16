@@ -357,11 +357,12 @@ const App: React.FC = () => {
 
   // --- Handlers (Optimistic UI + API Calls) ---
 
-  const handleAddTray = useCallback(async (cropId: string, count: number, location: string, capacity: number) => {
+  const handleAddTray = useCallback(async (cropId: string, count: number, location: string, capacity: number, cropId2?: string) => {
     const now = new Date().toISOString();
     const newTrays: Tray[] = Array.from({ length: count }).map(() => ({
       id: Math.random().toString(36).substr(2, 9),
       cropTypeId: cropId,
+      cropTypeId2: cropId2 || undefined, // Second crop for half-half trays
       startDate: now, // Start of Seed stage
       plantedAt: now,
       stage: Stage.SEED,

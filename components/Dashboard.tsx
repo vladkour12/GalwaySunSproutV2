@@ -60,11 +60,16 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
 
     activeTrays.forEach(tray => {
       const crop = state.crops.find(c => c.id === tray.cropTypeId);
+      const crop2 = tray.cropTypeId2 ? state.crops.find(c => c.id === tray.cropTypeId2) : null;
       if (!crop) return;
 
       let trayValue = 0;
       // Calculate value based on Yield * Market Price (€7.00 / 100g)
-      if (crop.estimatedYieldPerTray) {
+      if (crop2) {
+        // Half-half tray: average yield of both crops
+        const avgYield = ((crop.estimatedYieldPerTray || 0) + (crop2.estimatedYieldPerTray || 0)) / 2;
+        trayValue = (avgYield / 100) * 7.00;
+      } else if (crop.estimatedYieldPerTray) {
         trayValue = (crop.estimatedYieldPerTray / 100) * 7.00;
       } else {
         trayValue = crop.pricePerTray || 0;

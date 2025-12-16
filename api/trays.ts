@@ -11,6 +11,7 @@ export default async function handler(req: Request) {
       const trays = rows.map(r => ({
         id: r.id,
         cropTypeId: r.crop_type_id,
+        cropTypeId2: r.crop_type_id2 || undefined,
         startDate: r.start_date,
         plantedAt: r.planted_at,
         stage: r.stage,
@@ -30,10 +31,11 @@ export default async function handler(req: Request) {
     if (req.method === 'POST') {
       const tray = await req.json();
       await sql`
-        INSERT INTO trays (id, crop_type_id, start_date, planted_at, stage, notes, location, capacity, yield, updated_at, stage_update_at)
+        INSERT INTO trays (id, crop_type_id, crop_type_id2, start_date, planted_at, stage, notes, location, capacity, yield, updated_at, stage_update_at)
         VALUES (
             ${tray.id}, 
             ${tray.cropTypeId}, 
+            ${tray.cropTypeId2 || null}, 
             ${tray.startDate}, 
             ${tray.plantedAt}, 
             ${tray.stage}, 
@@ -46,6 +48,7 @@ export default async function handler(req: Request) {
         )
         ON CONFLICT (id) DO UPDATE SET
             crop_type_id = EXCLUDED.crop_type_id,
+            crop_type_id2 = EXCLUDED.crop_type_id2,
             start_date = EXCLUDED.start_date,
             planted_at = EXCLUDED.planted_at,
             stage = EXCLUDED.stage,

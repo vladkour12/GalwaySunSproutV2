@@ -71,6 +71,7 @@ export default async function handler(request: Request) {
       CREATE TABLE IF NOT EXISTS trays (
         id TEXT PRIMARY KEY,
         crop_type_id TEXT REFERENCES crops(id),
+        crop_type_id2 TEXT REFERENCES crops(id),
         start_date TIMESTAMP WITH TIME ZONE,
         planted_at TIMESTAMP WITH TIME ZONE,
         stage TEXT,
@@ -82,6 +83,13 @@ export default async function handler(request: Request) {
         stage_update_at TIMESTAMP WITH TIME ZONE
       );
     `;
+    
+    // Add crop_type_id2 column if it doesn't exist (for existing databases)
+    try {
+      await sql`ALTER TABLE trays ADD COLUMN IF NOT EXISTS crop_type_id2 TEXT REFERENCES crops(id)`;
+    } catch (e) {
+      console.warn('Column migration note:', (e as Error).message);
+    }
 
     // 4. Transactions Table
     await sql`

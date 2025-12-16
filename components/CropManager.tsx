@@ -10,7 +10,7 @@ import CustomSelect from './CustomSelect';
 
 interface CropManagerProps {
   state: AppState;
-  onAddTray: (cropId: string, count: number, location: string, capacity: number) => void;
+  onAddTray: (cropId: string, count: number, location: string, capacity: number, cropId2?: string) => void;
   onUpdateTrayStage: (trayId: string, newStage: Stage) => void;
   onBulkUpdateTrayStage: (trayIds: string[], newStage: Stage) => void;
   onUpdateTray: (trayId: string, updates: Partial<Tray>) => void;
@@ -132,16 +132,43 @@ const getTimeToNextStage = (tray: Tray, crop: CropType) => {
 };
 
 // Helper to calculate estimated seed cost per tray
-const getEstimatedSeedCost = (crop: CropType) => {
+const getEstimatedSeedCost = (crop: CropType, isHalfHalf: boolean = false) => {
   if (!crop.seedingRate) return 0;
+  const rate = isHalfHalf ? crop.seedingRate / 2 : crop.seedingRate;
   // Prioritize Large pack price (1kg) for better accuracy on business scale
   if (crop.price1kg) {
-    return (crop.seedingRate / (crop.pkgWeightLarge || 1000)) * crop.price1kg;
+    return (rate / (crop.pkgWeightLarge || 1000)) * crop.price1kg;
   }
   if (crop.price500g) {
-    return (crop.seedingRate / (crop.pkgWeightSmall || 500)) * crop.price500g;
+    return (rate / (crop.pkgWeightSmall || 500)) * crop.price500g;
   }
   return 0;
+};
+
+// Helper to get tray yield (handles half-half trays)
+const getTrayYield = (tray: Tray, crops: CropType[]): number => {
+  const crop = crops.find(c => c.id === tray.cropTypeId);
+  const crop2 = tray.cropTypeId2 ? crops.find(c => c.id === tray.cropTypeId2) : null;
+  
+  if (!crop) return 0;
+  if (crop2) {
+    // Half-half tray: average of both yields
+    return ((crop.estimatedYieldPerTray || 0) + (crop2.estimatedYieldPerTray || 0)) / 2;
+  }
+  return crop.estimatedYieldPerTray || 0;
+};
+
+// Helper to get tray seed cost (handles half-half trays)
+const getTraySeedCost = (tray: Tray, crops: CropType[]): number => {
+  const crop = crops.find(c => c.id === tray.cropTypeId);
+  const crop2 = tray.cropTypeId2 ? crops.find(c => c.id === tray.cropTypeId2) : null;
+  
+  if (!crop) return 0;
+  
+  const cost1 = getEstimatedSeedCost(crop, !!crop2);
+  const cost2 = crop2 ? getEstimatedSeedCost(crop2, true) : 0;
+  
+  return cost1 + cost2;
 };
 
 const CropManager: React.FC<CropManagerProps> = ({ 
@@ -221,6 +248,8 @@ const CropManager: React.FC<CropManagerProps> = ({
 
   // Form State
   const [plantCropId, setPlantCropId] = useState(state.crops[0]?.id || '');
+  const [plantCropId2, setPlantCropId2] = useState(''); // Second crop for half-half trays
+  const [isHalfHalf, setIsHalfHalf] = useState(false); // Toggle for half-half tray
   const [plantLocation, setPlantLocation] = useState('');
   const [plantCount, setPlantCount] = useState(1);
   const [yieldInput, setYieldInput] = useState('');
@@ -462,6 +491,7 @@ const CropManager: React.FC<CropManagerProps> = ({
       
       activeTrays.forEach(tray => {
          const crop = state.crops.find(c => c.id === tray.cropTypeId);
+         const crop2 = tray.cropTypeId2 ? state.crops.find(c => c.id === tray.cropTypeId2) : null;
          if (!crop) return;
          
          const startDate = new Date(tray.startDate);
@@ -477,6 +507,12 @@ const CropManager: React.FC<CropManagerProps> = ({
          // We need to know WHEN the current stage ends based on start date
          let stageEndDate = new Date(startDate);
          let stageDuration = 0;
+         
+         // For half-half trays, use the first crop's schedule (or could use longest)
+         const displayName = crop2 ? `${crop.name} + ${crop2.name}` : crop.name;
+         const estYield = crop2 
+            ? ((crop.estimatedYieldPerTray || 0) + (crop2.estimatedYieldPerTray || 0)) / 2
+            : (crop.estimatedYieldPerTray || 0);
 
          if (tray.stage === Stage.SOAK && crop.soakHours > 0) {
             // Soak is usually same day or next day, hard to pin exact date without hours
@@ -487,21 +523,21 @@ const CropManager: React.FC<CropManagerProps> = ({
              // Don't show scheduled task if it's already shown as overdue action today
              const isOverdue = (new Date().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) > crop.germinationDays + 0.5;
              if (stageEndDate.toDateString() === currentDay.toDateString() && !(i === 0 && isOverdue)) {
-                tasks.push({ type: 'task', text: `Blackout ${crop.name} (${tray.location})`, icon: Moon, color: 'text-purple-600 bg-purple-50', trayId: tray.id });
+                tasks.push({ type: 'task', text: `Blackout ${displayName} (${tray.location})`, icon: Moon, color: 'text-purple-600 bg-purple-50', trayId: tray.id });
              }
          } else if (tray.stage === Stage.BLACKOUT) {
              stageDuration = crop.blackoutDays;
              stageEndDate = addDays(startDate, stageDuration);
              const isOverdue = (new Date().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) > crop.blackoutDays + 0.5;
              if (stageEndDate.toDateString() === currentDay.toDateString() && !(i === 0 && isOverdue)) {
-                tasks.push({ type: 'task', text: `Uncover ${crop.name} (${tray.location})`, icon: Sun, color: 'text-amber-600 bg-amber-50', trayId: tray.id });
+                tasks.push({ type: 'task', text: `Uncover ${displayName} (${tray.location})`, icon: Sun, color: 'text-amber-600 bg-amber-50', trayId: tray.id });
              }
          } else if (tray.stage === Stage.LIGHT) {
              stageDuration = crop.lightDays;
              stageEndDate = addDays(startDate, stageDuration);
              const isOverdue = (new Date().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) > crop.lightDays + 2;
              if (stageEndDate.toDateString() === currentDay.toDateString() && !(i === 0 && isOverdue)) {
-                tasks.push({ type: 'harvest', text: `Harvest ${crop.name}`, sub: tray.location, icon: CheckCircle, color: 'text-teal-600 bg-teal-50', trayId: tray.id, estYield: crop.estimatedYieldPerTray });
+                tasks.push({ type: 'harvest', text: `Harvest ${displayName}`, sub: tray.location, icon: CheckCircle, color: 'text-teal-600 bg-teal-50', trayId: tray.id, estYield: estYield });
              }
          }
       });
@@ -565,8 +601,16 @@ const CropManager: React.FC<CropManagerProps> = ({
   const handlePlant = () => {
      if(!plantCropId) return;
      const crop = state.crops.find(c => c.id === plantCropId);
-     onAddTray(plantCropId, plantCount, plantLocation || 'Shed', crop?.estimatedYieldPerTray || 0);
+     const crop2 = isHalfHalf && plantCropId2 ? state.crops.find(c => c.id === plantCropId2) : null;
+     // For half-half trays, use average yield or sum of both
+     const capacity = isHalfHalf && crop2 
+        ? ((crop?.estimatedYieldPerTray || 0) + (crop2.estimatedYieldPerTray || 0)) / 2
+        : (crop?.estimatedYieldPerTray || 0);
+     onAddTray(plantCropId, plantCount, plantLocation || 'Shed', capacity, isHalfHalf ? plantCropId2 : undefined);
      setIsAdding(false);
+     setPlantCropId(state.crops[0]?.id || '');
+     setPlantCropId2('');
+     setIsHalfHalf(false);
      setPlantLocation('');
      setPlantCount(1);
   };
@@ -806,8 +850,10 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                     {shelfTrays.map(tray => {
                   const crop = state.crops.find(c => c.id === tray.cropTypeId);
+                  const crop2 = tray.cropTypeId2 ? state.crops.find(c => c.id === tray.cropTypeId2) : null;
                   if (!crop) return null;
 
+                  // For half-half trays, use the first crop for timing calculations
                   const harvestDate = getTargetHarvestDate(tray, crop);
                   const nextStageInfo = getTimeToNextStage(tray, crop);
                   const isHarvestReady = tray.stage === Stage.HARVEST_READY;
@@ -918,21 +964,45 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                    </div>
                                                 )}
                                                 
-                                                {/* Crop Image with Stage Badge */}
-                                                <div className={`relative w-full aspect-square rounded-lg flex items-center justify-center text-[10px] font-bold shadow-sm overflow-hidden border ${nextStageInfo.isOverdue ? 'border-red-300' : isHarvestReady ? 'border-teal-300' : 'border-slate-200'} ${crop.color?.split(' ')[0] || 'bg-slate-200'}`}>
-                           {crop.imageUrl ? (
-                                                      <img 
-                                                         src={crop.imageUrl} 
-                                                         alt={crop.name} 
-                                                         className="w-full h-full object-cover"
-                                                         onError={(e) => {
-                                                            console.warn(`Failed to load image for ${crop.name}:`, crop.imageUrl);
-                                                            e.currentTarget.style.display = 'none';
-                                                         }}
-                                                      />
-                           ) : (
-                                                      <span className="text-slate-600">{crop.name.substring(0,2).toUpperCase()}</span>
-                           )}
+                                                {/* Crop Image with Stage Badge - Half-Half Support */}
+                                                <div className={`relative w-full aspect-square rounded-lg flex items-center justify-center text-[10px] font-bold shadow-sm overflow-hidden border ${nextStageInfo.isOverdue ? 'border-red-300' : isHarvestReady ? 'border-teal-300' : 'border-slate-200'}`}>
+                                                   {crop2 ? (
+                                                      /* Half-Half Tray: Split View */
+                                                      <div className="w-full h-full flex">
+                                                         <div className={`flex-1 ${crop.color?.split(' ')[0] || 'bg-slate-200'} flex items-center justify-center relative`}>
+                                                            {crop.imageUrl ? (
+                                                               <img src={crop.imageUrl} alt={crop.name} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                                                            ) : (
+                                                               <span className="text-slate-600 text-[8px]">{crop.name.substring(0,2).toUpperCase()}</span>
+                                                            )}
+                                                         </div>
+                                                         <div className="w-0.5 bg-slate-300"></div>
+                                                         <div className={`flex-1 ${crop2.color?.split(' ')[0] || 'bg-slate-200'} flex items-center justify-center relative`}>
+                                                            {crop2.imageUrl ? (
+                                                               <img src={crop2.imageUrl} alt={crop2.name} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                                                            ) : (
+                                                               <span className="text-slate-600 text-[8px]">{crop2.name.substring(0,2).toUpperCase()}</span>
+                                                            )}
+                                                         </div>
+                                                      </div>
+                                                   ) : (
+                                                      /* Single Crop Tray */
+                                                      <div className={`w-full h-full ${crop.color?.split(' ')[0] || 'bg-slate-200'}`}>
+                                                         {crop.imageUrl ? (
+                                                            <img 
+                                                               src={crop.imageUrl} 
+                                                               alt={crop.name} 
+                                                               className="w-full h-full object-cover"
+                                                               onError={(e) => {
+                                                                  console.warn(`Failed to load image for ${crop.name}:`, crop.imageUrl);
+                                                                  e.currentTarget.style.display = 'none';
+                                                               }}
+                                                            />
+                                                         ) : (
+                                                            <span className="text-slate-600">{crop.name.substring(0,2).toUpperCase()}</span>
+                                                         )}
+                                                      </div>
+                                                   )}
                                                    {/* Stage Indicator Badge */}
                                                    <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-white flex items-center justify-center ${
                                                       tray.stage === Stage.SEED || tray.stage === Stage.SOAK ? 'bg-slate-500' :
@@ -948,8 +1018,20 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                 {/* Crop Name & Stage */}
                                                 <div className="space-y-1.5">
                                                    <div className="flex items-start justify-between gap-1">
-                                                      <h3 className="text-xs font-bold text-slate-900 truncate flex-1">{crop.name}</h3>
+                                                      <div className="flex-1 min-w-0">
+                                                         {crop2 ? (
+                                                            <div className="space-y-0.5">
+                                                               <h3 className="text-[10px] font-bold text-slate-900 truncate">{crop.name}</h3>
+                                                               <h3 className="text-[10px] font-bold text-slate-700 truncate">+ {crop2.name}</h3>
+                                                            </div>
+                                                         ) : (
+                                                            <h3 className="text-xs font-bold text-slate-900 truncate">{crop.name}</h3>
+                                                         )}
+                                                      </div>
                                                       <div className="flex items-center gap-1 flex-shrink-0">
+                                                         {crop2 && (
+                                                            <Package className="w-3 h-3 text-purple-500" title="Half-half tray" />
+                                                         )}
                                                          {tray.notes && (
                                                             <Info className="w-3 h-3 text-blue-500" title="Has notes" />
                                                          )}
@@ -1682,16 +1764,56 @@ const CropManager: React.FC<CropManagerProps> = ({
                <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto">
                   <div className="flex justify-between items-center">
                      <h3 className="text-lg font-bold text-slate-800">Plant New</h3>
-                     <button onClick={() => setIsAdding(false)} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5" /></button>
+                     <button onClick={() => {
+                        setIsAdding(false);
+                        setIsHalfHalf(false);
+                        setPlantCropId2('');
+                     }} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5" /></button>
                   </div>
                   <div>
                      <CustomSelect 
                         label="Crop"
                         value={plantCropId}
                         onChange={(val) => setPlantCropId(val)}
-                        options={state.crops.map(c => ({ value: c.id, label: c.name }))}
+                        options={[
+                           { value: '', label: 'Select crop...' },
+                           ...state.crops.map(c => ({ value: c.id, label: c.name }))
+                        ]}
                      />
                   </div>
+                  
+                  {/* Half-Half Tray Option */}
+                  <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                     <input 
+                        type="checkbox" 
+                        id="halfHalf"
+                        checked={isHalfHalf}
+                        onChange={(e) => {
+                           setIsHalfHalf(e.target.checked);
+                           if (!e.target.checked) setPlantCropId2('');
+                        }}
+                        className="w-5 h-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                     />
+                     <label htmlFor="halfHalf" className="flex items-center text-sm font-bold text-slate-700 cursor-pointer flex-1">
+                        <Package className="w-4 h-4 mr-2 text-teal-600" />
+                        Half-Half Tray (2 crops in 1 tray)
+                     </label>
+                  </div>
+                  
+                  {isHalfHalf && (
+                     <div>
+                        <CustomSelect 
+                           label="Second Crop"
+                           value={plantCropId2}
+                           onChange={(val) => setPlantCropId2(val)}
+                           options={[
+                              { value: '', label: 'Select second crop...' },
+                              ...state.crops.filter(c => c.id !== plantCropId).map(c => ({ value: c.id, label: c.name }))
+                           ]}
+                        />
+                     </div>
+                  )}
+                  
                   <div className="flex gap-4">
                      <div className="flex-1">
                         <label className="text-xs font-bold text-slate-400 uppercase">Location</label>
@@ -1706,23 +1828,59 @@ const CropManager: React.FC<CropManagerProps> = ({
                   {/* Seed and Soak Info */}
                   {(() => {
                      const crop = state.crops.find(c => c.id === plantCropId);
+                     const crop2 = isHalfHalf && plantCropId2 ? state.crops.find(c => c.id === plantCropId2) : null;
                      if (!crop) return null;
+                     
+                     const seedNeeded1 = (crop.seedingRate || 0) / (isHalfHalf ? 2 : 1) * plantCount;
+                     const seedNeeded2 = crop2 ? ((crop2.seedingRate || 0) / 2) * plantCount : 0;
+                     const totalSeedNeeded = seedNeeded1 + seedNeeded2;
+                     
                      return (
-                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 grid grid-cols-2 gap-4">
-                           <div>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Seed Needed</span>
-                              <div className="flex items-center text-slate-700 font-bold">
-                                 <Scale className="w-4 h-4 mr-2 text-teal-500" />
-                                 <span>{(crop.seedingRate || 0) * plantCount}g</span>
+                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3">
+                           {isHalfHalf && crop2 ? (
+                              <>
+                                 <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Seed Needed ({crop.name})</span>
+                                       <div className="flex items-center text-slate-700 font-bold">
+                                          <Scale className="w-4 h-4 mr-2 text-teal-500" />
+                                          <span>{seedNeeded1.toFixed(0)}g</span>
+                                       </div>
+                                    </div>
+                                    <div>
+                                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Seed Needed ({crop2.name})</span>
+                                       <div className="flex items-center text-slate-700 font-bold">
+                                          <Scale className="w-4 h-4 mr-2 text-teal-500" />
+                                          <span>{seedNeeded2.toFixed(0)}g</span>
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <div className="pt-2 border-t border-slate-200">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Seed Needed</span>
+                                    <div className="flex items-center text-slate-800 font-bold text-lg">
+                                       <Scale className="w-5 h-5 mr-2 text-teal-600" />
+                                       <span>{totalSeedNeeded.toFixed(0)}g</span>
+                                    </div>
+                                 </div>
+                              </>
+                           ) : (
+                              <div className="grid grid-cols-2 gap-4">
+                                 <div>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Seed Needed</span>
+                                    <div className="flex items-center text-slate-700 font-bold">
+                                       <Scale className="w-4 h-4 mr-2 text-teal-500" />
+                                       <span>{totalSeedNeeded.toFixed(0)}g</span>
+                                    </div>
+                                 </div>
+                                 <div>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Soak Duration</span>
+                                    <div className="flex items-center text-slate-700 font-bold">
+                                       <Droplet className="w-4 h-4 mr-2 text-blue-500" />
+                                       <span>{crop.soakHours > 0 ? `${crop.soakHours} hours` : 'No Soak'}</span>
+                                    </div>
+                                 </div>
                               </div>
-                           </div>
-                           <div>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Soak Duration</span>
-                              <div className="flex items-center text-slate-700 font-bold">
-                                 <Droplet className="w-4 h-4 mr-2 text-blue-500" />
-                                 <span>{crop.soakHours > 0 ? `${crop.soakHours} hours` : 'No Soak'}</span>
-                              </div>
-                           </div>
+                           )}
                         </div>
                      );
                   })()}
@@ -1741,7 +1899,21 @@ const CropManager: React.FC<CropManagerProps> = ({
                   {/* Header */}
                   <div className="flex justify-between items-start">
                      <div>
-                        <h3 className="text-xl font-bold text-slate-800">{state.crops.find(c => c.id === selectedTray.cropTypeId)?.name}</h3>
+                        {selectedTray.cropTypeId2 ? (
+                           <div>
+                              <h3 className="text-xl font-bold text-slate-800">
+                                 {state.crops.find(c => c.id === selectedTray.cropTypeId)?.name}
+                                 <span className="text-base text-slate-500"> + </span>
+                                 {state.crops.find(c => c.id === selectedTray.cropTypeId2)?.name}
+                              </h3>
+                              <div className="flex items-center gap-2 mt-1">
+                                 <Package className="w-3 h-3 text-purple-500" />
+                                 <span className="text-xs font-bold text-purple-600">Half-Half Tray</span>
+                              </div>
+                           </div>
+                        ) : (
+                           <h3 className="text-xl font-bold text-slate-800">{state.crops.find(c => c.id === selectedTray.cropTypeId)?.name}</h3>
+                        )}
                         <p className="text-sm text-slate-500 font-medium">{selectedTray.location}</p>
                      </div>
                      <button onClick={() => { 
@@ -1763,6 +1935,72 @@ const CropManager: React.FC<CropManagerProps> = ({
                         <div className="font-bold text-slate-700">{formatShortDate(new Date(selectedTray.startDate))}</div>
                      </div>
                   </div>
+
+                  {/* Crop Information Card */}
+                  {(() => {
+                     const crop = state.crops.find(c => c.id === selectedTray.cropTypeId);
+                     const crop2 = selectedTray.cropTypeId2 ? state.crops.find(c => c.id === selectedTray.cropTypeId2) : null;
+                     if (!crop) return null;
+                     
+                     const seedCost = getTraySeedCost(selectedTray, state.crops);
+                     const estYield = getTrayYield(selectedTray, state.crops);
+                     
+                     return (
+                        <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
+                           <h4 className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-3 flex items-center">
+                              <Info className="w-3 h-3 mr-1.5" />
+                              Tray Information
+                           </h4>
+                           {crop2 ? (
+                              <div className="space-y-3">
+                                 <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                       <span className="text-[10px] font-bold text-blue-700 uppercase block mb-1">{crop.name} Seed</span>
+                                       <div className="text-sm font-bold text-blue-900">
+                                          <Scale className="w-3 h-3 inline mr-1" />
+                                          {((crop.seedingRate || 0) / 2).toFixed(0)}g
+                                       </div>
+                                    </div>
+                                    <div>
+                                       <span className="text-[10px] font-bold text-blue-700 uppercase block mb-1">{crop2.name} Seed</span>
+                                       <div className="text-sm font-bold text-blue-900">
+                                          <Scale className="w-3 h-3 inline mr-1" />
+                                          {((crop2.seedingRate || 0) / 2).toFixed(0)}g
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <div className="pt-2 border-t border-blue-200 grid grid-cols-2 gap-3">
+                                    <div>
+                                       <span className="text-[10px] font-bold text-blue-700 uppercase block mb-1">Est. Yield</span>
+                                       <div className="text-sm font-bold text-blue-900">{estYield.toFixed(0)}g</div>
+                                    </div>
+                                    <div>
+                                       <span className="text-[10px] font-bold text-blue-700 uppercase block mb-1">Seed Cost</span>
+                                       <div className="text-sm font-bold text-blue-900">
+                                          <Euro className="w-3 h-3 inline mr-1" />
+                                          {seedCost.toFixed(2)}
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           ) : (
+                              <div className="grid grid-cols-2 gap-3">
+                                 <div>
+                                    <span className="text-[10px] font-bold text-blue-700 uppercase block mb-1">Est. Yield</span>
+                                    <div className="text-sm font-bold text-blue-900">{estYield.toFixed(0)}g</div>
+                                 </div>
+                                 <div>
+                                    <span className="text-[10px] font-bold text-blue-700 uppercase block mb-1">Seed Cost</span>
+                                    <div className="text-sm font-bold text-blue-900">
+                                       <Euro className="w-3 h-3 inline mr-1" />
+                                       {seedCost.toFixed(2)}
+                                    </div>
+                                 </div>
+                              </div>
+                           )}
+                        </div>
+                     );
+                  })()}
 
                   {/* Primary Action */}
                   {selectedTray.stage === Stage.HARVEST_READY ? (

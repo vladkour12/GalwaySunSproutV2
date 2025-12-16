@@ -189,10 +189,17 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) =
                  {state.trays.length === 0 && <p className="text-slate-400 text-center py-4">No records found.</p>}
                  {state.trays.slice().reverse().map((tray: Tray) => {
                     const crop = state.crops.find(c => c.id === tray.cropTypeId);
+                    const crop2 = tray.cropTypeId2 ? state.crops.find(c => c.id === tray.cropTypeId2) : null;
+                    const displayName = crop2 ? `${crop?.name || 'Unknown'} + ${crop2.name}` : (crop?.name || 'Unknown Crop');
                     return (
                        <div key={tray.id} className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex justify-between items-center">
                           <div>
-                             <p className="font-bold text-slate-800 text-sm">{crop?.name || 'Unknown Crop'}</p>
+                             <div className="flex items-center gap-2">
+                                <p className="font-bold text-slate-800 text-sm">{displayName}</p>
+                                {crop2 && (
+                                   <span className="text-[9px] font-bold text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded">Half-Half</span>
+                                )}
+                             </div>
                              <div className="flex items-center space-x-2 text-[10px] text-slate-500 mt-1">
                                 <span className={`px-1.5 py-0.5 rounded border ${tray.stage === 'Harvested' ? 'bg-teal-50 border-teal-100 text-teal-700' : 'bg-white border-slate-200'}`}>{tray.stage}</span>
                                 <span>{new Date(tray.startDate).toLocaleDateString()}</span>
