@@ -4,7 +4,7 @@ import { saveCropManagerPreferences, loadCropManagerPreferences, STORAGE_KEYS, s
 import { AppState, CropType, Stage, Tray, Customer, Alert } from '../types';
 import { getFarmAlerts } from '../services/alertService';
 import { STAGE_FLOW } from '../constants';
-import { Plus, X, Sprout, Calendar, CheckCircle, Trash2, ArrowRight, Droplet, Sun, Moon, Archive, MoreHorizontal, Scale, Palette, AlertCircle, Euro, ChevronRight, Edit2, Info, Package, Repeat, ShoppingBag, Truck, MapPin, Clock, Anchor, User, CheckSquare, Search, Filter, ArrowUpDown, Thermometer, Save } from 'lucide-react';
+import { Plus, X, Sprout, Calendar, CheckCircle, Trash2, ArrowRight, Droplet, Sun, Moon, Archive, MoreHorizontal, Scale, Palette, AlertCircle, Euro, ChevronRight, Edit2, Info, Package, Repeat, ShoppingBag, Truck, MapPin, Clock, Anchor, User, CheckSquare, Search, Filter, ArrowUpDown, Thermometer, Save, Upload, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomSelect from './CustomSelect';
 
@@ -1737,65 +1737,178 @@ const CropManager: React.FC<CropManagerProps> = ({
                      </div>
                   ) : (
                      /* EDIT FORM MODE */
-                     <div className="space-y-4">
+                     <div className="space-y-5">
                          <h3 className="text-lg font-bold text-slate-800">{selectedCrop.id ? 'Edit Crop Details' : 'New Variety'}</h3>
                         
-                        <div>
-                           <label className="text-[10px] font-bold uppercase text-slate-400">Name</label>
-                           <input type="text" value={selectedCrop.name} onChange={e => setSelectedCrop({...selectedCrop, name: e.target.value})} placeholder="Crop Name" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-3">
+                        {/* Basic Info */}
+                        <div className="space-y-3">
+                           <h4 className="text-xs font-bold uppercase text-slate-400 flex items-center">
+                              <Sprout className="w-3 h-3 mr-1.5" />
+                              Basic Information
+                           </h4>
                            <div>
-                              <label className="text-[10px] font-bold uppercase text-slate-400">Seed Rate (g)</label>
-                              <div className="relative">
-                                 <Scale className="w-3 h-3 absolute left-3 top-3.5 text-slate-400" />
-                                 <input type="number" value={selectedCrop.seedingRate} onChange={e => setSelectedCrop({...selectedCrop, seedingRate: parseInt(e.target.value)})} className="w-full pl-8 p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
-                              </div>
+                              <label className="text-[10px] font-bold uppercase text-slate-400">Name</label>
+                              <input type="text" value={selectedCrop.name} onChange={e => setSelectedCrop({...selectedCrop, name: e.target.value})} placeholder="Crop Name" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
                            </div>
-                           <div>
-                              <label className="text-[10px] font-bold uppercase text-slate-400">Est Yield (g)</label>
-                              <input type="number" value={selectedCrop.estimatedYieldPerTray} onChange={e => setSelectedCrop({...selectedCrop, estimatedYieldPerTray: parseInt(e.target.value)})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                           
+                           <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                 <label className="text-[10px] font-bold uppercase text-slate-400">Seed Rate (g)</label>
+                                 <div className="relative">
+                                    <Scale className="w-3 h-3 absolute left-3 top-3.5 text-slate-400" />
+                                    <input type="number" value={selectedCrop.seedingRate || ''} onChange={e => setSelectedCrop({...selectedCrop, seedingRate: parseInt(e.target.value) || 0})} placeholder="0" className="w-full pl-8 p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                 </div>
+                              </div>
+                              <div>
+                                 <label className="text-[10px] font-bold uppercase text-slate-400">Est Yield (g)</label>
+                                 <input type="number" value={selectedCrop.estimatedYieldPerTray || ''} onChange={e => setSelectedCrop({...selectedCrop, estimatedYieldPerTray: parseInt(e.target.value) || 0})} placeholder="0" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                              </div>
                            </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
-                           <div>
-                              <label className="text-[10px] font-bold uppercase text-slate-400">Small Pack (g)</label>
-                              <div className="relative">
+                        {/* Growing Schedule */}
+                        <div className="pt-3 border-t border-slate-200 space-y-3">
+                           <h4 className="text-xs font-bold uppercase text-slate-400 flex items-center">
+                              <Clock className="w-3 h-3 mr-1.5" />
+                              Growing Schedule
+                           </h4>
+                           <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                 <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center">
+                                    <Droplet className="w-3 h-3 mr-1" />
+                                    Soak (hours)
+                                 </label>
+                                 <input type="number" value={selectedCrop.soakHours || 0} onChange={e => setSelectedCrop({...selectedCrop, soakHours: parseInt(e.target.value) || 0})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                              </div>
+                              <div>
+                                 <label className="text-[10px] font-bold uppercase text-slate-400">Germination (days)</label>
+                                 <input type="number" value={selectedCrop.germinationDays || 0} onChange={e => setSelectedCrop({...selectedCrop, germinationDays: parseInt(e.target.value) || 0})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                              </div>
+                              <div>
+                                 <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center">
+                                    <Moon className="w-3 h-3 mr-1" />
+                                    Blackout (days)
+                                 </label>
+                                 <input type="number" value={selectedCrop.blackoutDays || 0} onChange={e => setSelectedCrop({...selectedCrop, blackoutDays: parseInt(e.target.value) || 0})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                              </div>
+                              <div>
+                                 <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center">
+                                    <Sun className="w-3 h-3 mr-1" />
+                                    Light (days)
+                                 </label>
+                                 <input type="number" value={selectedCrop.lightDays || 0} onChange={e => setSelectedCrop({...selectedCrop, lightDays: parseInt(e.target.value) || 0})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                              </div>
+                           </div>
+                        </div>
+
+
+                        {/* Image Upload */}
+                        <div className="pt-3 border-t border-slate-200 space-y-3">
+                           <h4 className="text-xs font-bold uppercase text-slate-400 flex items-center">
+                              <ImageIcon className="w-3 h-3 mr-1.5" />
+                              Image
+                           </h4>
+                           <div className="space-y-2">
+                              <div className="grid grid-cols-2 gap-2">
+                                 <label className="block">
+                                    <input
+                                       type="file"
+                                       accept="image/*"
+                                       capture="environment"
+                                       className="hidden"
+                                       onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) {
+                                             const reader = new FileReader();
+                                             reader.onloadend = () => {
+                                                const base64String = reader.result as string;
+                                                setSelectedCrop({...selectedCrop, imageUrl: base64String});
+                                             };
+                                             reader.readAsDataURL(file);
+                                          }
+                                       }}
+                                    />
+                                    <div className="flex flex-col items-center justify-center p-3 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer hover:border-teal-400 hover:bg-teal-50/50 transition-colors">
+                                       <ImageIcon className="w-5 h-5 mb-1.5 text-slate-400" />
+                                       <span className="text-[10px] font-bold text-slate-600">Take Photo</span>
+                                    </div>
+                                 </label>
+                                 <label className="block">
+                                    <input
+                                       type="file"
+                                       accept="image/*"
+                                       className="hidden"
+                                       onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) {
+                                             const reader = new FileReader();
+                                             reader.onloadend = () => {
+                                                const base64String = reader.result as string;
+                                                setSelectedCrop({...selectedCrop, imageUrl: base64String});
+                                             };
+                                             reader.readAsDataURL(file);
+                                          }
+                                       }}
+                                    />
+                                    <div className="flex flex-col items-center justify-center p-3 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer hover:border-teal-400 hover:bg-teal-50/50 transition-colors">
+                                       <Upload className="w-5 h-5 mb-1.5 text-slate-400" />
+                                       <span className="text-[10px] font-bold text-slate-600">Choose File</span>
+                                    </div>
+                                 </label>
+                              </div>
+                              {selectedCrop.imageUrl && (
+                                 <div className="relative">
+                                    <img src={selectedCrop.imageUrl} alt="Preview" className="w-full h-32 object-cover rounded-xl" />
+                                    <button
+                                       onClick={() => setSelectedCrop({...selectedCrop, imageUrl: ''})}
+                                       className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600"
+                                    >
+                                       <X className="w-4 h-4" />
+                                    </button>
+                                 </div>
+                              )}
+                              <div>
+                                 <label className="text-[10px] font-bold uppercase text-slate-400">Or enter Image URL</label>
+                                 <input type="text" value={selectedCrop.imageUrl && !selectedCrop.imageUrl.startsWith('data:') ? selectedCrop.imageUrl : ''} onChange={e => setSelectedCrop({...selectedCrop, imageUrl: e.target.value})} placeholder="https://..." className="w-full p-2 bg-slate-50 border border-slate-100 rounded-lg text-sm font-medium text-slate-600" />
+                              </div>
+                           </div>
+                        </div>
+
+                        {/* Pricing */}
+                        <div className="pt-3 border-t border-slate-200 space-y-3">
+                           <h4 className="text-xs font-bold uppercase text-slate-400 flex items-center">
+                              <Euro className="w-3 h-3 mr-1.5" />
+                              Pricing
+                           </h4>
+                           <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                 <label className="text-[10px] font-bold uppercase text-slate-400">Small Pack (g)</label>
                                  <input type="number" value={selectedCrop.pkgWeightSmall || ''} onChange={e => setSelectedCrop({...selectedCrop, pkgWeightSmall: parseInt(e.target.value)})} placeholder="500" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
                               </div>
-                           </div>
-                           <div>
-                              <label className="text-[10px] font-bold uppercase text-slate-400">Large Pack (g)</label>
-                              <div className="relative">
+                              <div>
+                                 <label className="text-[10px] font-bold uppercase text-slate-400">Large Pack (g)</label>
                                  <input type="number" value={selectedCrop.pkgWeightLarge || ''} onChange={e => setSelectedCrop({...selectedCrop, pkgWeightLarge: parseInt(e.target.value)})} placeholder="1000" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
                               </div>
-                           </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                           <div>
-                              <label className="text-[10px] font-bold uppercase text-slate-400">Price {selectedCrop.pkgWeightSmall || 500}g (€)</label>
-                              <div className="relative">
-                                 <span className="absolute left-3 top-3.5 text-xs font-bold text-slate-400">€</span>
-                                 <input type="number" step="0.01" value={selectedCrop.price500g || ''} onChange={e => setSelectedCrop({...selectedCrop, price500g: parseFloat(e.target.value)})} className="w-full pl-7 p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                              <div>
+                                 <label className="text-[10px] font-bold uppercase text-slate-400">Price {selectedCrop.pkgWeightSmall || 500}g (€)</label>
+                                 <div className="relative">
+                                    <span className="absolute left-3 top-3.5 text-xs font-bold text-slate-400">€</span>
+                                    <input type="number" step="0.01" value={selectedCrop.price500g || ''} onChange={e => setSelectedCrop({...selectedCrop, price500g: parseFloat(e.target.value)})} className="w-full pl-7 p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                 </div>
                               </div>
-                           </div>
-                           <div>
-                              <label className="text-[10px] font-bold uppercase text-slate-400">Price {selectedCrop.pkgWeightLarge ? (selectedCrop.pkgWeightLarge >= 1000 ? (selectedCrop.pkgWeightLarge/1000) + 'kg' : selectedCrop.pkgWeightLarge + 'g') : '1kg'} (€)</label>
-                              <div className="relative">
-                                 <span className="absolute left-3 top-3.5 text-xs font-bold text-slate-400">€</span>
-                                 <input type="number" step="0.01" value={selectedCrop.price1kg || ''} onChange={e => setSelectedCrop({...selectedCrop, price1kg: parseFloat(e.target.value)})} className="w-full pl-7 p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                              <div>
+                                 <label className="text-[10px] font-bold uppercase text-slate-400">Price {selectedCrop.pkgWeightLarge ? (selectedCrop.pkgWeightLarge >= 1000 ? (selectedCrop.pkgWeightLarge/1000) + 'kg' : selectedCrop.pkgWeightLarge + 'g') : '1kg'} (€)</label>
+                                 <div className="relative">
+                                    <span className="absolute left-3 top-3.5 text-xs font-bold text-slate-400">€</span>
+                                    <input type="number" step="0.01" value={selectedCrop.price1kg || ''} onChange={e => setSelectedCrop({...selectedCrop, price1kg: parseFloat(e.target.value)})} className="w-full pl-7 p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                 </div>
                               </div>
                            </div>
                         </div>
 
-                        <div className="space-y-3">
-                           <div>
-                              <label className="text-[10px] font-bold uppercase text-slate-400">Image URL</label>
-                              <input type="text" value={selectedCrop.imageUrl || ''} onChange={e => setSelectedCrop({...selectedCrop, imageUrl: e.target.value})} placeholder="https://..." className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600 truncate" />
-                           </div>
+                        {/* Description */}
+                        <div className="pt-3 border-t border-slate-200 space-y-3">
+                           <h4 className="text-xs font-bold uppercase text-slate-400">Description</h4>
                            <div>
                               <label className="text-[10px] font-bold uppercase text-slate-400">Category / Flavor Profile</label>
                               <input type="text" value={selectedCrop.category || ''} onChange={e => setSelectedCrop({...selectedCrop, category: e.target.value})} placeholder="e.g. Spicy, Mild, Peppery, Nutty, Sweet" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600" />

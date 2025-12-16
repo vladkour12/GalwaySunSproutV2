@@ -525,6 +525,24 @@ export const INITIAL_CROPS: CropType[] = [
     color: 'bg-purple-100 text-purple-800 border-purple-200',
     summary: 'Sweet with pepper spice.',
     imageUrl: '/images/crops/Turnip.PNG'
+  },
+  {
+    id: 'cress',
+    name: 'Cress Microherb',
+    scientificName: 'Lepidium sativum',
+    difficulty: 'Easy',
+    seedingRate: 30,
+    soakHours: 0,
+    germinationDays: 2,
+    blackoutDays: 2,
+    lightDays: 4,
+    estimatedYieldPerTray: 280,
+    pricePerTray: 14.00,
+    price500g: 18.00,
+    price1kg: 32.00,
+    color: 'bg-green-100 text-green-800 border-green-200',
+    summary: 'Peppery, tangy taste. Fast growing microherb.',
+    imageUrl: '/images/crops/cress.PNG'
   }
 ];
 
