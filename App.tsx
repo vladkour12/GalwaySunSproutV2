@@ -231,14 +231,14 @@ const App: React.FC = () => {
     };
   }, [authStatus, loadAttempt]);
 
-  // --- Background sync loop ---
+  // --- Sync on data changes and tab switches ---
   useEffect(() => {
     if (authStatus !== 'admin') return;
 
     let isCancelled = false;
     let isRunning = false;
 
-    const run = async (reason: 'interval' | 'kick') => {
+    const run = async (reason: 'kick' | 'tab-change') => {
       if (isCancelled || isRunning) return;
       isRunning = true;
       try {
@@ -277,7 +277,7 @@ const App: React.FC = () => {
         setSyncStatus('idle');
         setSyncMessage(null);
       } catch (e) {
-        console.error('Background sync failed', e);
+        console.error('Sync failed', e);
         setSyncStatus('error');
         setSyncMessage('Offline mode (sync failed)');
       } finally {
@@ -285,14 +285,75 @@ const App: React.FC = () => {
       }
     };
 
-    // Initial kick (non-blocking)
-    run('kick');
-    const intervalId = window.setInterval(() => run('interval'), 15_000);
+    // Sync when data changes (via syncKick)
+    if (syncKick > 0) {
+      run('kick');
+    }
+  }, [authStatus, syncKick]);
+
+  // --- Sync when changing tabs/views ---
+  useEffect(() => {
+    if (authStatus !== 'admin') return;
+
+    let isCancelled = false;
+    let isRunning = false;
+
+    const run = async () => {
+      if (isCancelled || isRunning) return;
+      isRunning = true;
+      try {
+        // Check if there are pending sync items first
+        const { listSyncQueue } = await import('./services/storage');
+        const pendingItems = await listSyncQueue();
+        
+        // Only sync if there are pending changes
+        if (pendingItems.length > 0) {
+          setSyncStatus('syncing');
+          setSyncMessage('Syncing…');
+
+          const result = await flushSyncQueueOnce();
+          if (!result.didSync && result.remaining > 0) {
+            setSyncStatus('error');
+            const isNetworkError = result.error?.includes('fetch') || result.error?.includes('network') || result.error?.includes('Failed to fetch');
+            if (isNetworkError) {
+              setSyncMessage('Offline mode (network error)');
+            } else {
+              setSyncMessage('Sync error');
+            }
+            return;
+          }
+          
+          // Refresh from remote when switching tabs if we processed changes
+          if (result.processed > 0) {
+            setSyncMessage('Refreshing…');
+            const fresh = await refreshLocalFromRemote();
+            if (!isCancelled) setAppState(fresh);
+          }
+        } else {
+          // No pending changes, just refresh from remote to get latest data
+          setSyncMessage('Refreshing…');
+          const fresh = await refreshLocalFromRemote();
+          if (!isCancelled) setAppState(fresh);
+        }
+
+        setSyncStatus('idle');
+        setSyncMessage(null);
+      } catch (e) {
+        console.error('Tab sync failed', e);
+        setSyncStatus('error');
+        setSyncMessage('Offline mode (sync failed)');
+      } finally {
+        isRunning = false;
+      }
+    };
+
+    // Sync when view changes (with a small delay to avoid rapid-fire syncs)
+    const timeoutId = setTimeout(() => run(), 100);
     return () => {
       isCancelled = true;
-      window.clearInterval(intervalId);
+      clearTimeout(timeoutId);
     };
-  }, [authStatus, syncKick]);
+  }, [authStatus, currentView]);
 
   // --- Handlers (Optimistic UI + API Calls) ---
 

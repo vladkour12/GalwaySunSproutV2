@@ -188,6 +188,10 @@ const CropManager: React.FC<CropManagerProps> = ({
   const [isEditingCrop, setIsEditingCrop] = useState(false); // Toggle between View Details and Edit Form
   const [isAddingOrder, setIsAddingOrder] = useState(false);
   
+  // Add to shelf option when creating new crop
+  const [addToShelf, setAddToShelf] = useState(false);
+  const [selectedShelfLocation, setSelectedShelfLocation] = useState('');
+  
   // Event Planner State
   const [plannerCropId, setPlannerCropId] = useState('');
   const [plannerDate, setPlannerDate] = useState(new Date().toISOString().split('T')[0]);
@@ -614,7 +618,32 @@ const CropManager: React.FC<CropManagerProps> = ({
         price1kg: 0
      } as CropType);
      setIsEditingCrop(true); // Default to edit mode for new
+     setAddToShelf(false); // Reset add to shelf option
+     setSelectedShelfLocation(''); // Reset selected location
   };
+  
+  // Get unique shelf locations from active trays
+  const availableLocations = useMemo(() => {
+    const locations = new Set<string>();
+    activeTrays.forEach(tray => {
+      if (tray.location) {
+        locations.add(tray.location);
+      }
+    });
+    // Add common locations if none exist
+    if (locations.size === 0) {
+      locations.add('Shelf 1');
+      locations.add('Shelf 2');
+      locations.add('Shelf 3');
+      locations.add('Shed');
+    }
+    return Array.from(locations).sort((a, b) => {
+      const numA = parseInt(a.replace(/\D/g, '')) || 999;
+      const numB = parseInt(b.replace(/\D/g, '')) || 999;
+      if (numA !== numB) return numA - numB;
+      return a.localeCompare(b);
+    });
+  }, [activeTrays]);
 
   // --- Render Sections ---
 
@@ -1590,7 +1619,11 @@ const CropManager: React.FC<CropManagerProps> = ({
                           </button>
                        )}
                      </div>
-                     <button onClick={() => setSelectedCrop(null)} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5" /></button>
+                     <button onClick={() => { 
+                        setSelectedCrop(null); 
+                        setAddToShelf(false); 
+                        setSelectedShelfLocation(''); 
+                     }} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5" /></button>
                   </div>
 
                   {/* VIEW MODE */}
@@ -1818,8 +1851,64 @@ const CropManager: React.FC<CropManagerProps> = ({
                            </div>
                         </div>
 
+                        {/* Add to Shelf Option (only for new crops) */}
+                        {!selectedCrop.id && (
+                           <div className="pt-3 border-t border-slate-200 space-y-3">
+                              <div className="flex items-center space-x-3">
+                                 <input 
+                                    type="checkbox" 
+                                    id="addToShelf"
+                                    checked={addToShelf}
+                                    onChange={(e) => {
+                                       setAddToShelf(e.target.checked);
+                                       if (!e.target.checked) setSelectedShelfLocation('');
+                                    }}
+                                    className="w-5 h-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                                 />
+                                 <label htmlFor="addToShelf" className="flex items-center text-sm font-bold text-slate-700 cursor-pointer">
+                                    <MapPin className="w-4 h-4 mr-2 text-teal-600" />
+                                    Add to existing shelf
+                                 </label>
+                              </div>
+                              
+                              {addToShelf && (
+                                 <div>
+                                    <label className="text-[10px] font-bold uppercase text-slate-400 block mb-2">Select Shelf Location</label>
+                                    <CustomSelect
+                                       value={selectedShelfLocation}
+                                       onChange={(val) => setSelectedShelfLocation(val)}
+                                       options={[
+                                          { value: '', label: 'Choose location...' },
+                                          ...availableLocations.map(loc => ({ value: loc, label: loc }))
+                                       ]}
+                                    />
+                                 </div>
+                              )}
+                           </div>
+                        )}
+
                         <div className="pt-2 space-y-3">
-                           <button onClick={() => { if(selectedCrop.name) { selectedCrop.id ? onUpdateCrop(selectedCrop) : onAddCrop({...selectedCrop, id: Math.random().toString(36).substr(2,9)}); setSelectedCrop(null); }}} className="w-full py-4 bg-teal-600 text-white font-bold rounded-xl shadow-md">Save Variety</button>
+                           <button onClick={() => { 
+                              if(selectedCrop.name) { 
+                                 const newCropId = selectedCrop.id || Math.random().toString(36).substr(2,9);
+                                 const cropToSave = {...selectedCrop, id: newCropId};
+                                 
+                                 if(selectedCrop.id) {
+                                    onUpdateCrop(cropToSave);
+                                 } else {
+                                    onAddCrop(cropToSave);
+                                    // If add to shelf is checked and location is selected, add a tray
+                                    if(addToShelf && selectedShelfLocation) {
+                                       onAddTray(newCropId, 1, selectedShelfLocation, cropToSave.estimatedYieldPerTray || 0);
+                                    }
+                                 }
+                                 setSelectedCrop(null);
+                                 setAddToShelf(false);
+                                 setSelectedShelfLocation('');
+                              }
+                           }} className="w-full py-4 bg-teal-600 text-white font-bold rounded-xl shadow-md">
+                              {selectedCrop.id ? 'Save Changes' : 'Save Variety'}
+                           </button>
                            {selectedCrop.id && <button onClick={() => { if(confirm('Delete?')) { onDeleteCrop(selectedCrop.id); setSelectedCrop(null); }}} className="w-full py-3 text-red-500 font-bold bg-red-50 rounded-xl">Delete Variety</button>}
                         </div>
                      </div>
