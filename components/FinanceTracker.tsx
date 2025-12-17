@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { AppState, Customer, Transaction } from '../types';
-import { ArrowDownLeft, ArrowUpRight, Plus, LayoutGrid, Users, User, Mail, Trash2, Edit2, Calendar, Store, ShoppingBag, Utensils, Zap, Package, Sprout, Layers, Megaphone, Download, X, DollarSign, Receipt, Upload, Image as ImageIcon, Building2 } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Plus, LayoutGrid, Users, User, Mail, Trash2, Edit2, Calendar, Store, ShoppingBag, Utensils, Zap, Package, Sprout, Layers, Megaphone, Download, X, DollarSign, Receipt, Upload, Image as ImageIcon, Building2, Search, Filter, TrendingUp, BarChart3 } from 'lucide-react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomSelect from './CustomSelect';
@@ -105,6 +105,10 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
   const [expensePayee, setExpensePayee] = useState('');
   const [expenseReceipt, setExpenseReceipt] = useState<string>('');
   const [editingExpense, setEditingExpense] = useState<Transaction | null>(null);
+  
+  // Business Expenses Filtering & Search
+  const [expenseSearchQuery, setExpenseSearchQuery] = useState('');
+  const [expenseCategoryFilter, setExpenseCategoryFilter] = useState<string>('all');
 
   // Save preferences when they change
   useEffect(() => {
@@ -525,6 +529,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
           <AnimatePresence>
             {showExpenseForm && (
               <motion.form 
+                data-expense-form
                 initial={{ height: 0, opacity: 0 }} 
                 animate={{ height: 'auto', opacity: 1 }} 
                 exit={{ height: 0, opacity: 0 }} 
@@ -746,53 +751,196 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
             )}
           </AnimatePresence>
 
-          {/* Total Business Expenses */}
+          {/* Summary Block */}
           {(() => {
-            const businessExpenses = state.transactions.filter(t => t.isBusinessExpense === true || t.isBusinessExpense === 'true');
-            const totalSpent = businessExpenses.reduce((sum, t) => sum + t.amount, 0);
+            const allBusinessExpenses = state.transactions.filter(t => t.isBusinessExpense === true || t.isBusinessExpense === 'true');
+            const totalSpent = allBusinessExpenses.reduce((sum, t) => sum + t.amount, 0);
+            
+            // Filter by time range
+            const filteredByTime = allBusinessExpenses.filter(t => {
+              if (timeRange === 'all') return true;
+              const d = new Date(t.date);
+              if (isNaN(d.getTime())) return false;
+              const now = new Date();
+              const currentMonth = now.getMonth();
+              const currentYear = now.getFullYear();
+              if (timeRange === 'month') return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+              if (timeRange === 'last_month') {
+                const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+                const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+                return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
+              }
+              if (timeRange === 'year') return d.getFullYear() === currentYear;
+              return true;
+            });
+            
+            const periodTotal = filteredByTime.reduce((sum, t) => sum + t.amount, 0);
+            
+            // Category breakdown
+            const catMap = new Map<string, number>();
+            filteredByTime.forEach(t => {
+              const cat = t.category || 'Uncategorized';
+              catMap.set(cat, (catMap.get(cat) || 0) + t.amount);
+            });
+            const categoryBreakdown = Array.from(catMap.entries())
+              .map(([name, value]) => ({ name, value, percentage: periodTotal > 0 ? (value / periodTotal) * 100 : 0 }))
+              .sort((a, b) => b.value - a.value);
+            
+            // Monthly trend (last 6 months)
+            const monthlyMap = new Map<string, number>();
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+              const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+              const key = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+              monthlyMap.set(key, 0);
+            }
+            
+            allBusinessExpenses.forEach(t => {
+              const d = new Date(t.date);
+              if (isNaN(d.getTime())) return;
+              const key = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+              if (monthlyMap.has(key)) {
+                monthlyMap.set(key, (monthlyMap.get(key) || 0) + t.amount);
+              }
+            });
+            
+            const monthlyTrend = Array.from(monthlyMap.entries()).map(([month, amount]) => ({ month, amount }));
             
             return (
-              <div className="bg-gradient-to-br from-purple-900 to-purple-800 text-white p-6 rounded-3xl shadow-xl shadow-purple-200">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="text-purple-200 text-xs font-bold uppercase tracking-wider mb-1">Total Business Investments</p>
-                    <h3 className="text-3xl font-bold text-white tracking-tight">€{totalSpent.toFixed(2)}</h3>
+              <div className="space-y-4">
+                {/* Main Summary Card */}
+                <div className="bg-gradient-to-br from-purple-900 to-purple-800 text-white p-6 rounded-3xl shadow-xl shadow-purple-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-purple-200 text-xs font-bold uppercase tracking-wider mb-1">Total Business Investments</p>
+                      <h3 className="text-3xl font-bold text-white tracking-tight">€{totalSpent.toFixed(2)}</h3>
+                    </div>
+                    <div className="p-3 bg-white/10 backdrop-blur-md rounded-xl text-purple-200">
+                      <Building2 className="w-6 h-6" />
+                    </div>
                   </div>
-                  <div className="p-3 bg-white/10 backdrop-blur-md rounded-xl text-purple-200">
-                    <Building2 className="w-6 h-6" />
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div className="bg-white/10 backdrop-blur-md rounded-xl p-3">
+                      <p className="text-purple-300 text-[10px] font-bold uppercase mb-1">This Period</p>
+                      <p className="text-xl font-bold text-white">€{periodTotal.toFixed(2)}</p>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-md rounded-xl p-3">
+                      <p className="text-purple-300 text-[10px] font-bold uppercase mb-1">Total Items</p>
+                      <p className="text-xl font-bold text-white">{allBusinessExpenses.length}</p>
+                    </div>
                   </div>
+                  <p className="text-purple-300 text-[10px] italic mt-3">Infrastructure, upgrades, and setup costs (excluded from production finances)</p>
                 </div>
-                <p className="text-purple-200 text-xs mb-2">{businessExpenses.length} investment{businessExpenses.length !== 1 ? 's' : ''} recorded</p>
-                <p className="text-purple-300 text-[10px] italic">Infrastructure, upgrades, and setup costs (excluded from production finances)</p>
+                
+                {/* Category Breakdown */}
+                {categoryBreakdown.length > 0 && (
+                  <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-bold text-slate-800 flex items-center">
+                        <BarChart3 className="w-4 h-4 mr-2 text-purple-600" />
+                        Category Breakdown
+                      </h4>
+                      <span className="text-xs text-slate-500">{timeRange === 'all' ? 'All Time' : timeRange === 'month' ? 'This Month' : timeRange === 'year' ? 'This Year' : 'Last Month'}</span>
+                    </div>
+                    <div className="space-y-3">
+                      {categoryBreakdown.slice(0, 5).map((cat, idx) => (
+                        <div key={idx} className="space-y-1">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="font-medium text-slate-700">{cat.name}</span>
+                            <span className="font-bold text-purple-600">€{cat.value.toFixed(2)}</span>
+                          </div>
+                          <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                            <div 
+                              className="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all"
+                              style={{ width: `${Math.min(cat.percentage, 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Monthly Trend */}
+                {monthlyTrend.length > 0 && (
+                  <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+                    <h4 className="font-bold text-slate-800 flex items-center mb-4">
+                      <TrendingUp className="w-4 h-4 mr-2 text-purple-600" />
+                      Last 6 Months
+                    </h4>
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                      {monthlyTrend.map((month, idx) => (
+                        <div key={idx} className="text-center">
+                          <p className="text-[10px] text-slate-500 mb-1">{month.month}</p>
+                          <p className="text-sm font-bold text-purple-600">€{month.amount.toFixed(0)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })()}
 
           {/* Business Expenses List */}
           <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-            <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <h3 className="font-bold text-slate-800 flex items-center">
-                <Receipt className="w-4 h-4 mr-2 text-purple-600" />
-                Business Investments
-              </h3>
-              <div className="w-40">
-                <CustomSelect 
-                  value={timeRange}
-                  onChange={(val) => setTimeRange(val as any)}
-                  options={[
-                    { value: "month", label: "This Month" },
-                    { value: "last_month", label: "Last Month" },
-                    { value: "year", label: "This Year" },
-                    { value: "all", label: "All Time" }
-                  ]}
-                  className="text-xs"
-                />
+            <div className="p-4 border-b border-slate-100 bg-slate-50/50 space-y-3">
+              <div className="flex justify-between items-center">
+                <h3 className="font-bold text-slate-800 flex items-center">
+                  <Receipt className="w-4 h-4 mr-2 text-purple-600" />
+                  Business Investments
+                </h3>
+                <div className="w-40">
+                  <CustomSelect 
+                    value={timeRange}
+                    onChange={(val) => setTimeRange(val as any)}
+                    options={[
+                      { value: "month", label: "This Month" },
+                      { value: "last_month", label: "Last Month" },
+                      { value: "year", label: "This Year" },
+                      { value: "all", label: "All Time" }
+                    ]}
+                    className="text-xs"
+                  />
+                </div>
+              </div>
+              
+              {/* Search and Filter */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    value={expenseSearchQuery}
+                    onChange={(e) => setExpenseSearchQuery(e.target.value)}
+                    placeholder="Search investments..."
+                    className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-100 focus:border-purple-300 outline-none"
+                  />
+                </div>
+                <div>
+                  <CustomSelect
+                    value={expenseCategoryFilter}
+                    onChange={(val) => setExpenseCategoryFilter(val)}
+                    options={[
+                      { value: "all", label: "All Categories" },
+                      { value: "Shed Upgrade", label: "Shed Upgrade" },
+                      { value: "Land Rent", label: "Land Rent" },
+                      { value: "Infrastructure", label: "Infrastructure" },
+                      { value: "Testing", label: "Testing" },
+                      { value: "Equipment", label: "Equipment" },
+                      { value: "Lights", label: "Lights" },
+                      { value: "Tools", label: "Tools" },
+                      { value: "Other", label: "Other" }
+                    ]}
+                    className="text-xs"
+                  />
+                </div>
               </div>
             </div>
             
             <div className="divide-y divide-slate-50">
               {(() => {
-                const businessExpenses = state.transactions
+                let businessExpenses = state.transactions
                   .filter(t => t.isBusinessExpense === true || t.isBusinessExpense === 'true')
                   .filter(t => {
                     if (timeRange === 'all') return true;
@@ -809,15 +957,40 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                     }
                     if (timeRange === 'year') return d.getFullYear() === currentYear;
                     return true;
-                  })
-                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                  });
+                
+                // Apply category filter
+                if (expenseCategoryFilter !== 'all') {
+                  businessExpenses = businessExpenses.filter(t => t.category === expenseCategoryFilter);
+                }
+                
+                // Apply search filter
+                if (expenseSearchQuery.trim()) {
+                  const query = expenseSearchQuery.toLowerCase();
+                  businessExpenses = businessExpenses.filter(t => 
+                    (t.description || '').toLowerCase().includes(query) ||
+                    (t.category || '').toLowerCase().includes(query) ||
+                    (t.payee || '').toLowerCase().includes(query) ||
+                    t.amount.toString().includes(query)
+                  );
+                }
+                
+                businessExpenses = businessExpenses.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
                 
                 if (businessExpenses.length === 0) {
                   return (
                     <div className="p-8 text-center text-slate-400">
                       <Building2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                      <p className="text-sm">No business investments recorded yet.</p>
-                      <p className="text-xs text-slate-400 mt-1">Track infrastructure, upgrades, and setup costs here</p>
+                      <p className="text-sm">
+                        {expenseSearchQuery || expenseCategoryFilter !== 'all' 
+                          ? 'No investments match your filters.' 
+                          : 'No business investments recorded yet.'}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-1">
+                        {expenseSearchQuery || expenseCategoryFilter !== 'all' 
+                          ? 'Try adjusting your search or filter.' 
+                          : 'Track infrastructure, upgrades, and setup costs here'}
+                      </p>
                     </div>
                   );
                 }
@@ -879,9 +1052,10 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
                             <span className="text-base sm:text-lg font-bold text-purple-600 whitespace-nowrap">€{expense.amount.toFixed(2)}</span>
-                            <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className={`flex space-x-1 ${isTouchUI ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
                               <button 
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setEditingExpense(expense);
                                   setExpenseAmount(expense.amount.toString());
                                   setExpenseCategory(expense.category);
@@ -890,14 +1064,26 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                                   setExpenseReceipt(expense.receiptImage || '');
                                   setExpenseDate(new Date(expense.date).toISOString().split('T')[0]);
                                   setShowExpenseForm(true);
+                                  // Scroll to form
+                                  setTimeout(() => {
+                                    const form = document.querySelector('[data-expense-form]');
+                                    form?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                  }, 100);
                                 }}
-                                className="p-2 text-slate-400 hover:text-blue-500 bg-slate-50 rounded-lg active:bg-blue-50 flex-shrink-0"
+                                className="p-2 text-slate-400 hover:text-blue-500 bg-slate-50 rounded-lg active:bg-blue-50 flex-shrink-0 transition-colors"
+                                title="Edit investment"
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
                               <button 
-                                onClick={() => onDeleteTransaction(expense.id)} 
-                                className="p-2 text-slate-400 hover:text-red-500 bg-slate-50 rounded-lg active:bg-red-50 flex-shrink-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (window.confirm('Are you sure you want to delete this investment?')) {
+                                    onDeleteTransaction(expense.id);
+                                  }
+                                }}
+                                className="p-2 text-slate-400 hover:text-red-500 bg-slate-50 rounded-lg active:bg-red-50 flex-shrink-0 transition-colors"
+                                title="Delete investment"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
