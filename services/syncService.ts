@@ -63,37 +63,59 @@ export type SyncResult =
   | { didSync: true; processed: number; remaining: number }
   | { didSync: false; processed: number; remaining: number; error: string };
 
-// Check if API routes are available (not in Vite dev mode)
-const isApiAvailable = () => {
-  if (typeof window === 'undefined') return true;
-  // In local dev, API routes are only available with Vercel CLI
-  // We can't reliably detect this, so we'll try and catch errors
-  return true;
+// Cache API availability check to avoid repeated 404s
+let apiRoutesAvailableCache: boolean | null = null;
+let apiRoutesCheckPromise: Promise<boolean> | null = null;
+
+const checkApiRoutesAvailable = async (): Promise<boolean> => {
+  // Return cached result if available
+  if (apiRoutesAvailableCache !== null) {
+    return apiRoutesAvailableCache;
+  }
+  
+  // If check is in progress, wait for it
+  if (apiRoutesCheckPromise) {
+    return apiRoutesCheckPromise;
+  }
+  
+  // Start new check
+  apiRoutesCheckPromise = (async () => {
+    try {
+      // Quick test to see if API routes are available (use HEAD to minimize data transfer)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1000);
+      const testResponse = await fetch('/api/version', { 
+        method: 'HEAD', 
+        signal: controller.signal 
+      });
+      clearTimeout(timeoutId);
+      const available = testResponse.ok || testResponse.status !== 404;
+      apiRoutesAvailableCache = available;
+      return available;
+    } catch {
+      // If test fails, assume API routes are not available
+      apiRoutesAvailableCache = false;
+      return false;
+    } finally {
+      apiRoutesCheckPromise = null;
+    }
+  })();
+  
+  return apiRoutesCheckPromise;
 };
 
 export const flushSyncQueueOnce = async (): Promise<SyncResult> => {
   const items = await listSyncQueue();
   if (items.length === 0) return { didSync: true, processed: 0, remaining: 0 };
 
-  // Check if we're in local dev mode - if so, skip API calls to avoid 404 spam
+  // Check if we're in local dev mode - if so, check API availability first
   const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
   
-  // In local dev, check if API routes are likely unavailable by testing one endpoint
-  // We'll do this check once and cache the result
-  let apiRoutesAvailable: boolean | null = null;
-  if (isLocalDev && items.length > 0) {
-    try {
-      // Quick test to see if API routes are available
-      const testResponse = await fetch('/api/version', { method: 'GET', signal: AbortSignal.timeout(1000) });
-      apiRoutesAvailable = testResponse.ok || testResponse.status !== 404;
-    } catch {
-      // If test fails, assume API routes are not available
-      apiRoutesAvailable = false;
-    }
-    
-    // If API routes are not available, skip all sync attempts
-    if (apiRoutesAvailable === false) {
-      // Remove all items from queue silently
+  // In local dev, check if API routes are available before attempting sync
+  if (isLocalDev) {
+    const apiAvailable = await checkApiRoutesAvailable();
+    if (!apiAvailable) {
+      // API routes not available - remove all items from queue silently
       for (const item of items) {
         await removeSyncQueueItem(item.id);
       }
@@ -123,8 +145,10 @@ export const flushSyncQueueOnce = async (): Promise<SyncResult> => {
         continue;
       }
       
-      // In local dev, if we get a 404, assume API routes aren't available and skip remaining items
+      // In local dev, if we get a 404, mark API as unavailable and skip remaining items
       if (isLocalDev && e?.status === 404) {
+        // Cache that API routes are not available
+        apiRoutesAvailableCache = false;
         // Remove this item and all remaining items silently
         await removeSyncQueueItem(item.id);
         skipped += 1;
