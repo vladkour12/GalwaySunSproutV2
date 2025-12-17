@@ -1264,8 +1264,8 @@ const CropManager: React.FC<CropManagerProps> = ({
 
          {/* --- CALENDAR TAB --- */}
          {activeTab === 'calendar' && (
-            <div className="space-y-6">
-               {/* Summary Cards */}
+            <div className="space-y-3">
+               {/* Summary Cards - Compact */}
                {(() => {
                   const todayTasks = calendarDays[0]?.tasks || [];
                   const urgentTasks = todayTasks.filter(t => t.type === 'alert').length;
@@ -1273,41 +1273,41 @@ const CropManager: React.FC<CropManagerProps> = ({
                   const totalTasks = calendarDays.reduce((sum, day) => sum + day.tasks.length, 0);
                   
                   return (
-                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div className="bg-gradient-to-br from-teal-500 to-teal-600 text-white p-4 rounded-2xl shadow-lg shadow-teal-200">
-                           <div className="flex items-center justify-between mb-2">
-                              <Calendar className="w-5 h-5 opacity-80" />
-                              <span className="text-2xl font-bold">{totalTasks}</span>
+                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <div className="bg-gradient-to-br from-teal-500 to-teal-600 text-white p-2.5 rounded-xl shadow-md">
+                           <div className="flex items-center justify-between mb-1">
+                              <Calendar className="w-3.5 h-3.5 opacity-80" />
+                              <span className="text-lg font-bold">{totalTasks}</span>
                            </div>
-                           <p className="text-xs font-bold opacity-90 uppercase tracking-wider">Total Tasks</p>
+                           <p className="text-[9px] font-bold opacity-90 uppercase tracking-wider">Tasks</p>
                         </div>
-                        <div className="bg-gradient-to-br from-red-500 to-red-600 text-white p-4 rounded-2xl shadow-lg shadow-red-200">
-                           <div className="flex items-center justify-between mb-2">
-                              <AlertCircle className="w-5 h-5 opacity-80" />
-                              <span className="text-2xl font-bold">{urgentTasks}</span>
+                        <div className="bg-gradient-to-br from-red-500 to-red-600 text-white p-2.5 rounded-xl shadow-md">
+                           <div className="flex items-center justify-between mb-1">
+                              <AlertCircle className="w-3.5 h-3.5 opacity-80" />
+                              <span className="text-lg font-bold">{urgentTasks}</span>
                            </div>
-                           <p className="text-xs font-bold opacity-90 uppercase tracking-wider">Urgent</p>
+                           <p className="text-[9px] font-bold opacity-90 uppercase tracking-wider">Urgent</p>
                         </div>
-                        <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-4 rounded-2xl shadow-lg shadow-emerald-200">
-                           <div className="flex items-center justify-between mb-2">
-                              <Scale className="w-5 h-5 opacity-80" />
-                              <span className="text-2xl font-bold">{totalHarvest >= 1000 ? `${(totalHarvest/1000).toFixed(1)}kg` : `${totalHarvest}g`}</span>
+                        <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-2.5 rounded-xl shadow-md">
+                           <div className="flex items-center justify-between mb-1">
+                              <Scale className="w-3.5 h-3.5 opacity-80" />
+                              <span className="text-lg font-bold">{totalHarvest >= 1000 ? `${(totalHarvest/1000).toFixed(1)}kg` : `${totalHarvest}g`}</span>
                            </div>
-                           <p className="text-xs font-bold opacity-90 uppercase tracking-wider">Harvest</p>
+                           <p className="text-[9px] font-bold opacity-90 uppercase tracking-wider">Harvest</p>
                         </div>
-                        <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-2xl shadow-lg shadow-blue-200">
-                           <div className="flex items-center justify-between mb-2">
-                              <CheckCircle className="w-5 h-5 opacity-80" />
-                              <span className="text-2xl font-bold">{todayTasks.length}</span>
+                        <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-2.5 rounded-xl shadow-md">
+                           <div className="flex items-center justify-between mb-1">
+                              <CheckCircle className="w-3.5 h-3.5 opacity-80" />
+                              <span className="text-lg font-bold">{todayTasks.length}</span>
                            </div>
-                           <p className="text-xs font-bold opacity-90 uppercase tracking-wider">Today</p>
+                           <p className="text-[9px] font-bold opacity-90 uppercase tracking-wider">Today</p>
                         </div>
                      </div>
                   );
                })()}
                
-               {/* Daily Schedule - Enhanced Timeline View */}
-               <div className="relative pl-6 space-y-6 before:absolute before:left-6 before:top-4 before:bottom-0 before:w-1 before:bg-gradient-to-b before:from-teal-200 before:via-slate-200 before:to-slate-200 before:rounded-full">
+               {/* Daily Schedule - Compact Timeline View */}
+               <div className="relative pl-4 space-y-3 before:absolute before:left-4 before:top-2 before:bottom-0 before:w-0.5 before:bg-gradient-to-b before:from-teal-200 before:via-slate-200 before:to-slate-200 before:rounded-full">
                   {calendarDays.map((day, idx) => {
                      const dailyHarvest = day.tasks.reduce((sum, t) => sum + (t.estYield || 0), 0);
                      const isToday = idx === 0;
@@ -1318,13 +1318,13 @@ const CropManager: React.FC<CropManagerProps> = ({
                      return (
                      <motion.div 
                         key={idx} 
-                        initial={{ opacity: 0, x: -20 }}
+                        initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className="relative pl-10"
+                        transition={{ delay: idx * 0.03 }}
+                        className="relative pl-7"
                      >
-                        {/* Enhanced Timeline Node */}
-                        <div className={`absolute left-0 top-1 w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-lg transition-all ${
+                        {/* Compact Timeline Node */}
+                        <div className={`absolute left-0 top-0.5 w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-md transition-all ${
                            isToday 
                               ? 'bg-gradient-to-br from-teal-500 to-teal-600 scale-110 shadow-teal-300' 
                               : 'bg-gradient-to-br from-slate-200 to-slate-300'
@@ -1333,47 +1333,40 @@ const CropManager: React.FC<CropManagerProps> = ({
                               <motion.div 
                                  animate={{ scale: [1, 1.2, 1] }}
                                  transition={{ duration: 2, repeat: Infinity }}
-                                 className="w-3 h-3 bg-white rounded-full"
+                                 className="w-1.5 h-1.5 bg-white rounded-full"
                               />
                            ) : (
-                              <div className="w-2 h-2 bg-white rounded-full" />
+                              <div className="w-1 h-1 bg-white rounded-full" />
                            )}
                         </div>
 
-                        {/* Enhanced Date Header */}
-                        <div className="mb-4">
-                           <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-baseline gap-2">
-                                 <div className="flex flex-col">
-                                    <span className={`text-3xl font-black leading-none ${isToday ? 'text-slate-900' : 'text-slate-400'}`}>
+                        {/* Compact Date Header */}
+                        <div className="mb-2">
+                           <div className="flex items-center justify-between mb-1.5">
+                              <div className="flex items-center gap-2">
+                                 <div className="flex items-baseline gap-1.5">
+                                    <span className={`text-xl font-black leading-none ${isToday ? 'text-slate-900' : 'text-slate-500'}`}>
                                        {day.date.getDate()}
                                     </span>
-                                    <span className={`text-[10px] font-bold uppercase tracking-widest mt-0.5 ${isToday ? 'text-teal-600' : 'text-slate-400'}`}>
+                                    <span className={`text-[9px] font-bold uppercase tracking-wide ${isToday ? 'text-teal-600' : 'text-slate-400'}`}>
                                        {monthName}
                                     </span>
                                  </div>
-                                 <div className="flex flex-col justify-center">
-                                    <span className={`text-base font-bold ${isToday ? 'text-slate-800' : 'text-slate-500'}`}>
-                                       {dayName}
-                                    </span>
-                                    {idx > 1 && (
-                                       <span className="text-[10px] text-slate-400 font-medium">
-                                          {day.date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
-                                       </span>
-                                    )}
-                                 </div>
+                                 <span className={`text-xs font-bold ${isToday ? 'text-slate-800' : 'text-slate-500'}`}>
+                                    {dayName}
+                                 </span>
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1.5">
                                  {urgentCount > 0 && (
-                                    <div className="flex items-center gap-1 bg-red-50 text-red-600 px-2.5 py-1 rounded-full border border-red-200">
-                                       <AlertCircle className="w-3.5 h-3.5" />
-                                       <span className="text-xs font-bold">{urgentCount}</span>
+                                    <div className="flex items-center gap-0.5 bg-red-50 text-red-600 px-1.5 py-0.5 rounded-md border border-red-200">
+                                       <AlertCircle className="w-2.5 h-2.5" />
+                                       <span className="text-[9px] font-bold">{urgentCount}</span>
                                     </div>
                                  )}
                                  {dailyHarvest > 0 && (
-                                    <div className="flex items-center gap-1.5 bg-teal-50 text-teal-700 px-3 py-1.5 rounded-full border border-teal-200 shadow-sm">
-                                       <Scale className="w-4 h-4" />
-                                       <span className="text-xs font-bold">
+                                    <div className="flex items-center gap-1 bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded-md border border-teal-200">
+                                       <Scale className="w-2.5 h-2.5" />
+                                       <span className="text-[9px] font-bold">
                                           {dailyHarvest >= 1000 ? `${(dailyHarvest/1000).toFixed(1)}kg` : `${dailyHarvest}g`}
                                        </span>
                                     </div>
@@ -1381,23 +1374,22 @@ const CropManager: React.FC<CropManagerProps> = ({
                               </div>
                            </div>
                            {day.tasks.length > 0 && (
-                              <div className="h-1 bg-gradient-to-r from-teal-200 via-blue-200 to-purple-200 rounded-full" />
+                              <div className="h-0.5 bg-gradient-to-r from-teal-200 via-blue-200 to-purple-200 rounded-full" />
                            )}
                         </div>
                         
-                        {/* Enhanced Tasks List */}
+                        {/* Compact Tasks List */}
                         {day.tasks.length === 0 ? (
                            <motion.div 
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
-                              className="p-6 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border-2 border-dashed border-slate-200 text-center"
+                              className="p-3 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border border-dashed border-slate-200 text-center"
                            >
-                              <Calendar className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                              <p className="text-sm text-slate-400 font-medium">No tasks scheduled</p>
-                              <p className="text-xs text-slate-300 mt-1">Enjoy your day off!</p>
+                              <Calendar className="w-5 h-5 text-slate-300 mx-auto mb-1" />
+                              <p className="text-xs text-slate-400 font-medium">No tasks</p>
                            </motion.div>
                         ) : (
-                           <div className="space-y-3">
+                           <div className="space-y-2">
                               {day.tasks.map((task, tIdx) => {
                                  const Icon = task.icon;
                                  const isUrgent = task.type === 'alert';
@@ -1406,9 +1398,9 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  return (
                                     <motion.div
                                        key={tIdx}
-                                       initial={{ opacity: 0, y: 10 }}
+                                       initial={{ opacity: 0, y: 5 }}
                                        animate={{ opacity: 1, y: 0 }}
-                                       transition={{ delay: tIdx * 0.03 }}
+                                       transition={{ delay: tIdx * 0.02 }}
                                        onClick={() => { 
                                           if (task.trayId) { 
                                              const t = state.trays.find(x => x.id === task.trayId); 
@@ -1429,20 +1421,20 @@ const CropManager: React.FC<CropManagerProps> = ({
                                              }
                                           } 
                                        }}
-                                       className={`group relative flex items-start gap-4 p-4 rounded-2xl border-2 transition-all ${
-                                          task.trayId ? 'cursor-pointer active:scale-[0.98] hover:shadow-xl hover:-translate-y-0.5' : ''
+                                       className={`group relative flex items-center gap-2.5 p-2.5 rounded-xl border transition-all ${
+                                          task.trayId ? 'cursor-pointer active:scale-[0.98] hover:shadow-md' : ''
                                        } ${
                                           isUrgent 
-                                             ? 'bg-gradient-to-br from-red-50 to-red-100 border-red-200 shadow-red-100' 
+                                             ? 'bg-red-50 border-red-200' 
                                              : isHarvest
-                                             ? 'bg-gradient-to-br from-teal-50 to-emerald-50 border-teal-200 shadow-teal-100'
+                                             ? 'bg-teal-50 border-teal-200'
                                              : task.type === 'plant'
-                                             ? 'bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200 shadow-emerald-100'
-                                             : 'bg-white border-slate-200 shadow-sm hover:shadow-md'
+                                             ? 'bg-emerald-50 border-emerald-200'
+                                             : 'bg-white border-slate-200 hover:border-slate-300'
                                        }`}
                                     >
-                                       {/* Icon with enhanced styling */}
-                                       <div className={`p-3 rounded-xl flex-shrink-0 shadow-sm ${
+                                       {/* Compact Icon */}
+                                       <div className={`p-1.5 rounded-lg flex-shrink-0 ${
                                           isUrgent
                                              ? 'bg-red-500 text-white'
                                              : isHarvest
@@ -1453,7 +1445,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                 ? `${task.color.split(' ')[0]} ${task.color.split(' ')[1]} bg-opacity-10`
                                                 : 'bg-slate-100 text-slate-500'
                                        }`}>
-                                          <Icon className={`w-5 h-5 ${
+                                          <Icon className={`w-3.5 h-3.5 ${
                                              isUrgent || isHarvest || task.type === 'plant'
                                                 ? 'text-white'
                                                 : task.color?.split(' ')[0] || 'text-slate-500'
@@ -1462,13 +1454,13 @@ const CropManager: React.FC<CropManagerProps> = ({
                                        
                                        {/* Task Content */}
                                        <div className="flex-1 min-w-0">
-                                          <div className="flex justify-between items-start gap-3 mb-1">
-                                             <p className={`text-sm font-bold leading-tight ${
+                                          <div className="flex justify-between items-center gap-2">
+                                             <p className={`text-xs font-bold leading-tight truncate ${
                                                 isUrgent ? 'text-red-900' : isHarvest ? 'text-teal-900' : 'text-slate-800'
                                              }`}>
                                                 {task.text}
                                              </p>
-                                             <div className="flex items-center gap-2 flex-shrink-0">
+                                             <div className="flex items-center gap-1 flex-shrink-0">
                                                 {task.timeRemaining && task.targetTime && (() => {
                                                    const now = currentTime.getTime();
                                                    const diff = task.targetTime - now;
@@ -1491,28 +1483,28 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                    }
                                                    
                                                    return (
-                                                      <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                                                      <span className={`inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md border ${
                                                          isOverdue 
-                                                           ? 'text-red-700 bg-red-50 border-red-300 shadow-sm' 
+                                                           ? 'text-red-700 bg-red-50 border-red-300' 
                                                            : hours < 2 
-                                                             ? 'text-amber-700 bg-amber-50 border-amber-300 shadow-sm'
-                                                             : 'text-blue-700 bg-blue-50 border-blue-300 shadow-sm'
+                                                             ? 'text-amber-700 bg-amber-50 border-amber-300'
+                                                             : 'text-blue-700 bg-blue-50 border-blue-300'
                                                       }`}>
-                                                         <Clock className="w-3 h-3" />
+                                                         <Clock className="w-2.5 h-2.5" />
                                                          {timeText}
                                                       </span>
                                                    );
                                                 })()}
                                                 {task.estYield && (
-                                                   <span className="inline-flex items-center gap-1 text-[10px] font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200 shadow-sm">
-                                                      <Scale className="w-3 h-3" />
+                                                   <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded-md border border-teal-200">
+                                                      <Scale className="w-2.5 h-2.5" />
                                                       {task.estYield >= 1000 ? `${(task.estYield/1000).toFixed(1)}kg` : `${task.estYield}g`}
                                                    </span>
                                                 )}
                                              </div>
                                           </div>
                                           {task.sub && (
-                                             <p className={`text-xs mt-1 leading-tight font-medium ${
+                                             <p className={`text-[10px] mt-0.5 leading-tight font-medium truncate ${
                                                 isUrgent ? 'text-red-600' : isHarvest ? 'text-teal-600' : 'text-slate-500'
                                              }`}>
                                                 {task.sub}
@@ -1522,7 +1514,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                                        
                                        {/* Arrow indicator */}
                                        {task.trayId && (
-                                          <ChevronRight className="w-5 h-5 text-slate-300 self-center flex-shrink-0 group-hover:text-teal-500 transition-colors" />
+                                          <ChevronRight className="w-3.5 h-3.5 text-slate-300 flex-shrink-0 group-hover:text-teal-500 transition-colors" />
                                        )}
                                     </motion.div>
                                  );
@@ -1534,27 +1526,24 @@ const CropManager: React.FC<CropManagerProps> = ({
                   })}
                </div>
 
-               {/* Enhanced Recurring Orders Section */}
-               <div className="bg-gradient-to-br from-white to-slate-50 rounded-3xl p-6 border-2 border-slate-200 shadow-lg">
-                  <div className="flex justify-between items-center mb-5">
-                     <div>
-                        <h3 className="font-bold text-slate-800 flex items-center text-lg mb-1">
-                           <ShoppingBag className="w-5 h-5 mr-2 text-indigo-600" />
-                           Weekly Orders
-                        </h3>
-                        <p className="text-xs text-slate-500 ml-7">Recurring delivery schedule</p>
+               {/* Compact Recurring Orders Section */}
+               <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm">
+                  <div className="flex justify-between items-center mb-3">
+                     <div className="flex items-center gap-2">
+                        <ShoppingBag className="w-4 h-4 text-indigo-600" />
+                        <h3 className="font-bold text-slate-800 text-sm">Weekly Orders</h3>
                      </div>
                      <motion.button 
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setIsAddingOrder(!isAddingOrder)} 
-                        className={`text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition-all ${
+                        className={`text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-sm transition-all ${
                            isAddingOrder 
                               ? 'text-slate-600 bg-slate-100 border border-slate-200' 
-                              : 'text-white bg-gradient-to-r from-indigo-600 to-purple-600 border border-indigo-500 shadow-indigo-200'
+                              : 'text-white bg-indigo-600 border border-indigo-500'
                         }`}
                      >
-                        {isAddingOrder ? 'Cancel' : <><Plus className="w-3.5 h-3.5 inline mr-1.5" />Add Order</>}
+                        {isAddingOrder ? 'Cancel' : <><Plus className="w-3 h-3 inline mr-1" />Add</>}
                      </motion.button>
                   </div>
 
@@ -1564,11 +1553,11 @@ const CropManager: React.FC<CropManagerProps> = ({
                         initial={{ height: 0, opacity: 0 }} 
                         animate={{ height: 'auto', opacity: 1 }} 
                         exit={{ height: 0, opacity: 0 }} 
-                        className="mb-5 overflow-hidden"
+                        className="mb-3 overflow-hidden"
                      >
-                        <div className="bg-white p-5 rounded-2xl border-2 border-indigo-200 shadow-lg space-y-4">
-                           <div className="space-y-2">
-                              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Customer</label>
+                        <div className="bg-slate-50 p-3 rounded-lg border border-indigo-200 space-y-2.5">
+                           <div>
+                              <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Customer</label>
                               <CustomSelect 
                                  value={newOrderCustId}
                                  onChange={(val) => setNewOrderCustId(val)}
@@ -1579,9 +1568,9 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  className="w-full"
                               />
                            </div>
-                           <div className="grid grid-cols-2 gap-3">
-                              <div className="space-y-2">
-                                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Crop</label>
+                           <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                 <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Crop</label>
                                  <CustomSelect 
                                     value={newOrderCropId}
                                     onChange={(val) => setNewOrderCropId(val)}
@@ -1591,19 +1580,19 @@ const CropManager: React.FC<CropManagerProps> = ({
                                     ]}
                                  />
                               </div>
-                              <div className="space-y-2">
-                                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Amount (g)</label>
+                              <div>
+                                 <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Amount (g)</label>
                                  <input 
                                     type="number" 
                                     placeholder="0" 
                                     value={newOrderAmount} 
                                     onChange={e => setNewOrderAmount(e.target.value)} 
-                                    className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-base font-bold text-slate-700 focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 outline-none transition-all" 
+                                    className="w-full p-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-700 focus:ring-1 focus:ring-indigo-200 focus:border-indigo-400 outline-none" 
                                  />
                               </div>
                            </div>
-                           <div className="space-y-2">
-                              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Delivery Day</label>
+                           <div>
+                              <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Delivery Day</label>
                               <CustomSelect 
                                  value={newOrderDay}
                                  onChange={(val) => setNewOrderDay(parseInt(val))}
@@ -1614,21 +1603,20 @@ const CropManager: React.FC<CropManagerProps> = ({
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
                               onClick={addRecurringOrder} 
-                              className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-200 hover:shadow-xl transition-all"
+                              className="w-full py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-indigo-700 transition-all"
                            >
-                              Save Weekly Order
+                              Save Order
                            </motion.button>
                         </div>
                      </motion.div>
                   )}
                   </AnimatePresence>
 
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                      {recurringOrders.length === 0 && !isAddingOrder && (
-                        <div className="text-center py-8">
-                           <ShoppingBag className="w-12 h-12 text-slate-300 mx-auto mb-3 opacity-50" />
-                           <p className="text-sm text-slate-400 font-medium mb-1">No active weekly orders</p>
-                           <p className="text-xs text-slate-300">Add recurring orders to automate your schedule</p>
+                        <div className="text-center py-4">
+                           <ShoppingBag className="w-6 h-6 text-slate-300 mx-auto mb-1 opacity-50" />
+                           <p className="text-xs text-slate-400 font-medium">No weekly orders</p>
                         </div>
                      )}
                      {recurringOrders.map(order => {
@@ -1637,25 +1625,25 @@ const CropManager: React.FC<CropManagerProps> = ({
                         return (
                            <motion.div
                               key={order.id}
-                              initial={{ opacity: 0, y: 5 }}
+                              initial={{ opacity: 0, y: 3 }}
                               animate={{ opacity: 1, y: 0 }}
-                              className="group bg-white p-4 rounded-xl border-2 border-slate-200 flex justify-between items-center shadow-sm hover:shadow-md transition-all"
+                              className="group bg-slate-50 p-2 rounded-lg border border-slate-200 flex justify-between items-center hover:bg-white transition-all"
                            >
-                              <div className="flex items-center gap-3 flex-1">
-                                 <div className="p-2.5 rounded-lg bg-indigo-50 text-indigo-600 flex-shrink-0">
-                                    <Truck className="w-4 h-4" />
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                 <div className="p-1.5 rounded-md bg-indigo-50 text-indigo-600 flex-shrink-0">
+                                    <Truck className="w-3 h-3" />
                                  </div>
                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-bold text-slate-800 mb-0.5">{cust?.name || 'Unknown Customer'}</p>
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                       <span className="text-xs font-medium text-slate-600">
+                                    <p className="text-xs font-bold text-slate-800 truncate">{cust?.name || 'Unknown'}</p>
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                       <span className="text-[10px] font-medium text-slate-600">
                                           {order.amount >= 1000 ? `${(order.amount/1000).toFixed(1)}kg` : `${order.amount}g`}
                                        </span>
                                        <span className="text-slate-300">•</span>
-                                       <span className="text-xs font-bold text-emerald-600">{crop?.name || 'Unknown Crop'}</span>
+                                       <span className="text-[10px] font-bold text-emerald-600 truncate">{crop?.name || 'Unknown'}</span>
                                        <span className="text-slate-300">•</span>
-                                       <span className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
-                                          <Calendar className="w-3 h-3" />
+                                       <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-md">
+                                          <Calendar className="w-2.5 h-2.5" />
                                           {DAYS_OF_WEEK[order.dueDayOfWeek]}
                                        </span>
                                     </div>
@@ -1665,9 +1653,9 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  whileHover={{ scale: 1.1 }}
                                  whileTap={{ scale: 0.9 }}
                                  onClick={() => deleteOrder(order.id)} 
-                                 className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                                 className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors flex-shrink-0"
                               >
-                                 <X className="w-4 h-4" />
+                                 <X className="w-3 h-3" />
                               </motion.button>
                            </motion.div>
                         );
