@@ -829,7 +829,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                     animate={{ opacity: 1, y: 0 }}
                     className="p-4 hover:bg-slate-50 transition-colors group"
                   >
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-3 sm:gap-4 overflow-hidden">
                       {/* Receipt Thumbnail */}
                       {expense.receiptImage ? (
                         <div className="flex-shrink-0">
@@ -857,28 +857,28 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                       )}
                       
                       {/* Expense Details */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-bold text-slate-800 text-sm">{expense.description || expense.category}</h4>
-                              <span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">
+                      <div className="flex-1 min-w-0 overflow-hidden">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 mb-1">
+                              <h4 className="font-bold text-slate-800 text-sm break-words">{expense.description || expense.category}</h4>
+                              <span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold flex-shrink-0">
                                 {expense.category}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-slate-500">
-                              <Calendar className="w-3 h-3" />
-                              <span>{new Date(expense.date).toLocaleDateString()}</span>
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                              <Calendar className="w-3 h-3 flex-shrink-0" />
+                              <span className="whitespace-nowrap">{new Date(expense.date).toLocaleDateString()}</span>
                               {expense.payee && (
                                 <>
                                   <span>•</span>
-                                  <span>{expense.payee}</span>
+                                  <span className="truncate max-w-[150px]">{expense.payee}</span>
                                 </>
                               )}
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-purple-600">€{expense.amount.toFixed(2)}</span>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="text-base sm:text-lg font-bold text-purple-600 whitespace-nowrap">€{expense.amount.toFixed(2)}</span>
                             <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button 
                                 onClick={() => {
@@ -891,13 +891,13 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                                   setExpenseDate(new Date(expense.date).toISOString().split('T')[0]);
                                   setShowExpenseForm(true);
                                 }}
-                                className="p-2 text-slate-400 hover:text-blue-500 bg-slate-50 rounded-lg active:bg-blue-50"
+                                className="p-2 text-slate-400 hover:text-blue-500 bg-slate-50 rounded-lg active:bg-blue-50 flex-shrink-0"
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
                               <button 
                                 onClick={() => onDeleteTransaction(expense.id)} 
-                                className="p-2 text-slate-400 hover:text-red-500 bg-slate-50 rounded-lg active:bg-red-50"
+                                className="p-2 text-slate-400 hover:text-red-500 bg-slate-50 rounded-lg active:bg-red-50 flex-shrink-0"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
