@@ -63,9 +63,43 @@ export type SyncResult =
   | { didSync: true; processed: number; remaining: number }
   | { didSync: false; processed: number; remaining: number; error: string };
 
+// Check if API routes are available (not in Vite dev mode)
+const isApiAvailable = () => {
+  if (typeof window === 'undefined') return true;
+  // In local dev, API routes are only available with Vercel CLI
+  // We can't reliably detect this, so we'll try and catch errors
+  return true;
+};
+
 export const flushSyncQueueOnce = async (): Promise<SyncResult> => {
   const items = await listSyncQueue();
   if (items.length === 0) return { didSync: true, processed: 0, remaining: 0 };
+
+  // Check if we're in local dev mode - if so, skip API calls to avoid 404 spam
+  const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  
+  // In local dev, check if API routes are likely unavailable by testing one endpoint
+  // We'll do this check once and cache the result
+  let apiRoutesAvailable: boolean | null = null;
+  if (isLocalDev && items.length > 0) {
+    try {
+      // Quick test to see if API routes are available
+      const testResponse = await fetch('/api/version', { method: 'GET', signal: AbortSignal.timeout(1000) });
+      apiRoutesAvailable = testResponse.ok || testResponse.status !== 404;
+    } catch {
+      // If test fails, assume API routes are not available
+      apiRoutesAvailable = false;
+    }
+    
+    // If API routes are not available, skip all sync attempts
+    if (apiRoutesAvailable === false) {
+      // Remove all items from queue silently
+      for (const item of items) {
+        await removeSyncQueueItem(item.id);
+      }
+      return { didSync: true, processed: 0, remaining: 0 };
+    }
+  }
 
   let processed = 0;
   let skipped = 0;
@@ -87,6 +121,18 @@ export const flushSyncQueueOnce = async (): Promise<SyncResult> => {
         await removeSyncQueueItem(item.id);
         skipped += 1;
         continue;
+      }
+      
+      // In local dev, if we get a 404, assume API routes aren't available and skip remaining items
+      if (isLocalDev && e?.status === 404) {
+        // Remove this item and all remaining items silently
+        await removeSyncQueueItem(item.id);
+        skipped += 1;
+        for (let i = items.indexOf(item) + 1; i < items.length; i++) {
+          await removeSyncQueueItem(items[i].id);
+          skipped += 1;
+        }
+        break; // Exit the loop
       }
       
       const next: SyncQueueItem = {
