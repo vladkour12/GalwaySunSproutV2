@@ -1212,51 +1212,151 @@ const CropManager: React.FC<CropManagerProps> = ({
 
          {/* --- CALENDAR TAB --- */}
          {activeTab === 'calendar' && (
-            <div className="space-y-8">
+            <div className="space-y-6">
+               {/* Summary Cards */}
+               {(() => {
+                  const todayTasks = calendarDays[0]?.tasks || [];
+                  const urgentTasks = todayTasks.filter(t => t.type === 'alert').length;
+                  const totalHarvest = calendarDays.reduce((sum, day) => sum + day.tasks.reduce((s, t) => s + (t.estYield || 0), 0), 0);
+                  const totalTasks = calendarDays.reduce((sum, day) => sum + day.tasks.length, 0);
+                  
+                  return (
+                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div className="bg-gradient-to-br from-teal-500 to-teal-600 text-white p-4 rounded-2xl shadow-lg shadow-teal-200">
+                           <div className="flex items-center justify-between mb-2">
+                              <Calendar className="w-5 h-5 opacity-80" />
+                              <span className="text-2xl font-bold">{totalTasks}</span>
+                           </div>
+                           <p className="text-xs font-bold opacity-90 uppercase tracking-wider">Total Tasks</p>
+                        </div>
+                        <div className="bg-gradient-to-br from-red-500 to-red-600 text-white p-4 rounded-2xl shadow-lg shadow-red-200">
+                           <div className="flex items-center justify-between mb-2">
+                              <AlertCircle className="w-5 h-5 opacity-80" />
+                              <span className="text-2xl font-bold">{urgentTasks}</span>
+                           </div>
+                           <p className="text-xs font-bold opacity-90 uppercase tracking-wider">Urgent</p>
+                        </div>
+                        <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-4 rounded-2xl shadow-lg shadow-emerald-200">
+                           <div className="flex items-center justify-between mb-2">
+                              <Scale className="w-5 h-5 opacity-80" />
+                              <span className="text-2xl font-bold">{totalHarvest >= 1000 ? `${(totalHarvest/1000).toFixed(1)}kg` : `${totalHarvest}g`}</span>
+                           </div>
+                           <p className="text-xs font-bold opacity-90 uppercase tracking-wider">Harvest</p>
+                        </div>
+                        <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-2xl shadow-lg shadow-blue-200">
+                           <div className="flex items-center justify-between mb-2">
+                              <CheckCircle className="w-5 h-5 opacity-80" />
+                              <span className="text-2xl font-bold">{todayTasks.length}</span>
+                           </div>
+                           <p className="text-xs font-bold opacity-90 uppercase tracking-wider">Today</p>
+                        </div>
+                     </div>
+                  );
+               })()}
                
-               {/* Daily Schedule - Timeline View */}
-               <div className="relative pl-4 space-y-8 before:absolute before:left-4 before:top-2 before:bottom-0 before:w-0.5 before:bg-slate-100">
+               {/* Daily Schedule - Enhanced Timeline View */}
+               <div className="relative pl-6 space-y-6 before:absolute before:left-6 before:top-4 before:bottom-0 before:w-1 before:bg-gradient-to-b before:from-teal-200 before:via-slate-200 before:to-slate-200 before:rounded-full">
                   {calendarDays.map((day, idx) => {
                      const dailyHarvest = day.tasks.reduce((sum, t) => sum + (t.estYield || 0), 0);
                      const isToday = idx === 0;
+                     const urgentCount = day.tasks.filter(t => t.type === 'alert').length;
+                     const monthName = day.date.toLocaleDateString(undefined, { month: 'short' });
+                     const dayName = isToday ? 'Today' : idx === 1 ? 'Tomorrow' : day.date.toLocaleDateString(undefined, { weekday: 'short' });
 
                      return (
-                     <div key={idx} className="relative pl-8">
-                        {/* Timeline Node */}
-                        <div className={`absolute left-0 top-0 w-8 h-8 rounded-full flex items-center justify-center border-4 border-white ${isToday ? 'bg-teal-500 shadow-lg shadow-teal-200 scale-110' : 'bg-slate-200'}`}>
-                           {isToday && <div className="w-2.5 h-2.5 bg-white rounded-full animate-pulse" />}
+                     <motion.div 
+                        key={idx} 
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="relative pl-10"
+                     >
+                        {/* Enhanced Timeline Node */}
+                        <div className={`absolute left-0 top-1 w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-lg transition-all ${
+                           isToday 
+                              ? 'bg-gradient-to-br from-teal-500 to-teal-600 scale-110 shadow-teal-300' 
+                              : 'bg-gradient-to-br from-slate-200 to-slate-300'
+                        }`}>
+                           {isToday ? (
+                              <motion.div 
+                                 animate={{ scale: [1, 1.2, 1] }}
+                                 transition={{ duration: 2, repeat: Infinity }}
+                                 className="w-3 h-3 bg-white rounded-full"
+                              />
+                           ) : (
+                              <div className="w-2 h-2 bg-white rounded-full" />
+                           )}
                         </div>
 
-                        {/* Date Header */}
-                        <div className="flex items-baseline justify-between mb-3">
-                           <div>
-                              <span className={`text-2xl font-bold ${isToday ? 'text-slate-800' : 'text-slate-400'}`}>
-                                 {day.date.getDate()}
-                              </span>
-                              <span className={`ml-2 text-sm font-bold uppercase tracking-wider ${isToday ? 'text-teal-600' : 'text-slate-400'}`}>
-                                 {isToday ? 'Today' : idx === 1 ? 'Tomorrow' : day.date.toLocaleDateString(undefined, {weekday: 'long'})}
-                              </span>
-                           </div>
-                           {dailyHarvest > 0 && (
-                              <div className="flex items-center text-xs font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded-lg">
-                                 <Scale className="w-3.5 h-3.5 mr-1.5" />
-                                 {dailyHarvest >= 1000 ? `${(dailyHarvest/1000).toFixed(1)}kg` : `${dailyHarvest}g`}
+                        {/* Enhanced Date Header */}
+                        <div className="mb-4">
+                           <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-baseline gap-2">
+                                 <div className="flex flex-col">
+                                    <span className={`text-3xl font-black leading-none ${isToday ? 'text-slate-900' : 'text-slate-400'}`}>
+                                       {day.date.getDate()}
+                                    </span>
+                                    <span className={`text-[10px] font-bold uppercase tracking-widest mt-0.5 ${isToday ? 'text-teal-600' : 'text-slate-400'}`}>
+                                       {monthName}
+                                    </span>
+                                 </div>
+                                 <div className="flex flex-col justify-center">
+                                    <span className={`text-base font-bold ${isToday ? 'text-slate-800' : 'text-slate-500'}`}>
+                                       {dayName}
+                                    </span>
+                                    {idx > 1 && (
+                                       <span className="text-[10px] text-slate-400 font-medium">
+                                          {day.date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+                                       </span>
+                                    )}
+                                 </div>
                               </div>
+                              <div className="flex items-center gap-2">
+                                 {urgentCount > 0 && (
+                                    <div className="flex items-center gap-1 bg-red-50 text-red-600 px-2.5 py-1 rounded-full border border-red-200">
+                                       <AlertCircle className="w-3.5 h-3.5" />
+                                       <span className="text-xs font-bold">{urgentCount}</span>
+                                    </div>
+                                 )}
+                                 {dailyHarvest > 0 && (
+                                    <div className="flex items-center gap-1.5 bg-teal-50 text-teal-700 px-3 py-1.5 rounded-full border border-teal-200 shadow-sm">
+                                       <Scale className="w-4 h-4" />
+                                       <span className="text-xs font-bold">
+                                          {dailyHarvest >= 1000 ? `${(dailyHarvest/1000).toFixed(1)}kg` : `${dailyHarvest}g`}
+                                       </span>
+                                    </div>
+                                 )}
+                              </div>
+                           </div>
+                           {day.tasks.length > 0 && (
+                              <div className="h-1 bg-gradient-to-r from-teal-200 via-blue-200 to-purple-200 rounded-full" />
                            )}
                         </div>
                         
-                        {/* Tasks List */}
+                        {/* Enhanced Tasks List */}
                         {day.tasks.length === 0 ? (
-                           <div className="p-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-slate-400 text-xs italic">
-                              No tasks scheduled.
-                           </div>
+                           <motion.div 
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              className="p-6 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border-2 border-dashed border-slate-200 text-center"
+                           >
+                              <Calendar className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                              <p className="text-sm text-slate-400 font-medium">No tasks scheduled</p>
+                              <p className="text-xs text-slate-300 mt-1">Enjoy your day off!</p>
+                           </motion.div>
                         ) : (
-                           <div className="space-y-2">
+                           <div className="space-y-3">
                               {day.tasks.map((task, tIdx) => {
                                  const Icon = task.icon;
+                                 const isUrgent = task.type === 'alert';
+                                 const isHarvest = task.type === 'harvest';
+                                 
                                  return (
-                                    <div 
-                                       key={tIdx} 
+                                    <motion.div
+                                       key={tIdx}
+                                       initial={{ opacity: 0, y: 10 }}
+                                       animate={{ opacity: 1, y: 0 }}
+                                       transition={{ delay: tIdx * 0.03 }}
                                        onClick={() => { 
                                           if (task.trayId) { 
                                              const t = state.trays.find(x => x.id === task.trayId); 
@@ -1268,21 +1368,47 @@ const CropManager: React.FC<CropManagerProps> = ({
                                              }
                                           } 
                                        }}
-                                       className={`flex items-start space-x-3 p-3 rounded-2xl border transition-all ${task.trayId ? 'cursor-pointer active:scale-[0.98] hover:shadow-md' : ''} ${
-                                          task.type === 'alert' ? 'bg-red-50 border-red-100' : 
-                                          task.type === 'harvest' ? 'bg-teal-50 border-teal-100' : 
-                                          'bg-white border-slate-100'
+                                       className={`group relative flex items-start gap-4 p-4 rounded-2xl border-2 transition-all ${
+                                          task.trayId ? 'cursor-pointer active:scale-[0.98] hover:shadow-xl hover:-translate-y-0.5' : ''
+                                       } ${
+                                          isUrgent 
+                                             ? 'bg-gradient-to-br from-red-50 to-red-100 border-red-200 shadow-red-100' 
+                                             : isHarvest
+                                             ? 'bg-gradient-to-br from-teal-50 to-emerald-50 border-teal-200 shadow-teal-100'
+                                             : task.type === 'plant'
+                                             ? 'bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200 shadow-emerald-100'
+                                             : 'bg-white border-slate-200 shadow-sm hover:shadow-md'
                                        }`}
                                     >
-                                       <div className={`p-2 rounded-xl flex-shrink-0 ${task.color ? task.color.replace('text-', 'bg-').replace('bg-', 'text-opacity-20 ') : 'bg-slate-100'}`}>
-                                          <Icon className={`w-5 h-5 ${task.color?.split(' ')[0] || 'text-slate-500'}`} />
+                                       {/* Icon with enhanced styling */}
+                                       <div className={`p-3 rounded-xl flex-shrink-0 shadow-sm ${
+                                          isUrgent
+                                             ? 'bg-red-500 text-white'
+                                             : isHarvest
+                                             ? 'bg-teal-500 text-white'
+                                             : task.type === 'plant'
+                                             ? 'bg-emerald-500 text-white'
+                                             : task.color 
+                                                ? `${task.color.split(' ')[0]} ${task.color.split(' ')[1]} bg-opacity-10`
+                                                : 'bg-slate-100 text-slate-500'
+                                       }`}>
+                                          <Icon className={`w-5 h-5 ${
+                                             isUrgent || isHarvest || task.type === 'plant'
+                                                ? 'text-white'
+                                                : task.color?.split(' ')[0] || 'text-slate-500'
+                                          }`} />
                                        </div>
-                                       <div className="flex-1 min-w-0 pt-0.5">
-                                          <div className="flex justify-between items-start">
-                                             <p className={`text-sm font-bold leading-tight ${task.type === 'alert' ? 'text-red-800' : 'text-slate-700'}`}>{task.text}</p>
-                                             <div className="flex items-center gap-2 ml-2">
+                                       
+                                       {/* Task Content */}
+                                       <div className="flex-1 min-w-0">
+                                          <div className="flex justify-between items-start gap-3 mb-1">
+                                             <p className={`text-sm font-bold leading-tight ${
+                                                isUrgent ? 'text-red-900' : isHarvest ? 'text-teal-900' : 'text-slate-800'
+                                             }`}>
+                                                {task.text}
+                                             </p>
+                                             <div className="flex items-center gap-2 flex-shrink-0">
                                                 {task.timeRemaining && task.targetTime && (() => {
-                                                   // Recalculate time remaining based on current time
                                                    const now = currentTime.getTime();
                                                    const diff = task.targetTime - now;
                                                    let timeText = '';
@@ -1304,65 +1430,97 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                    }
                                                    
                                                    return (
-                                                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
+                                                      <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full border ${
                                                          isOverdue 
-                                                           ? 'text-red-600 bg-red-50 border border-red-200' 
+                                                           ? 'text-red-700 bg-red-50 border-red-300 shadow-sm' 
                                                            : hours < 2 
-                                                             ? 'text-amber-600 bg-amber-50 border border-amber-200'
-                                                             : 'text-blue-600 bg-blue-50 border border-blue-200'
+                                                             ? 'text-amber-700 bg-amber-50 border-amber-300 shadow-sm'
+                                                             : 'text-blue-700 bg-blue-50 border-blue-300 shadow-sm'
                                                       }`}>
-                                                         <Clock className="w-3 h-3 inline mr-1" />
+                                                         <Clock className="w-3 h-3" />
                                                          {timeText}
                                                       </span>
                                                    );
                                                 })()}
                                                 {task.estYield && (
-                                                   <span className="text-[10px] font-bold text-teal-600 bg-white px-1.5 py-0.5 rounded-md shadow-sm border border-teal-100">
-                                                      {task.estYield}g
+                                                   <span className="inline-flex items-center gap-1 text-[10px] font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200 shadow-sm">
+                                                      <Scale className="w-3 h-3" />
+                                                      {task.estYield >= 1000 ? `${(task.estYield/1000).toFixed(1)}kg` : `${task.estYield}g`}
                                                    </span>
                                                 )}
                                              </div>
                                           </div>
-                                          {task.sub && <p className={`text-xs mt-0.5 leading-tight ${task.type === 'alert' ? 'text-red-500' : 'text-slate-400'}`}>{task.sub}</p>}
+                                          {task.sub && (
+                                             <p className={`text-xs mt-1 leading-tight font-medium ${
+                                                isUrgent ? 'text-red-600' : isHarvest ? 'text-teal-600' : 'text-slate-500'
+                                             }`}>
+                                                {task.sub}
+                                             </p>
+                                          )}
                                        </div>
-                                       {task.trayId && <ChevronRight className="w-4 h-4 text-slate-300 self-center" />}
-                                    </div>
+                                       
+                                       {/* Arrow indicator */}
+                                       {task.trayId && (
+                                          <ChevronRight className="w-5 h-5 text-slate-300 self-center flex-shrink-0 group-hover:text-teal-500 transition-colors" />
+                                       )}
+                                    </motion.div>
                                  );
                               })}
                            </div>
                         )}
-                     </div>
+                     </motion.div>
                      );
                   })}
                </div>
 
-               {/* Recurring Orders Section */}
-               <div className="bg-slate-50 rounded-3xl p-5 border border-slate-200">
-                  <div className="flex justify-between items-center mb-4">
-                     <h3 className="font-bold text-slate-800 flex items-center">
-                        <ShoppingBag className="w-4 h-4 mr-2" />
-                        Weekly Orders
-                     </h3>
-                     <button onClick={() => setIsAddingOrder(!isAddingOrder)} className="text-xs font-bold text-teal-600 bg-white border border-teal-100 px-3 py-1.5 rounded-lg shadow-sm">
-                        {isAddingOrder ? 'Cancel' : '+ Add Order'}
-                     </button>
+               {/* Enhanced Recurring Orders Section */}
+               <div className="bg-gradient-to-br from-white to-slate-50 rounded-3xl p-6 border-2 border-slate-200 shadow-lg">
+                  <div className="flex justify-between items-center mb-5">
+                     <div>
+                        <h3 className="font-bold text-slate-800 flex items-center text-lg mb-1">
+                           <ShoppingBag className="w-5 h-5 mr-2 text-indigo-600" />
+                           Weekly Orders
+                        </h3>
+                        <p className="text-xs text-slate-500 ml-7">Recurring delivery schedule</p>
+                     </div>
+                     <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setIsAddingOrder(!isAddingOrder)} 
+                        className={`text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition-all ${
+                           isAddingOrder 
+                              ? 'text-slate-600 bg-slate-100 border border-slate-200' 
+                              : 'text-white bg-gradient-to-r from-indigo-600 to-purple-600 border border-indigo-500 shadow-indigo-200'
+                        }`}
+                     >
+                        {isAddingOrder ? 'Cancel' : <><Plus className="w-3.5 h-3.5 inline mr-1.5" />Add Order</>}
+                     </motion.button>
                   </div>
 
                   <AnimatePresence>
                   {isAddingOrder && (
-                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="mb-4 overflow-hidden">
-                        <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                           <CustomSelect 
-                              value={newOrderCustId}
-                              onChange={(val) => setNewOrderCustId(val)}
-                              options={[
-                                 { value: "", label: "Select Customer..." },
-                                 ...state.customers.map(c => ({ value: c.id, label: c.name }))
-                              ]}
-                              className="w-full"
-                           />
-                           <div className="flex gap-2">
-                              <div className="flex-[2]">
+                     <motion.div 
+                        initial={{ height: 0, opacity: 0 }} 
+                        animate={{ height: 'auto', opacity: 1 }} 
+                        exit={{ height: 0, opacity: 0 }} 
+                        className="mb-5 overflow-hidden"
+                     >
+                        <div className="bg-white p-5 rounded-2xl border-2 border-indigo-200 shadow-lg space-y-4">
+                           <div className="space-y-2">
+                              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Customer</label>
+                              <CustomSelect 
+                                 value={newOrderCustId}
+                                 onChange={(val) => setNewOrderCustId(val)}
+                                 options={[
+                                    { value: "", label: "Select Customer..." },
+                                    ...state.customers.map(c => ({ value: c.id, label: c.name }))
+                                 ]}
+                                 className="w-full"
+                              />
+                           </div>
+                           <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-2">
+                                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Crop</label>
                                  <CustomSelect 
                                     value={newOrderCropId}
                                     onChange={(val) => setNewOrderCropId(val)}
@@ -1372,36 +1530,85 @@ const CropManager: React.FC<CropManagerProps> = ({
                                     ]}
                                  />
                               </div>
-                              <input type="number" placeholder="g" value={newOrderAmount} onChange={e => setNewOrderAmount(e.target.value)} className="flex-1 p-2 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-700 outline-none" />
+                              <div className="space-y-2">
+                                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Amount (g)</label>
+                                 <input 
+                                    type="number" 
+                                    placeholder="0" 
+                                    value={newOrderAmount} 
+                                    onChange={e => setNewOrderAmount(e.target.value)} 
+                                    className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-base font-bold text-slate-700 focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 outline-none transition-all" 
+                                 />
+                              </div>
                            </div>
-                           <CustomSelect 
-                              value={newOrderDay}
-                              onChange={(val) => setNewOrderDay(parseInt(val))}
-                              options={DAYS_OF_WEEK.map((d, i) => ({ value: i, label: `Deliver on ${d}` }))}
-                           />
-                           <button onClick={addRecurringOrder} className="w-full py-3 bg-slate-800 text-white text-xs font-bold rounded-xl mt-2">Save Order</button>
+                           <div className="space-y-2">
+                              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Delivery Day</label>
+                              <CustomSelect 
+                                 value={newOrderDay}
+                                 onChange={(val) => setNewOrderDay(parseInt(val))}
+                                 options={DAYS_OF_WEEK.map((d, i) => ({ value: i, label: `Deliver on ${d}` }))}
+                              />
+                           </div>
+                           <motion.button 
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={addRecurringOrder} 
+                              className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-200 hover:shadow-xl transition-all"
+                           >
+                              Save Weekly Order
+                           </motion.button>
                         </div>
                      </motion.div>
                   )}
                   </AnimatePresence>
 
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                      {recurringOrders.length === 0 && !isAddingOrder && (
-                        <p className="text-xs text-slate-400 text-center py-2">No active weekly orders.</p>
+                        <div className="text-center py-8">
+                           <ShoppingBag className="w-12 h-12 text-slate-300 mx-auto mb-3 opacity-50" />
+                           <p className="text-sm text-slate-400 font-medium mb-1">No active weekly orders</p>
+                           <p className="text-xs text-slate-300">Add recurring orders to automate your schedule</p>
+                        </div>
                      )}
                      {recurringOrders.map(order => {
                         const crop = state.crops.find(c => c.id === order.cropId);
                         const cust = state.customers.find(c => c.id === order.customerId);
                         return (
-                           <div key={order.id} className="bg-white p-3 rounded-xl border border-slate-100 flex justify-between items-center shadow-sm">
-                              <div>
-                                 <p className="text-xs font-bold text-slate-800">{cust?.name || 'Unknown'}</p>
-                                 <p className="text-[10px] text-slate-500 font-medium">
-                                    {order.amount}g {crop?.name} • <span className="text-indigo-600">{DAYS_OF_WEEK[order.dueDayOfWeek]}</span>
-                                 </p>
+                           <motion.div
+                              key={order.id}
+                              initial={{ opacity: 0, y: 5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="group bg-white p-4 rounded-xl border-2 border-slate-200 flex justify-between items-center shadow-sm hover:shadow-md transition-all"
+                           >
+                              <div className="flex items-center gap-3 flex-1">
+                                 <div className="p-2.5 rounded-lg bg-indigo-50 text-indigo-600 flex-shrink-0">
+                                    <Truck className="w-4 h-4" />
+                                 </div>
+                                 <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-bold text-slate-800 mb-0.5">{cust?.name || 'Unknown Customer'}</p>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                       <span className="text-xs font-medium text-slate-600">
+                                          {order.amount >= 1000 ? `${(order.amount/1000).toFixed(1)}kg` : `${order.amount}g`}
+                                       </span>
+                                       <span className="text-slate-300">•</span>
+                                       <span className="text-xs font-bold text-emerald-600">{crop?.name || 'Unknown Crop'}</span>
+                                       <span className="text-slate-300">•</span>
+                                       <span className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                                          <Calendar className="w-3 h-3" />
+                                          {DAYS_OF_WEEK[order.dueDayOfWeek]}
+                                       </span>
+                                    </div>
+                                 </div>
                               </div>
-                              <button onClick={() => deleteOrder(order.id)} className="text-slate-300 hover:text-red-400"><X className="w-4 h-4" /></button>
-                           </div>
+                              <motion.button 
+                                 whileHover={{ scale: 1.1 }}
+                                 whileTap={{ scale: 0.9 }}
+                                 onClick={() => deleteOrder(order.id)} 
+                                 className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                              >
+                                 <X className="w-4 h-4" />
+                              </motion.button>
+                           </motion.div>
                         );
                      })}
                   </div>
