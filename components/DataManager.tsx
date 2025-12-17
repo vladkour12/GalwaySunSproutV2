@@ -89,6 +89,114 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
     }
   };
 
+  const handleUploadToRemote = async () => {
+    setDownloadStatus('downloading'); // Reuse the same status for upload
+    try {
+      console.log('Uploading local data to remote database...');
+      
+      // Check if we're in development without API routes
+      const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (isLocalDev) {
+        try {
+          const testResponse = await fetch('/api/version', { method: 'GET' });
+          if (!testResponse.ok && testResponse.status === 404) {
+            alert('⚠️ API routes are not available in local development.\n\n' +
+                  'To upload to remote database:\n' +
+                  '• Deploy to Vercel (works automatically)\n' +
+                  '• Or run: npm run dev:vercel');
+            setDownloadStatus('error');
+            setTimeout(() => setDownloadStatus('idle'), 3000);
+            return;
+          }
+        } catch (fetchError) {
+          alert('⚠️ API routes are not available in local development.\n\n' +
+                'To upload to remote database:\n' +
+                '• Deploy to Vercel (works automatically)\n' +
+                '• Or run: npm run dev:vercel');
+          setDownloadStatus('error');
+          setTimeout(() => setDownloadStatus('idle'), 3000);
+          return;
+        }
+      }
+      
+      // Ensure database is set up
+      try {
+        await api.setup();
+      } catch (setupError) {
+        console.warn('Setup warning (may already exist):', setupError);
+      }
+      
+      // Upload all local data to remote
+      console.log('Uploading crops...');
+      for (const crop of state.crops) {
+        try {
+          await api.saveCrop(crop);
+        } catch (e) {
+          console.warn(`Failed to upload crop ${crop.name}:`, e);
+        }
+      }
+      
+      console.log('Uploading trays...');
+      for (const tray of state.trays) {
+        try {
+          await api.saveTray(tray);
+        } catch (e) {
+          console.warn(`Failed to upload tray ${tray.id}:`, e);
+        }
+      }
+      
+      console.log('Uploading transactions...');
+      for (const txn of state.transactions) {
+        try {
+          await api.saveTransaction(txn);
+        } catch (e) {
+          console.warn(`Failed to upload transaction ${txn.id}:`, e);
+        }
+      }
+      
+      console.log('Uploading customers...');
+      for (const customer of state.customers) {
+        try {
+          await api.saveCustomer(customer);
+        } catch (e) {
+          console.warn(`Failed to upload customer ${customer.name}:`, e);
+        }
+      }
+      
+      const uploadedCount = {
+        crops: state.crops.length,
+        trays: state.trays.length,
+        transactions: state.transactions.length,
+        customers: state.customers.length,
+        images: state.crops.filter(c => c.imageUrl).length
+      };
+      
+      console.log('Uploaded to remote:', uploadedCount);
+      
+      setDownloadStatus('success');
+      
+      // Show success message
+      const message = `Successfully uploaded to remote database:\n• ${uploadedCount.crops} crops\n• ${uploadedCount.trays} trays\n• ${uploadedCount.transactions} transactions\n• ${uploadedCount.customers} customers\n• ${uploadedCount.images} images`;
+      alert(message);
+      
+      setTimeout(() => {
+        setDownloadStatus('idle');
+      }, 2000);
+    } catch (error: any) {
+      console.error('Upload failed:', error);
+      const errorMessage = error?.message || error?.toString() || 'Unknown error';
+      
+      if (errorMessage.includes('fetch') || errorMessage.includes('network')) {
+        alert(`Network error: ${errorMessage}\n\nMake sure you're connected to the internet and the database is accessible.`);
+      } else {
+        alert(`Upload failed: ${errorMessage}\n\nCheck browser console (F12) for more details.`);
+      }
+      
+      setDownloadStatus('error');
+      setTimeout(() => setDownloadStatus('idle'), 5000);
+    }
+  };
+
   const handleDownloadFromRemote = async () => {
     setDownloadStatus('downloading');
     try {
@@ -123,14 +231,25 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
       console.log('Fetching data from remote database...');
       const remoteState = await refreshLocalFromRemote();
       
-      console.log('Downloaded from remote:', {
+      const downloadedCount = {
         crops: remoteState.crops.length,
         trays: remoteState.trays.length,
         transactions: remoteState.transactions.length,
         customers: remoteState.customers.length,
-        cropsWithImages: remoteState.crops.filter(c => c.imageUrl).length,
-        cropsWithBase64Images: remoteState.crops.filter(c => c.imageUrl?.startsWith('data:')).length
-      });
+        images: remoteState.crops.filter(c => c.imageUrl?.startsWith('data:')).length
+      };
+      
+      console.log('Downloaded from remote:', downloadedCount);
+      
+      // Check if database is empty
+      if (downloadedCount.crops === 0 && downloadedCount.trays === 0 && downloadedCount.transactions === 0) {
+        const shouldUpload = confirm('Remote database appears to be empty.\n\nWould you like to upload your local data to the remote database instead?');
+        if (shouldUpload) {
+          setDownloadStatus('idle');
+          await handleUploadToRemote();
+          return;
+        }
+      }
       
       // Update app state if callback provided
       if (onStateUpdate) {
@@ -144,7 +263,7 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
       setDownloadStatus('success');
       
       // Show success message
-      const message = `Successfully downloaded:\n• ${remoteState.crops.length} crops\n• ${remoteState.trays.length} trays\n• ${remoteState.transactions.length} transactions\n• ${remoteState.customers.length} customers\n• ${remoteState.crops.filter(c => c.imageUrl?.startsWith('data:')).length} images converted`;
+      const message = `Successfully downloaded:\n• ${downloadedCount.crops} crops\n• ${downloadedCount.trays} trays\n• ${downloadedCount.transactions} transactions\n• ${downloadedCount.customers} customers\n• ${downloadedCount.images} images converted`;
       alert(message);
       
       setTimeout(() => {
@@ -506,6 +625,22 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
 
       {/* Actions Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+         {/* Upload to Remote */}
+         <button 
+            onClick={handleUploadToRemote}
+            disabled={downloadStatus === 'downloading'}
+            className="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-md hover:border-green-200 transition-all group relative disabled:opacity-50 disabled:cursor-not-allowed"
+         >
+            <div className="p-4 bg-green-50 rounded-full text-green-600 mb-3 group-hover:scale-110 transition-transform">
+               {downloadStatus === 'downloading' ? <RefreshCw className="w-8 h-8 animate-spin" /> : downloadStatus === 'success' ? <CheckCircle className="w-8 h-8" /> : downloadStatus === 'error' ? <AlertTriangle className="w-8 h-8 text-red-500" /> : <Upload className="w-8 h-8" />}
+            </div>
+            <h3 className="font-bold text-slate-800">Upload to DB</h3>
+            <p className="text-xs text-slate-400 mt-1">Save local data to remote</p>
+            {downloadStatus === 'downloading' && <span className="absolute bottom-2 text-xs text-green-500 font-bold">Uploading...</span>}
+            {downloadStatus === 'success' && <span className="absolute bottom-2 text-xs text-teal-500 font-bold">Uploaded!</span>}
+            {downloadStatus === 'error' && <span className="absolute bottom-2 text-xs text-red-500 font-bold">Failed</span>}
+         </button>
+
          {/* Download from Remote */}
          <button 
             onClick={handleDownloadFromRemote}
