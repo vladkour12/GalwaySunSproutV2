@@ -140,8 +140,6 @@ const getTimeToNextStage = (tray: Tray, crop: CropType) => {
     return { text: "Error", isOverdue: false, hours: 0 };
   }
 };
-  return { text: `${hours}h`, isOverdue: false };
-};
 
 // Helper to calculate estimated seed cost per tray
 const getEstimatedSeedCost = (crop: CropType, isHalfHalf: boolean = false) => {

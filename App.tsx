@@ -259,7 +259,7 @@ const App: React.FC = () => {
         // If no pending changes, refresh from remote first to get latest database updates
         // This prevents overwriting database changes made outside the app
         if (!hasPendingChanges && reason === 'tab-change') {
-          setSyncMessage('Checking for updates…');
+          // Don't show message when just checking for updates
           try {
             const fresh = await refreshLocalFromRemote();
             if (!isCancelled) {
@@ -270,6 +270,13 @@ const App: React.FC = () => {
             }
           } catch (e) {
             console.warn('Failed to refresh from remote, continuing with sync:', e);
+            // Only show error if it's a network issue
+            const errorMsg = (e as Error)?.message || String(e);
+            const isNetworkError = errorMsg.includes('fetch') || errorMsg.includes('network') || errorMsg.includes('Failed to fetch');
+            if (isNetworkError) {
+              setSyncStatus('error');
+              setSyncMessage('Offline mode (network error)');
+            }
           }
         }
 
