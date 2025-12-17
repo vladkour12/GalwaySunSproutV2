@@ -936,7 +936,7 @@ const App: React.FC = () => {
             onDeleteCustomer={handleDeleteCustomer}
           />
         );
-      case 'data': return <DataManager state={appState} onImport={handleImportState} onReset={handleResetState} />;
+      case 'data': return <DataManager state={appState} onImport={handleImportState} onReset={handleResetState} onStateUpdate={setAppState} />;
       default: return <Dashboard state={appState} onNavigate={setCurrentView} />;
     }
   };

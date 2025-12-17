@@ -870,7 +870,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                      }
 
                      return (
-                        <div key={location} className="space-y-4">
+                        <div key={location} className="space-y-3">
                            {/* Shelf Location Header - Drop Zone */}
                            <div 
                               className={`flex items-center gap-2 px-2 py-1.5 bg-gradient-to-r from-slate-50 to-transparent rounded-xl border-2 transition-all ${
@@ -936,11 +936,11 @@ const CropManager: React.FC<CropManagerProps> = ({
 
                            {/* Render shelves (4 trays per shelf) */}
                            {shelves.map((shelfTrays, shelfIndex) => (
-                              <div key={shelfIndex} className="space-y-2">
+                              <div key={shelfIndex} className="space-y-3">
                                  {shelves.length > 1 && (
-                                    <div className="flex items-center gap-1.5 px-1.5">
-                                       <div className="w-px h-3 bg-slate-200"></div>
-                                       <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                                    <div className="flex items-center gap-2 px-2">
+                                       <div className="w-px h-4 bg-slate-200"></div>
+                                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                                           {location} - Row {shelfIndex + 1}
                                        </span>
                                     </div>

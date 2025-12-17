@@ -5,19 +5,22 @@ import { clearDB, getStorageEstimate, getDatabaseStats, DbStats } from '../servi
 import { Database, Download, Upload, Trash2, HardDrive, AlertTriangle, CheckCircle, Image as ImageIcon, Sprout, ShoppingBag, Users, X, DollarSign, Scale, Calendar, RefreshCw } from 'lucide-react';
 import { api } from '../services/api';
 import { INITIAL_CROPS, INITIAL_CUSTOMERS } from '../constants';
+import { refreshLocalFromRemote } from '../services/syncService';
 
 interface DataManagerProps {
   state: AppState;
   onImport: (newState: AppState) => void;
   onReset: () => void;
+  onStateUpdate?: (newState: AppState) => void;
 }
 
-const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) => {
+const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onStateUpdate }) => {
   const [storageStats, setStorageStats] = useState<{ usage: number; quota: number } | null>(null);
   const [dbBreakdown, setDbBreakdown] = useState<DbStats[]>([]);
   const [resetConfirm, setResetConfirm] = useState(false);
   const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
+  const [downloadStatus, setDownloadStatus] = useState<'idle' | 'downloading' | 'success' | 'error'>('idle');
   
   // Data Inspector State
   const [viewingStore, setViewingStore] = useState<string | null>(null);
@@ -83,6 +86,76 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) =
        await clearDB();
        onReset(); 
        setResetConfirm(false);
+    }
+  };
+
+  const handleDownloadFromRemote = async () => {
+    setDownloadStatus('downloading');
+    try {
+      console.log('Downloading data from remote database...');
+      
+      // Check if we're in development without API routes
+      const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (isLocalDev) {
+        try {
+          const testResponse = await fetch('/api/version', { method: 'GET' });
+          if (!testResponse.ok && testResponse.status === 404) {
+            alert('⚠️ API routes are not available in local development.\n\n' +
+                  'To download from remote database:\n' +
+                  '• Deploy to Vercel (works automatically)\n' +
+                  '• Or run: npm run dev:vercel');
+            setDownloadStatus('error');
+            setTimeout(() => setDownloadStatus('idle'), 3000);
+            return;
+          }
+        } catch (fetchError) {
+          alert('⚠️ API routes are not available in local development.\n\n' +
+                'To download from remote database:\n' +
+                '• Deploy to Vercel (works automatically)\n' +
+                '• Or run: npm run dev:vercel');
+          setDownloadStatus('error');
+          setTimeout(() => setDownloadStatus('idle'), 3000);
+          return;
+        }
+      }
+      
+      // Download from remote and save to local
+      const remoteState = await refreshLocalFromRemote();
+      console.log('Downloaded from remote:', {
+        crops: remoteState.crops.length,
+        trays: remoteState.trays.length,
+        transactions: remoteState.transactions.length,
+        customers: remoteState.customers.length,
+        cropsWithImages: remoteState.crops.filter(c => c.imageUrl).length
+      });
+      
+      // Update app state if callback provided
+      if (onStateUpdate) {
+        onStateUpdate(remoteState);
+      }
+      
+      // Refresh storage stats
+      await getStorageEstimate().then(setStorageStats);
+      await getDatabaseStats().then(setDbBreakdown);
+      
+      setDownloadStatus('success');
+      setTimeout(() => {
+        setDownloadStatus('idle');
+        // Optionally reload to show updated data
+        window.location.reload();
+      }, 2000);
+    } catch (error: any) {
+      console.error('Download failed:', error);
+      const errorMessage = error?.message || error?.toString() || 'Unknown error';
+      
+      if (errorMessage.includes('fetch') || errorMessage.includes('network')) {
+        alert(`Network error: ${errorMessage}\n\nMake sure you're connected to the internet and the database is accessible.`);
+      } else {
+        alert(`Download failed: ${errorMessage}\n\nCheck browser console (F12) for more details.`);
+      }
+      
+      setDownloadStatus('error');
+      setTimeout(() => setDownloadStatus('idle'), 5000);
     }
   };
 
@@ -424,7 +497,23 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset }) =
       </div>
 
       {/* Actions Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+         {/* Download from Remote */}
+         <button 
+            onClick={handleDownloadFromRemote}
+            disabled={downloadStatus === 'downloading'}
+            className="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-md hover:border-blue-200 transition-all group relative disabled:opacity-50 disabled:cursor-not-allowed"
+         >
+            <div className="p-4 bg-blue-50 rounded-full text-blue-600 mb-3 group-hover:scale-110 transition-transform">
+               {downloadStatus === 'downloading' ? <RefreshCw className="w-8 h-8 animate-spin" /> : downloadStatus === 'success' ? <CheckCircle className="w-8 h-8" /> : downloadStatus === 'error' ? <AlertTriangle className="w-8 h-8 text-red-500" /> : <Download className="w-8 h-8" />}
+            </div>
+            <h3 className="font-bold text-slate-800">Download from DB</h3>
+            <p className="text-xs text-slate-400 mt-1">Get herbs & pictures from remote</p>
+            {downloadStatus === 'downloading' && <span className="absolute bottom-2 text-xs text-blue-500 font-bold">Downloading...</span>}
+            {downloadStatus === 'success' && <span className="absolute bottom-2 text-xs text-teal-500 font-bold">Downloaded!</span>}
+            {downloadStatus === 'error' && <span className="absolute bottom-2 text-xs text-red-500 font-bold">Failed</span>}
+         </button>
+
          {/* Sync Crops */}
          <button 
             onClick={handleSyncCrops}
