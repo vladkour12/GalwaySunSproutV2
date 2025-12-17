@@ -8,10 +8,16 @@ export const imageUrlToBase64 = async (imageUrl: string): Promise<string | null>
       return imageUrl;
     }
 
+    // Handle relative URLs (from public folder)
+    let fullImageUrl = imageUrl;
+    if (imageUrl.startsWith('/')) {
+      fullImageUrl = window.location.origin + imageUrl;
+    }
+
     // Fetch the image
-    const response = await fetch(imageUrl);
+    const response = await fetch(fullImageUrl);
     if (!response.ok) {
-      console.warn(`Failed to fetch image: ${imageUrl}`, response.status);
+      console.warn(`Failed to fetch image: ${fullImageUrl}`, response.status);
       return null;
     }
 

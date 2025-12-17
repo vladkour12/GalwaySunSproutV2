@@ -10,6 +10,7 @@ import {
   type SyncQueueItem,
   type SyncEntity,
 } from './storage';
+import { convertCropImagesToBase64 } from '../utils/imageConverter';
 
 const makeQueueId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
@@ -158,16 +159,22 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
     const cropsWithImages = crops.filter(c => c.imageUrl);
     const cropsWithoutImages = crops.filter(c => !c.imageUrl);
     console.log(`Crops with images: ${cropsWithImages.length}/${crops.length}`);
-    if (cropsWithoutImages.length > 0) {
-      console.warn('Crops without images:', cropsWithoutImages.map(c => c.name));
-    }
-    cropsWithImages.forEach(crop => {
-      console.log(`Crop ${crop.name}: imageUrl = ${crop.imageUrl}`);
-    });
     
-    // Save to local storage with image conversion for offline access
-    await saveState(state, true);
-    return state;
+    // Convert image URLs to base64 for offline access
+    console.log('Converting remote image URLs to base64 for local storage...');
+    const cropsWithConvertedImages = await convertCropImagesToBase64(state.crops);
+    const convertedCount = cropsWithConvertedImages.filter(c => c.imageUrl?.startsWith('data:')).length;
+    console.log(`Converted ${convertedCount}/${state.crops.length} crop images to base64`);
+    
+    const stateWithConvertedImages: AppState = {
+      ...state,
+      crops: cropsWithConvertedImages
+    };
+    
+    // Save to local storage with converted images
+    await saveState(stateWithConvertedImages, false); // false because we already converted
+    console.log('Successfully saved to local storage with converted images');
+    return stateWithConvertedImages;
   } catch (e) {
     const msg = (e as Error)?.message ?? String(e);
     const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');

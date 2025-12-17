@@ -120,13 +120,16 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
       }
       
       // Download from remote and save to local
+      console.log('Fetching data from remote database...');
       const remoteState = await refreshLocalFromRemote();
+      
       console.log('Downloaded from remote:', {
         crops: remoteState.crops.length,
         trays: remoteState.trays.length,
         transactions: remoteState.transactions.length,
         customers: remoteState.customers.length,
-        cropsWithImages: remoteState.crops.filter(c => c.imageUrl).length
+        cropsWithImages: remoteState.crops.filter(c => c.imageUrl).length,
+        cropsWithBase64Images: remoteState.crops.filter(c => c.imageUrl?.startsWith('data:')).length
       });
       
       // Update app state if callback provided
@@ -139,11 +142,16 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
       await getDatabaseStats().then(setDbBreakdown);
       
       setDownloadStatus('success');
+      
+      // Show success message
+      const message = `Successfully downloaded:\n• ${remoteState.crops.length} crops\n• ${remoteState.trays.length} trays\n• ${remoteState.transactions.length} transactions\n• ${remoteState.customers.length} customers\n• ${remoteState.crops.filter(c => c.imageUrl?.startsWith('data:')).length} images converted`;
+      alert(message);
+      
       setTimeout(() => {
         setDownloadStatus('idle');
-        // Optionally reload to show updated data
+        // Reload to show updated data
         window.location.reload();
-      }, 2000);
+      }, 1500);
     } catch (error: any) {
       console.error('Download failed:', error);
       const errorMessage = error?.message || error?.toString() || 'Unknown error';
