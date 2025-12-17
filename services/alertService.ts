@@ -34,19 +34,35 @@ export const getFarmAlerts = (state: AppState): Alert[] => {
     const diffHours = diffMs / (1000 * 60 * 60);
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
-    // A. Soaking Overdue
+    // A. Soaking - Ready to Move or Overdue
     if (tray.stage === Stage.SOAK) {
        const threshold = crop.soakHours;
-       // Alert if soaked > threshold + 2 hours buffer
-       if (threshold > 0 && diffHours > threshold + 2) {
-          alerts.push({
-             id: `soak-${tray.id}`,
-             type: 'urgent',
-             title: 'Over-soaking Alert',
-             message: `${crop.name} soaking for ${Math.round(diffHours)}h (Target: ${threshold}h)`,
-             linkTo: 'crops',
-             trayId: tray.id
-          });
+       if (threshold > 0) {
+          // Alert when it's time to move (within 1 hour of threshold) or overdue
+          if (diffHours >= threshold - 1 && diffHours <= threshold + 2) {
+             // Time to move (within 1 hour before or 2 hours after)
+             const isOverdue = diffHours > threshold;
+             alerts.push({
+                id: `soak-ready-${tray.id}`,
+                type: isOverdue ? 'urgent' : 'warning',
+                title: isOverdue ? 'Over-soaking Alert' : 'Move to Germination',
+                message: isOverdue 
+                   ? `${crop.name} soaking for ${Math.round(diffHours)}h (Target: ${threshold}h)`
+                   : `${crop.name} ready to move to Germination (${Math.round(diffHours)}h / ${threshold}h)`,
+                linkTo: 'crops',
+                trayId: tray.id
+             });
+          } else if (diffHours > threshold + 2) {
+             // Severely overdue
+             alerts.push({
+                id: `soak-overdue-${tray.id}`,
+                type: 'urgent',
+                title: 'Over-soaking Alert',
+                message: `${crop.name} soaking for ${Math.round(diffHours)}h (Target: ${threshold}h)`,
+                linkTo: 'crops',
+                trayId: tray.id
+             });
+          }
        }
     } 
     // B. Germination Done -> Move to Blackout
