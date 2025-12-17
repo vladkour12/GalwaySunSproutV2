@@ -262,6 +262,8 @@ const CropManager: React.FC<CropManagerProps> = ({
   const [isEditingTray, setIsEditingTray] = useState(false);
   const [editingTrayNotes, setEditingTrayNotes] = useState('');
   const [editingTrayLocation, setEditingTrayLocation] = useState('');
+  const [editingTrayStartDate, setEditingTrayStartDate] = useState('');
+  const [editingTrayPlantedDate, setEditingTrayPlantedDate] = useState('');
   
   // Event Planner State
   const [plannerCropId, setPlannerCropId] = useState('');
@@ -966,6 +968,15 @@ const CropManager: React.FC<CropManagerProps> = ({
                               setIsEditingTray(false);
                               setEditingTrayNotes(tray.notes || '');
                               setEditingTrayLocation(tray.location || '');
+                              // Initialize date fields for editing
+                              const startDate = new Date(tray.startDate);
+                              setEditingTrayStartDate(startDate.toISOString().slice(0, 16));
+                              if (tray.plantedAt) {
+                                 const plantedDate = new Date(tray.plantedAt);
+                                 setEditingTrayPlantedDate(plantedDate.toISOString().slice(0, 16));
+                              } else {
+                                 setEditingTrayPlantedDate('');
+                              }
                            }
                         }}
                         draggable
@@ -1365,6 +1376,15 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                 setIsEditingTray(false);
                                                 setEditingTrayNotes(t.notes || '');
                                                 setEditingTrayLocation(t.location || '');
+                                                // Initialize date fields for editing
+                                                const startDate = new Date(t.startDate);
+                                                setEditingTrayStartDate(startDate.toISOString().slice(0, 16));
+                                                if (t.plantedAt) {
+                                                   const plantedDate = new Date(t.plantedAt);
+                                                   setEditingTrayPlantedDate(plantedDate.toISOString().slice(0, 16));
+                                                } else {
+                                                   setEditingTrayPlantedDate('');
+                                                }
                                              }
                                           } 
                                        }}
@@ -2257,18 +2277,27 @@ const CropManager: React.FC<CropManagerProps> = ({
                         setIsEditingTray(false);
                         setEditingTrayNotes('');
                         setEditingTrayLocation('');
+                        setEditingTrayStartDate('');
+                        setEditingTrayPlantedDate('');
                      }} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5" /></button>
                   </div>
 
                   {/* Status Card */}
-                  <div className="bg-slate-50 p-4 rounded-2xl flex justify-between items-center border border-slate-100">
-                     <div>
-                        <span className="text-xs font-bold text-slate-400 uppercase">Current Stage</span>
-                        <div className={`mt-1 inline-flex px-2 py-1 rounded-lg text-xs font-bold uppercase ${getStageColor(selectedTray.stage)}`}>{selectedTray.stage}</div>
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                     <div className="flex justify-between items-center mb-3">
+                        <div>
+                           <span className="text-xs font-bold text-slate-400 uppercase">Current Stage</span>
+                           <div className={`mt-1 inline-flex px-2 py-1 rounded-lg text-xs font-bold uppercase ${getStageColor(selectedTray.stage)}`}>{selectedTray.stage}</div>
+                        </div>
+                        <div className="text-right">
+                           <span className="text-xs font-bold text-slate-400 uppercase">Planted</span>
+                           <div className="font-bold text-slate-700">{formatShortDate(new Date(selectedTray.plantedAt || selectedTray.startDate))}</div>
+                        </div>
                      </div>
-                     <div className="text-right">
-                        <span className="text-xs font-bold text-slate-400 uppercase">Planted</span>
-                        <div className="font-bold text-slate-700">{formatShortDate(new Date(selectedTray.startDate))}</div>
+                     <div className="pt-3 border-t border-slate-200">
+                        <span className="text-xs font-bold text-slate-400 uppercase">Stage Started</span>
+                        <div className="font-bold text-slate-700 mt-1">{formatShortDate(new Date(selectedTray.startDate))}</div>
+                        <p className="text-[10px] text-slate-400 mt-1">This date determines timing for current stage</p>
                      </div>
                   </div>
 
@@ -2362,9 +2391,47 @@ const CropManager: React.FC<CropManagerProps> = ({
                               value={editingTrayLocation} 
                               onChange={e => setEditingTrayLocation(e.target.value)}
                               placeholder="e.g. Shelf 1, Shelf 2-A"
-                              className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold"
+                              className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold focus:ring-2 focus:ring-teal-500 outline-none"
                            />
                         </div>
+                        
+                        {/* Date Editing Section */}
+                        <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4 space-y-3">
+                           <div className="flex items-center gap-2 mb-2">
+                              <Calendar className="w-4 h-4 text-amber-700" />
+                              <h4 className="text-xs font-bold text-amber-800 uppercase">Adjust Dates (For Testing)</h4>
+                           </div>
+                           <p className="text-[10px] text-amber-600 mb-3">Use this to sync germination dates when testing different seed types in the same pack.</p>
+                           
+                           <div>
+                              <label className="text-[10px] font-bold uppercase text-amber-700 block mb-2 flex items-center">
+                                 <Clock className="w-3 h-3 mr-1" />
+                                 Stage Start Date
+                              </label>
+                              <input 
+                                 type="datetime-local" 
+                                 value={editingTrayStartDate} 
+                                 onChange={e => setEditingTrayStartDate(e.target.value)}
+                                 className="w-full p-3 bg-white border-2 border-amber-200 rounded-xl text-base font-bold text-slate-700 focus:ring-2 focus:ring-amber-500 outline-none"
+                              />
+                              <p className="text-[10px] text-amber-600 mt-1">When current stage started (affects all timing calculations)</p>
+                           </div>
+                           
+                           <div>
+                              <label className="text-[10px] font-bold uppercase text-amber-700 block mb-2 flex items-center">
+                                 <Sprout className="w-3 h-3 mr-1" />
+                                 Original Planting Date (Optional)
+                              </label>
+                              <input 
+                                 type="datetime-local" 
+                                 value={editingTrayPlantedDate} 
+                                 onChange={e => setEditingTrayPlantedDate(e.target.value)}
+                                 className="w-full p-3 bg-white border-2 border-amber-200 rounded-xl text-base font-bold text-slate-700 focus:ring-2 focus:ring-amber-500 outline-none"
+                              />
+                              <p className="text-[10px] text-amber-600 mt-1">Original planting date (for reference, doesn't affect calculations)</p>
+                           </div>
+                        </div>
+                        
                         <div>
                            <label className="text-[10px] font-bold uppercase text-slate-400 block mb-2 flex items-center">
                               <Info className="w-3 h-3 mr-1" />
@@ -2374,19 +2441,31 @@ const CropManager: React.FC<CropManagerProps> = ({
                               value={editingTrayNotes} 
                               onChange={e => setEditingTrayNotes(e.target.value)}
                               placeholder="Add notes about this tray (e.g. special conditions, observations, etc.)"
-                              className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600 h-24 resize-none"
+                              className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600 h-24 resize-none focus:ring-2 focus:ring-teal-500 outline-none"
                            />
                         </div>
                         <div className="flex gap-3">
                            <button 
                               onClick={() => {
-                                 onUpdateTray(selectedTray.id, { 
+                                 const updates: Partial<Tray> = { 
                                     notes: editingTrayNotes,
                                     location: editingTrayLocation
-                                 });
+                                 };
+                                 
+                                 // Update startDate if changed
+                                 if (editingTrayStartDate) {
+                                    updates.startDate = new Date(editingTrayStartDate).toISOString();
+                                 }
+                                 
+                                 // Update plantedAt if changed
+                                 if (editingTrayPlantedDate) {
+                                    updates.plantedAt = new Date(editingTrayPlantedDate).toISOString();
+                                 }
+                                 
+                                 onUpdateTray(selectedTray.id, updates);
                                  setIsEditingTray(false);
                               }}
-                              className="flex-1 py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 transition-colors"
+                              className="flex-1 py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 transition-colors shadow-lg shadow-teal-200"
                            >
                               Save Changes
                            </button>
@@ -2395,6 +2474,8 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  setIsEditingTray(false);
                                  setEditingTrayNotes(selectedTray.notes || '');
                                  setEditingTrayLocation(selectedTray.location || '');
+                                 setEditingTrayStartDate('');
+                                 setEditingTrayPlantedDate('');
                               }}
                               className="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors"
                            >
@@ -2422,6 +2503,15 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  setIsEditingTray(true);
                                  setEditingTrayNotes(selectedTray.notes || '');
                                  setEditingTrayLocation(selectedTray.location || '');
+                                 // Initialize date fields
+                                 const startDate = new Date(selectedTray.startDate);
+                                 setEditingTrayStartDate(startDate.toISOString().slice(0, 16));
+                                 if (selectedTray.plantedAt) {
+                                    const plantedDate = new Date(selectedTray.plantedAt);
+                                    setEditingTrayPlantedDate(plantedDate.toISOString().slice(0, 16));
+                                 } else {
+                                    setEditingTrayPlantedDate('');
+                                 }
                               }}
                               className="py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl flex items-center justify-center hover:bg-slate-50 transition-colors"
                            >
