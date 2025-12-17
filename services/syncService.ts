@@ -82,6 +82,13 @@ export const flushSyncQueueOnce = async (): Promise<SyncResult> => {
         continue;
       }
       
+      // Skip silent errors (API routes not available in Vite dev mode)
+      if ((e as any)?.silent || (e?.message?.includes('Vite dev mode') || e?.message?.includes('API routes not available'))) {
+        await removeSyncQueueItem(item.id);
+        skipped += 1;
+        continue;
+      }
+      
       const next: SyncQueueItem = {
         ...item,
         attempts: (item.attempts ?? 0) + 1,

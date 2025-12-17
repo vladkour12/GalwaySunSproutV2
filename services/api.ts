@@ -99,41 +99,62 @@ const fetchJson = async <T>(url: string, init?: RequestInit): Promise<T> => {
 };
 
 const fetchOk = async (url: string, init?: RequestInit) => {
-  const res = await fetchWithTimeout(url, init);
-  if (!res.ok) {
-    const text = await res.text();
-    const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-    const trimmed = text.trim();
-    
-    // Check if response is TypeScript/JavaScript source code (Vite serves .ts files as-is on 404)
-    if (trimmed.startsWith('import ') || trimmed.startsWith('export ') || trimmed.startsWith('//')) {
-      if (isLocalDev && url.includes('/api/')) {
-        throw new ApiError('API routes require "npm run dev:vercel" instead of "npm run dev". Vite cannot run serverless functions.', { status: res.status, url });
+  try {
+    const res = await fetchWithTimeout(url, init);
+    if (!res.ok) {
+      const text = await res.text();
+      const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+      const trimmed = text.trim();
+      
+      // In local dev with Vite, suppress 404 errors for API routes (they're not available)
+      if (isLocalDev && res.status === 404 && url.includes('/api/')) {
+        // Silently fail - API routes not available in Vite dev mode
+        const error = new ApiError('API routes not available in Vite dev mode', { status: 404, url });
+        (error as any).silent = true; // Mark as silent to prevent console logging
+        throw error;
       }
-      throw new ApiError('API endpoint returned source code instead of JSON. This usually means the serverless function is not configured correctly.', { status: res.status, url });
-    }
-    
-    // Check if response is HTML (likely a 404 page or error page)
-    if (trimmed.startsWith('<!') || trimmed.startsWith('<html')) {
-      if (isLocalDev && url.includes('/api/')) {
-        throw new ApiError('API routes not available in local development. Use "npm run dev:vercel" instead of "npm run dev".', { status: res.status, url });
+      
+      // Check if response is TypeScript/JavaScript source code (Vite serves .ts files as-is on 404)
+      if (trimmed.startsWith('import ') || trimmed.startsWith('export ') || trimmed.startsWith('//')) {
+        if (isLocalDev && url.includes('/api/')) {
+          const error = new ApiError('API routes require "npm run dev:vercel" instead of "npm run dev". Vite cannot run serverless functions.', { status: res.status, url });
+          (error as any).silent = true;
+          throw error;
+        }
+        throw new ApiError('API endpoint returned source code instead of JSON. This usually means the serverless function is not configured correctly.', { status: res.status, url });
       }
-      throw new ApiError(`API returned HTML instead of JSON. Route may not exist.`, { status: res.status, url });
-    }
-    
-    let errorMessage = `Request failed (${res.status})`;
-    try {
-      const errorData = JSON.parse(text);
-      errorMessage = errorData.error || errorMessage;
-    } catch {
-      // If response is not JSON, include the text if it's short
-      if (text && text.length < 200) {
-        errorMessage = `${errorMessage}: ${text}`;
+      
+      // Check if response is HTML (likely a 404 page or error page)
+      if (trimmed.startsWith('<!') || trimmed.startsWith('<html')) {
+        if (isLocalDev && url.includes('/api/')) {
+          const error = new ApiError('API routes not available in local development. Use "npm run dev:vercel" instead of "npm run dev".', { status: res.status, url });
+          (error as any).silent = true;
+          throw error;
+        }
+        throw new ApiError(`API returned HTML instead of JSON. Route may not exist.`, { status: res.status, url });
       }
+      
+      let errorMessage = `Request failed (${res.status})`;
+      try {
+        const errorData = JSON.parse(text);
+        errorMessage = errorData.error || errorMessage;
+      } catch {
+        // If response is not JSON, include the text if it's short
+        if (text && text.length < 200) {
+          errorMessage = `${errorMessage}: ${text}`;
+        }
+      }
+      throw new ApiError(errorMessage, { status: res.status, url });
     }
-    throw new ApiError(errorMessage, { status: res.status, url });
+    return res;
+  } catch (err) {
+    // Don't re-throw silent errors (404s in local dev)
+    if (err instanceof ApiError && (err as any).silent) {
+      throw err; // Still throw, but syncService will handle it silently
+    }
+    if (err instanceof ApiError) throw err;
+    throw new ApiError(`Network error: ${err instanceof Error ? err.message : String(err)}`, { url });
   }
-  return res;
 };
 
 export const api = {
