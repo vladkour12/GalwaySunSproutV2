@@ -113,21 +113,33 @@ const getTargetHarvestDate = (tray: Tray, crop: CropType) => {
 
 // Helper to calculate Time to Next Stage
 const getTimeToNextStage = (tray: Tray, crop: CropType) => {
-  const start = new Date(tray.startDate).getTime();
-  const durationHours = getStageDurationHours(tray.stage, crop);
-  
-  if (tray.stage === Stage.HARVEST_READY) return { text: "Harvest Now", isOverdue: false };
+  try {
+    const start = new Date(tray.startDate);
+    if (isNaN(start.getTime())) return { text: "Invalid date", isOverdue: false, hours: 0 };
+    
+    const startTime = start.getTime();
+    const durationHours = getStageDurationHours(tray.stage, crop);
 
-  const targetTime = start + (durationHours * 60 * 60 * 1000);
-  const now = new Date().getTime();
-  const diff = targetTime - now;
+    if (tray.stage === Stage.HARVEST_READY) return { text: "Harvest Now", isOverdue: false, hours: 0 };
 
-  if (diff < 0) return { text: "Overdue", isOverdue: true };
-  
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  
-  if (days > 0) return { text: `${days}d ${hours}h`, isOverdue: false };
+    const targetTime = startTime + (durationHours * 60 * 60 * 1000);
+    const now = new Date().getTime();
+    const diff = targetTime - now;
+    const totalHours = diff / (1000 * 60 * 60);
+
+    if (diff < 0) return { text: "Overdue", isOverdue: true, hours: Math.abs(totalHours) };
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+      if (days > 0) return { text: `${days}d ${hours}h`, isOverdue: false, hours: totalHours };
+    if (hours > 0) return { text: `${hours}h`, isOverdue: false, hours: totalHours };
+    return { text: "Now", isOverdue: false, hours: 0 };
+  } catch (e) {
+    console.error('Error in getTimeToNextStage:', e);
+    return { text: "Error", isOverdue: false, hours: 0 };
+  }
+};
   return { text: `${hours}h`, isOverdue: false };
 };
 
@@ -471,6 +483,10 @@ const CropManager: React.FC<CropManagerProps> = ({
       try {
       const days = [];
       const today = new Date();
+      if (isNaN(today.getTime())) {
+        console.error('Invalid today date');
+        return [];
+      }
   
       for (let i = 0; i < 7; i++) {
         const currentDay = new Date(today);
@@ -598,17 +614,24 @@ const CropManager: React.FC<CropManagerProps> = ({
          
          // Also handle SOAK stage for today's tasks
          if (tray.stage === Stage.SOAK && crop.soakHours > 0 && i === 0) {
-            const timeInfo = getTimeToNextStage(tray, crop);
-            const targetTime = startDate.getTime() + (crop.soakHours * 60 * 60 * 1000);
-            tasks.push({ 
-              type: 'task', 
-              text: `Move ${displayName} to Germination (${tray.location})`, 
-              icon: Droplet, 
-              color: 'text-blue-600 bg-blue-50', 
-              trayId: tray.id,
-              timeRemaining: timeInfo,
-              targetTime: targetTime
-            });
+            try {
+              const timeInfo = getTimeToNextStage(tray, crop);
+              const startTime = new Date(startDate).getTime();
+              if (!isNaN(startTime)) {
+                const targetTime = startTime + (crop.soakHours * 60 * 60 * 1000);
+                tasks.push({ 
+                  type: 'task', 
+                  text: `Move ${displayName} to Germination (${tray.location})`, 
+                  icon: Droplet, 
+                  color: 'text-blue-600 bg-blue-50', 
+                  trayId: tray.id,
+                  timeRemaining: timeInfo,
+                  targetTime: targetTime
+                });
+              }
+            } catch (e) {
+              console.error('Error processing SOAK task:', e);
+            }
          }
       });
 
