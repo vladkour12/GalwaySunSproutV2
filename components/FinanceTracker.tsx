@@ -139,7 +139,8 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
 
   const filteredTransactions = useMemo(() => {
     // Filter out business expenses from regular transactions view
-    const nonBusinessTransactions = state.transactions.filter(t => !t.isBusinessExpense);
+    // Only show transactions that are NOT business expenses (undefined or false)
+    const nonBusinessTransactions = state.transactions.filter(t => t.isBusinessExpense !== true);
     
     if (timeRange === 'all') return nonBusinessTransactions;
     const now = new Date();
@@ -524,9 +525,13 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                 initial={{ height: 0, opacity: 0 }} 
                 animate={{ height: 'auto', opacity: 1 }} 
                 exit={{ height: 0, opacity: 0 }} 
-                transition={{ duration: 0.3, ease: 'easeInOut' }} 
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
                 onSubmit={(e) => {
                   e.preventDefault();
+                  e.stopPropagation();
                   if (!expenseAmount || !expenseCategory) return;
                   
                   if (editingExpense) {
@@ -546,6 +551,8 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                     onAddTransaction('expense', parseFloat(expenseAmount), expenseCategory, expenseDescription, undefined, expensePayee, expenseReceipt, true);
                   }
                   
+                  // Keep viewMode on expenses tab and reset form
+                  setViewMode('expenses');
                   setShowExpenseForm(false);
                   setExpenseAmount('');
                   setExpenseCategory('');
@@ -585,7 +592,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="relative">
+                    <div className="relative" onClick={(e) => e.stopPropagation()}>
                       <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] text-purple-600 font-bold z-10">Category</label>
                       <CustomSelect 
                         value={expenseCategory} 
@@ -736,7 +743,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
 
           {/* Total Business Expenses */}
           {(() => {
-            const businessExpenses = state.transactions.filter(t => t.isBusinessExpense === true);
+            const businessExpenses = state.transactions.filter(t => t.isBusinessExpense === true || t.isBusinessExpense === 'true');
             const totalSpent = businessExpenses.reduce((sum, t) => sum + t.amount, 0);
             
             return (
@@ -780,7 +787,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
             <div className="divide-y divide-slate-50">
               {(() => {
                 const businessExpenses = state.transactions
-                  .filter(t => t.isBusinessExpense === true)
+                  .filter(t => t.isBusinessExpense === true || t.isBusinessExpense === 'true')
                   .filter(t => {
                     if (timeRange === 'all') return true;
                     const d = new Date(t.date);

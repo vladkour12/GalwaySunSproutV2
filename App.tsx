@@ -564,7 +564,7 @@ const App: React.FC = () => {
     const newTx: Transaction = {
       id: Math.random().toString(36).substr(2, 9),
       date: new Date().toISOString(),
-      type, category, amount, description: desc, customerId, payee
+      type, category, amount, description: desc, customerId, payee, receiptImage, isBusinessExpense
     };
     setAppState(prev => ({ ...prev, transactions: [...prev.transactions, newTx] }));
     
