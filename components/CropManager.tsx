@@ -1929,6 +1929,143 @@ const CropManager: React.FC<CropManagerProps> = ({
          {activeTab === 'plan' && (
             <div className="space-y-4">
                
+               {/* Weekly Orders Section - At Top */}
+               <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+                  <div className="flex justify-between items-center mb-3">
+                     <div className="flex items-center gap-2">
+                        <ShoppingBag className="w-4 h-4 text-indigo-600" />
+                        <h3 className="font-bold text-slate-800 text-sm">Weekly Orders</h3>
+                     </div>
+                     <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setIsAddingOrder(!isAddingOrder)} 
+                        className={`text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-sm transition-all ${
+                           isAddingOrder 
+                              ? 'text-slate-600 bg-slate-100 border border-slate-200' 
+                              : 'text-white bg-indigo-600 border border-indigo-500'
+                        }`}
+                     >
+                        {isAddingOrder ? 'Cancel' : <><Plus className="w-3 h-3 inline mr-1" />Add</>}
+                     </motion.button>
+                  </div>
+
+                  <AnimatePresence>
+                  {isAddingOrder && (
+                     <motion.div 
+                        initial={{ height: 0, opacity: 0 }} 
+                        animate={{ height: 'auto', opacity: 1 }} 
+                        exit={{ height: 0, opacity: 0 }} 
+                        className="mb-3 overflow-hidden"
+                     >
+                        <div className="bg-slate-50 p-3 rounded-lg border border-indigo-200 space-y-2.5">
+                           <div>
+                              <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Customer</label>
+                              <CustomSelect 
+                                 value={newOrderCustId}
+                                 onChange={(val) => setNewOrderCustId(val)}
+                                 options={[
+                                    { value: "", label: "Select Customer..." },
+                                    ...state.customers.map(c => ({ value: c.id, label: c.name }))
+                                 ]}
+                                 className="w-full"
+                              />
+                           </div>
+                           <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                 <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Crop</label>
+                                 <CustomSelect 
+                                    value={newOrderCropId}
+                                    onChange={(val) => setNewOrderCropId(val)}
+                                    options={[
+                                       { value: "", label: "Select Crop..." },
+                                       ...state.crops.map(c => ({ value: c.id, label: c.name }))
+                                    ]}
+                                 />
+                              </div>
+                              <div>
+                                 <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Amount (g)</label>
+                                 <input 
+                                    type="number" 
+                                    placeholder="0" 
+                                    value={newOrderAmount} 
+                                    onChange={e => setNewOrderAmount(e.target.value)} 
+                                    className="w-full p-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-700 focus:ring-1 focus:ring-indigo-200 focus:border-indigo-400 outline-none" 
+                                 />
+                              </div>
+                           </div>
+                           <div>
+                              <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Delivery Day</label>
+                              <CustomSelect 
+                                 value={newOrderDay}
+                                 onChange={(val) => setNewOrderDay(parseInt(val))}
+                                 options={DAYS_OF_WEEK.map((d, i) => ({ value: i, label: `Deliver on ${d}` }))}
+                              />
+                           </div>
+                           <motion.button 
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={addRecurringOrder} 
+                              className="w-full py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-indigo-700 transition-all"
+                           >
+                              Save Order
+                           </motion.button>
+                        </div>
+                     </motion.div>
+                  )}
+                  </AnimatePresence>
+
+                  <div className="space-y-2">
+                     {recurringOrders.length === 0 && !isAddingOrder && (
+                        <div className="text-center py-4">
+                           <ShoppingBag className="w-6 h-6 text-slate-300 mx-auto mb-1 opacity-50" />
+                           <p className="text-xs text-slate-400 font-medium">No weekly orders</p>
+                        </div>
+                     )}
+                     {recurringOrders.map(order => {
+                        const crop = state.crops.find(c => c.id === order.cropId);
+                        const cust = state.customers.find(c => c.id === order.customerId);
+                        return (
+                           <motion.div
+                              key={order.id}
+                              initial={{ opacity: 0, y: 3 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="group bg-slate-50 p-2 rounded-lg border border-slate-200 flex justify-between items-center hover:bg-white transition-all"
+                           >
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                 <div className="p-1.5 rounded-md bg-indigo-50 text-indigo-600 flex-shrink-0">
+                                    <Truck className="w-3 h-3" />
+                                 </div>
+                                 <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-bold text-slate-800 truncate">{cust?.name || 'Unknown'}</p>
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                       <span className="text-[10px] font-medium text-slate-600">
+                                          {order.amount >= 1000 ? `${(order.amount/1000).toFixed(1)}kg` : `${order.amount}g`}
+                                       </span>
+                                       <span className="text-slate-300">•</span>
+                                       <span className="text-[10px] font-bold text-emerald-600 truncate">{crop?.name || 'Unknown'}</span>
+                                       <span className="text-slate-300">•</span>
+                                       <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-md">
+                                          <Calendar className="w-2.5 h-2.5" />
+                                          {DAYS_OF_WEEK[order.dueDayOfWeek]}
+                                       </span>
+                                    </div>
+                                 </div>
+                              </div>
+                              <motion.button 
+                                 whileHover={{ scale: 1.1 }}
+                                 whileTap={{ scale: 0.9 }}
+                                 onClick={() => deleteOrder(order.id)} 
+                                 className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors flex-shrink-0"
+                              >
+                                 <X className="w-3 h-3" />
+                              </motion.button>
+                           </motion.div>
+                        );
+                     })}
+                  </div>
+               </div>
+               
                {/* Mode Switcher */}
                <div className="bg-slate-100 p-1 rounded-xl flex">
                   <button 
