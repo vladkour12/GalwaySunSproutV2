@@ -272,6 +272,9 @@ const CropManager: React.FC<CropManagerProps> = ({
   const [isPinching, setIsPinching] = useState(false);
   const [lastPinchDistance, setLastPinchDistance] = useState(0);
   
+  // Calendar popup state
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date | null>(null);
+  
   // Event Planner State
   const [plannerCropId, setPlannerCropId] = useState('');
   const [plannerDate, setPlannerDate] = useState(new Date().toISOString().split('T')[0]);
@@ -1265,46 +1268,108 @@ const CropManager: React.FC<CropManagerProps> = ({
          {/* --- CALENDAR TAB --- */}
          {activeTab === 'calendar' && (
             <div className="space-y-3">
-               {/* Summary Cards - Compact */}
-               {(() => {
-                  const todayTasks = calendarDays[0]?.tasks || [];
-                  const urgentTasks = todayTasks.filter(t => t.type === 'alert').length;
-                  const totalHarvest = calendarDays.reduce((sum, day) => sum + day.tasks.reduce((s, t) => s + (t.estYield || 0), 0), 0);
-                  const totalTasks = calendarDays.reduce((sum, day) => sum + day.tasks.length, 0);
-                  
-                  return (
-                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        <div className="bg-gradient-to-br from-teal-500 to-teal-600 text-white p-2.5 rounded-xl shadow-md">
-                           <div className="flex items-center justify-between mb-1">
-                              <Calendar className="w-3.5 h-3.5 opacity-80" />
-                              <span className="text-lg font-bold">{totalTasks}</span>
-                           </div>
-                           <p className="text-[9px] font-bold opacity-90 uppercase tracking-wider">Tasks</p>
-                        </div>
-                        <div className="bg-gradient-to-br from-red-500 to-red-600 text-white p-2.5 rounded-xl shadow-md">
-                           <div className="flex items-center justify-between mb-1">
-                              <AlertCircle className="w-3.5 h-3.5 opacity-80" />
-                              <span className="text-lg font-bold">{urgentTasks}</span>
-                           </div>
-                           <p className="text-[9px] font-bold opacity-90 uppercase tracking-wider">Urgent</p>
-                        </div>
-                        <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-2.5 rounded-xl shadow-md">
-                           <div className="flex items-center justify-between mb-1">
-                              <Scale className="w-3.5 h-3.5 opacity-80" />
-                              <span className="text-lg font-bold">{totalHarvest >= 1000 ? `${(totalHarvest/1000).toFixed(1)}kg` : `${totalHarvest}g`}</span>
-                           </div>
-                           <p className="text-[9px] font-bold opacity-90 uppercase tracking-wider">Harvest</p>
-                        </div>
-                        <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-2.5 rounded-xl shadow-md">
-                           <div className="flex items-center justify-between mb-1">
-                              <CheckCircle className="w-3.5 h-3.5 opacity-80" />
-                              <span className="text-lg font-bold">{todayTasks.length}</span>
-                           </div>
-                           <p className="text-[9px] font-bold opacity-90 uppercase tracking-wider">Today</p>
-                        </div>
+               {/* Color Legend */}
+               <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                  <h4 className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                     <Info className="w-3.5 h-3.5" />
+                     Color Guide
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                     <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-red-500 border-2 border-white shadow-sm"></div>
+                        <span className="text-[10px] font-medium text-slate-600">Urgent/Alert</span>
                      </div>
-                  );
-               })()}
+                     <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-teal-500 border-2 border-white shadow-sm"></div>
+                        <span className="text-[10px] font-medium text-slate-600">Harvest</span>
+                     </div>
+                     <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-sm"></div>
+                        <span className="text-[10px] font-medium text-slate-600">Plant</span>
+                     </div>
+                     <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-sm"></div>
+                        <span className="text-[10px] font-medium text-slate-600">Task</span>
+                     </div>
+                  </div>
+               </div>
+               
+               {/* Calendar Grid */}
+               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                  <div className="grid grid-cols-7 gap-2">
+                     {/* Day Headers */}
+                     {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                        <div key={day} className="text-center">
+                           <span className="text-[10px] font-bold text-slate-500 uppercase">{day}</span>
+                        </div>
+                     ))}
+                     
+                     {/* Calendar Days */}
+                     {(() => {
+                        const today = new Date();
+                        const startOfWeek = new Date(today);
+                        startOfWeek.setDate(today.getDate() - today.getDay()); // Start from Sunday
+                        
+                        const days = [];
+                        for (let i = 0; i < 7; i++) {
+                           const date = new Date(startOfWeek);
+                           date.setDate(startOfWeek.getDate() + i);
+                           
+                           // Find tasks for this date
+                           const dayData = calendarDays.find(d => 
+                              d.date.toDateString() === date.toDateString()
+                           );
+                           
+                           const isToday = date.toDateString() === today.toDateString();
+                           const tasks = dayData?.tasks || [];
+                           
+                           // Determine color based on task types (priority: urgent > harvest > plant > task)
+                           let circleColor = 'bg-slate-200'; // Default (no tasks)
+                           let borderColor = 'border-slate-300';
+                           let hasUrgent = tasks.some(t => t.type === 'alert');
+                           let hasHarvest = tasks.some(t => t.type === 'harvest');
+                           let hasPlant = tasks.some(t => t.type === 'plant');
+                           let hasTask = tasks.some(t => t.type === 'task' || t.type === 'order');
+                           
+                           if (hasUrgent) {
+                              circleColor = 'bg-red-500';
+                              borderColor = 'border-red-600';
+                           } else if (hasHarvest) {
+                              circleColor = 'bg-teal-500';
+                              borderColor = 'border-teal-600';
+                           } else if (hasPlant) {
+                              circleColor = 'bg-emerald-500';
+                              borderColor = 'border-emerald-600';
+                           } else if (hasTask) {
+                              circleColor = 'bg-blue-500';
+                              borderColor = 'border-blue-600';
+                           }
+                           
+                           days.push(
+                              <button
+                                 key={i}
+                                 onClick={() => setSelectedCalendarDate(date)}
+                                 className={`relative w-full aspect-square rounded-full ${circleColor} ${borderColor} border-2 flex items-center justify-center transition-all hover:scale-110 active:scale-95 ${
+                                    isToday ? 'ring-2 ring-offset-2 ring-teal-400' : ''
+                                 } ${tasks.length > 0 ? 'shadow-md' : 'shadow-sm'}`}
+                              >
+                                 <span className={`text-sm font-bold ${
+                                    isToday ? 'text-white' : tasks.length > 0 ? 'text-white' : 'text-slate-600'
+                                 }`}>
+                                    {date.getDate()}
+                                 </span>
+                                 {tasks.length > 0 && (
+                                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full border-2 border-slate-300 flex items-center justify-center">
+                                       <span className="text-[8px] font-bold text-slate-700">{tasks.length}</span>
+                                    </span>
+                                 )}
+                              </button>
+                           );
+                        }
+                        return days;
+                     })()}
+                  </div>
+               </div>
                
                {/* Daily Schedule - Compact Timeline View */}
                <div className="relative pl-4 space-y-3 before:absolute before:left-4 before:top-2 before:bottom-0 before:w-0.5 before:bg-gradient-to-b before:from-teal-200 before:via-slate-200 before:to-slate-200 before:rounded-full">
@@ -1525,6 +1590,180 @@ const CropManager: React.FC<CropManagerProps> = ({
                      );
                   })}
                </div>
+
+               {/* Date Tasks Popup */}
+               <AnimatePresence>
+                  {selectedCalendarDate && (() => {
+                     const dayData = calendarDays.find(d => 
+                        d.date.toDateString() === selectedCalendarDate.toDateString()
+                     );
+                     const tasks = dayData?.tasks || [];
+                     const isToday = selectedCalendarDate.toDateString() === new Date().toDateString();
+                     
+                     return (
+                        <motion.div
+                           initial={{ opacity: 0 }}
+                           animate={{ opacity: 1 }}
+                           exit={{ opacity: 0 }}
+                           className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+                           onClick={() => setSelectedCalendarDate(null)}
+                        >
+                           <motion.div
+                              initial={{ scale: 0.95, y: 10 }}
+                              animate={{ scale: 1, y: 0 }}
+                              exit={{ scale: 0.95, y: 10 }}
+                              onClick={(e) => e.stopPropagation()}
+                              className="bg-white w-full max-w-md rounded-2xl shadow-2xl max-h-[85vh] overflow-hidden flex flex-col"
+                           >
+                              {/* Header */}
+                              <div className="bg-gradient-to-r from-teal-500 to-teal-600 p-4 text-white">
+                                 <div className="flex justify-between items-start">
+                                    <div>
+                                       <h3 className="text-lg font-bold">
+                                          {isToday ? 'Today' : selectedCalendarDate.toLocaleDateString(undefined, { 
+                                             weekday: 'long', 
+                                             month: 'long', 
+                                             day: 'numeric' 
+                                          })}
+                                       </h3>
+                                       <p className="text-sm opacity-90 mt-0.5">
+                                          {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+                                       </p>
+                                    </div>
+                                    <button
+                                       onClick={() => setSelectedCalendarDate(null)}
+                                       className="p-1.5 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
+                                    >
+                                       <X className="w-5 h-5" />
+                                    </button>
+                                 </div>
+                              </div>
+                              
+                              {/* Tasks List */}
+                              <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                                 {tasks.length === 0 ? (
+                                    <div className="text-center py-8">
+                                       <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+                                       <p className="text-sm text-slate-400 font-medium">No tasks scheduled</p>
+                                    </div>
+                                 ) : (
+                                    tasks.map((task, idx) => {
+                                       const Icon = task.icon;
+                                       const isUrgent = task.type === 'alert';
+                                       const isHarvest = task.type === 'harvest';
+                                       
+                                       return (
+                                          <motion.div
+                                             key={idx}
+                                             initial={{ opacity: 0, y: 5 }}
+                                             animate={{ opacity: 1, y: 0 }}
+                                             transition={{ delay: idx * 0.05 }}
+                                             onClick={() => {
+                                                if (task.trayId) {
+                                                   const t = state.trays.find(x => x.id === task.trayId);
+                                                   if (t) {
+                                                      setSelectedTray(t);
+                                                      setSelectedCalendarDate(null);
+                                                      setIsEditingTray(false);
+                                                      setEditingTrayNotes(t.notes || '');
+                                                      setEditingTrayLocation(t.location || '');
+                                                      const startDate = new Date(t.startDate);
+                                                      setEditingTrayStartDate(startDate.toISOString().slice(0, 16));
+                                                      if (t.plantedAt) {
+                                                         const plantedDate = new Date(t.plantedAt);
+                                                         setEditingTrayPlantedDate(plantedDate.toISOString().slice(0, 16));
+                                                      } else {
+                                                         setEditingTrayPlantedDate('');
+                                                      }
+                                                   }
+                                                }
+                                             }}
+                                             className={`p-3 rounded-xl border-2 transition-all ${
+                                                task.trayId ? 'cursor-pointer hover:shadow-md active:scale-[0.98]' : ''
+                                             } ${
+                                                isUrgent 
+                                                   ? 'bg-red-50 border-red-200' 
+                                                   : isHarvest
+                                                   ? 'bg-teal-50 border-teal-200'
+                                                   : task.type === 'plant'
+                                                   ? 'bg-emerald-50 border-emerald-200'
+                                                   : 'bg-white border-slate-200'
+                                             }`}
+                                          >
+                                             <div className="flex items-start gap-3">
+                                                <div className={`p-2 rounded-lg flex-shrink-0 ${
+                                                   isUrgent
+                                                      ? 'bg-red-500 text-white'
+                                                      : isHarvest
+                                                      ? 'bg-teal-500 text-white'
+                                                      : task.type === 'plant'
+                                                      ? 'bg-emerald-500 text-white'
+                                                      : 'bg-blue-500 text-white'
+                                                }`}>
+                                                   <Icon className="w-4 h-4" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                   <p className={`text-sm font-bold ${
+                                                      isUrgent ? 'text-red-900' : isHarvest ? 'text-teal-900' : 'text-slate-800'
+                                                   }`}>
+                                                      {task.text}
+                                                   </p>
+                                                   {task.sub && (
+                                                      <p className="text-xs text-slate-600 mt-0.5">{task.sub}</p>
+                                                   )}
+                                                   <div className="flex items-center gap-2 mt-2 flex-wrap">
+                                                      {task.timeRemaining && task.targetTime && (() => {
+                                                         const now = currentTime.getTime();
+                                                         const diff = task.targetTime - now;
+                                                         let timeText = '';
+                                                         let isOverdue = false;
+                                                         
+                                                         if (diff < 0) {
+                                                            timeText = 'Overdue';
+                                                            isOverdue = true;
+                                                         } else {
+                                                            const hours = Math.floor(diff / (1000 * 60 * 60));
+                                                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                                            if (hours > 0) {
+                                                               timeText = `${hours}h ${minutes}m`;
+                                                            } else {
+                                                               timeText = `${minutes}m`;
+                                                            }
+                                                         }
+                                                         
+                                                         return (
+                                                            <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                                                               isOverdue 
+                                                                  ? 'text-red-700 bg-red-100' 
+                                                                  : 'text-blue-700 bg-blue-100'
+                                                            }`}>
+                                                               <Clock className="w-3 h-3" />
+                                                               {timeText}
+                                                            </span>
+                                                         );
+                                                      })()}
+                                                      {task.estYield && (
+                                                         <span className="inline-flex items-center gap-1 text-[10px] font-bold text-teal-700 bg-teal-100 px-2 py-0.5 rounded-md">
+                                                            <Scale className="w-3 h-3" />
+                                                            {task.estYield >= 1000 ? `${(task.estYield/1000).toFixed(1)}kg` : `${task.estYield}g`}
+                                                         </span>
+                                                      )}
+                                                   </div>
+                                                </div>
+                                                {task.trayId && (
+                                                   <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0" />
+                                                )}
+                                             </div>
+                                          </motion.div>
+                                       );
+                                    })
+                                 )}
+                              </div>
+                           </motion.div>
+                        </motion.div>
+                     );
+                  })()}
+               </AnimatePresence>
 
                {/* Compact Recurring Orders Section */}
                <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm">
