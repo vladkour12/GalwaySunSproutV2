@@ -498,7 +498,8 @@ const CropManager: React.FC<CropManagerProps> = ({
         return [];
       }
   
-      for (let i = 0; i < 7; i++) {
+      // Show 4 days: today and next 3 days
+      for (let i = 0; i < 4; i++) {
         const currentDay = new Date(today);
         currentDay.setDate(today.getDate() + i);
         const dayOfWeek = currentDay.getDay(); // 0-6
@@ -1267,113 +1268,15 @@ const CropManager: React.FC<CropManagerProps> = ({
 
          {/* --- CALENDAR TAB --- */}
          {activeTab === 'calendar' && (
-            <div className="space-y-3">
-               {/* Color Legend */}
-               <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                  <h4 className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5">
-                     <Info className="w-3.5 h-3.5" />
-                     Color Guide
+            <div className="space-y-2.5">
+               {/* Daily Schedule - Compact Timeline View - At Top */}
+               <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+                  <h4 className="text-[10px] font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                     <Clock className="w-3 h-3" />
+                     Upcoming Tasks (Next 4 Days)
                   </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                     <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full bg-red-500 border-2 border-white shadow-sm"></div>
-                        <span className="text-[10px] font-medium text-slate-600">Urgent/Alert</span>
-                     </div>
-                     <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full bg-teal-500 border-2 border-white shadow-sm"></div>
-                        <span className="text-[10px] font-medium text-slate-600">Harvest</span>
-                     </div>
-                     <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-sm"></div>
-                        <span className="text-[10px] font-medium text-slate-600">Plant</span>
-                     </div>
-                     <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-sm"></div>
-                        <span className="text-[10px] font-medium text-slate-600">Task</span>
-                     </div>
-                  </div>
-               </div>
-               
-               {/* Calendar Grid */}
-               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                  <div className="grid grid-cols-7 gap-2">
-                     {/* Day Headers */}
-                     {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                        <div key={day} className="text-center">
-                           <span className="text-[10px] font-bold text-slate-500 uppercase">{day}</span>
-                        </div>
-                     ))}
-                     
-                     {/* Calendar Days */}
-                     {(() => {
-                        const today = new Date();
-                        const startOfWeek = new Date(today);
-                        startOfWeek.setDate(today.getDate() - today.getDay()); // Start from Sunday
-                        
-                        const days = [];
-                        for (let i = 0; i < 7; i++) {
-                           const date = new Date(startOfWeek);
-                           date.setDate(startOfWeek.getDate() + i);
-                           
-                           // Find tasks for this date
-                           const dayData = calendarDays.find(d => 
-                              d.date.toDateString() === date.toDateString()
-                           );
-                           
-                           const isToday = date.toDateString() === today.toDateString();
-                           const tasks = dayData?.tasks || [];
-                           
-                           // Determine color based on task types (priority: urgent > harvest > plant > task)
-                           let circleColor = 'bg-slate-200'; // Default (no tasks)
-                           let borderColor = 'border-slate-300';
-                           let hasUrgent = tasks.some(t => t.type === 'alert');
-                           let hasHarvest = tasks.some(t => t.type === 'harvest');
-                           let hasPlant = tasks.some(t => t.type === 'plant');
-                           let hasTask = tasks.some(t => t.type === 'task' || t.type === 'order');
-                           
-                           if (hasUrgent) {
-                              circleColor = 'bg-red-500';
-                              borderColor = 'border-red-600';
-                           } else if (hasHarvest) {
-                              circleColor = 'bg-teal-500';
-                              borderColor = 'border-teal-600';
-                           } else if (hasPlant) {
-                              circleColor = 'bg-emerald-500';
-                              borderColor = 'border-emerald-600';
-                           } else if (hasTask) {
-                              circleColor = 'bg-blue-500';
-                              borderColor = 'border-blue-600';
-                           }
-                           
-                           days.push(
-                              <button
-                                 key={i}
-                                 onClick={() => setSelectedCalendarDate(date)}
-                                 className={`relative w-full aspect-square rounded-full ${circleColor} ${borderColor} border-2 flex items-center justify-center transition-all hover:scale-110 active:scale-95 ${
-                                    isToday ? 'ring-2 ring-offset-2 ring-teal-400' : ''
-                                 } ${tasks.length > 0 ? 'shadow-md' : 'shadow-sm'}`}
-                              >
-                                 <span className={`text-sm font-bold ${
-                                    isToday ? 'text-white' : tasks.length > 0 ? 'text-white' : 'text-slate-600'
-                                 }`}>
-                                    {date.getDate()}
-                                 </span>
-                                 {tasks.length > 0 && (
-                                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full border-2 border-slate-300 flex items-center justify-center">
-                                       <span className="text-[8px] font-bold text-slate-700">{tasks.length}</span>
-                                    </span>
-                                 )}
-                              </button>
-                           );
-                        }
-                        return days;
-                     })()}
-                  </div>
-               </div>
-               
-               {/* Daily Schedule - Compact Timeline View */}
-               <div className="relative pl-3 space-y-2 before:absolute before:left-3 before:top-1.5 before:bottom-0 before:w-0.5 before:bg-gradient-to-b before:from-teal-200 before:via-slate-200 before:to-slate-200 before:rounded-full">
-                  {calendarDays.map((day, idx) => {
+                  <div className="relative pl-3 space-y-1.5 before:absolute before:left-3 before:top-1 before:bottom-0 before:w-0.5 before:bg-gradient-to-b before:from-teal-200 before:via-slate-200 before:to-slate-200 before:rounded-full">
+                     {calendarDays.map((day, idx) => {
                      const dailyHarvest = day.tasks.reduce((sum, t) => sum + (t.estYield || 0), 0);
                      const isToday = idx === 0;
                      const urgentCount = day.tasks.filter(t => t.type === 'alert').length;
@@ -2063,6 +1966,195 @@ const CropManager: React.FC<CropManagerProps> = ({
                            </motion.div>
                         );
                      })}
+                  </div>
+               </div>
+               
+               {/* Color Legend */}
+               <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+                  <h4 className="text-[10px] font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                     <Info className="w-3 h-3" />
+                     Color Guide
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5">
+                     <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow-sm"></div>
+                        <span className="text-[9px] font-medium text-slate-600">Urgent/Alert</span>
+                     </div>
+                     <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded-full bg-teal-500 border-2 border-white shadow-sm"></div>
+                        <span className="text-[9px] font-medium text-slate-600">Harvest</span>
+                     </div>
+                     <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded-full bg-emerald-500 border-2 border-white shadow-sm"></div>
+                        <span className="text-[9px] font-medium text-slate-600">Plant</span>
+                     </div>
+                     <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow-sm"></div>
+                        <span className="text-[9px] font-medium text-slate-600">Task</span>
+                     </div>
+                  </div>
+               </div>
+               
+               {/* Calendar Grid - Full Month View */}
+               <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+                  <div className="grid grid-cols-7 gap-1">
+                     {/* Day Headers */}
+                     {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
+                        <div key={idx} className="text-center">
+                           <span className="text-[8px] font-bold text-slate-500 uppercase">{day}</span>
+                        </div>
+                     ))}
+                     
+                     {/* Calendar Days - Full Month */}
+                     {(() => {
+                        const today = new Date();
+                        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                        const startDate = new Date(firstDayOfMonth);
+                        startDate.setDate(startDate.getDate() - startDate.getDay()); // Start from Sunday
+                        
+                        // Helper function to get tasks for any date
+                        const getTasksForDate = (date: Date) => {
+                           const tasks: any[] = [];
+                           const dayOfWeek = date.getDay();
+                           const isToday = date.toDateString() === today.toDateString();
+                           
+                           // 1. Alerts (only for today)
+                           if (isToday) {
+                              const alerts = getFarmAlerts(state);
+                              alerts.forEach(alert => {
+                                 let icon = AlertCircle;
+                                 let color = "text-red-600 bg-red-50";
+                                 let type = 'alert';
+                                 
+                                 if (alert.type === 'urgent') {
+                                    icon = AlertCircle;
+                                    color = "text-red-600 bg-red-50";
+                                 } else if (alert.type === 'warning') {
+                                    icon = AlertCircle;
+                                    color = "text-amber-600 bg-amber-50";
+                                 } else if (alert.type === 'routine') {
+                                    icon = Droplet;
+                                    color = "text-blue-500 bg-blue-50";
+                                    type = 'routine';
+                                 }
+                                 
+                                 tasks.push({ type, icon, color, trayId: alert.trayId });
+                              });
+                           }
+                           
+                           // 2. Tray stage transitions
+                           activeTrays.forEach(tray => {
+                              const crop = state.crops.find(c => c.id === tray.cropTypeId);
+                              if (!crop) return;
+                              
+                              const startDate = new Date(tray.startDate);
+                              const addDays = (d: Date, days: number) => {
+                                 const res = new Date(d);
+                                 res.setDate(res.getDate() + days);
+                                 return res;
+                              };
+                              
+                              let stageEndDate = new Date(startDate);
+                              
+                              if (tray.stage === Stage.GERMINATION) {
+                                 stageEndDate = addDays(startDate, crop.germinationDays);
+                                 if (stageEndDate.toDateString() === date.toDateString()) {
+                                    tasks.push({ type: 'task', icon: Moon });
+                                 }
+                              } else if (tray.stage === Stage.BLACKOUT) {
+                                 stageEndDate = addDays(startDate, crop.blackoutDays);
+                                 if (stageEndDate.toDateString() === date.toDateString()) {
+                                    tasks.push({ type: 'task', icon: Sun });
+                                 }
+                              } else if (tray.stage === Stage.LIGHT) {
+                                 stageEndDate = addDays(startDate, crop.lightDays);
+                                 if (stageEndDate.toDateString() === date.toDateString()) {
+                                    tasks.push({ type: 'harvest', icon: CheckCircle });
+                                 }
+                              }
+                           });
+                           
+                           // 3. Orders due
+                           const ordersDue = recurringOrders.filter(o => o.dueDayOfWeek === dayOfWeek);
+                           if (ordersDue.length > 0) {
+                              tasks.push({ type: 'order', icon: Truck });
+                           }
+                           
+                           // 4. Planting tasks (from orders)
+                           recurringOrders.forEach(order => {
+                              const crop = state.crops.find(c => c.id === order.cropId);
+                              if (!crop) return;
+                              const totalDays = crop.germinationDays + crop.blackoutDays + crop.lightDays;
+                              const plantDayIndex = (order.dueDayOfWeek - (totalDays % 7) + 7) % 7;
+                              if (plantDayIndex === dayOfWeek) {
+                                 tasks.push({ type: 'plant', icon: Sprout });
+                              }
+                           });
+                           
+                           return tasks;
+                        };
+                        
+                        const days = [];
+                        const totalDays = 42; // 6 weeks * 7 days
+                        
+                        for (let i = 0; i < totalDays; i++) {
+                           const date = new Date(startDate);
+                           date.setDate(startDate.getDate() + i);
+                           
+                           const isCurrentMonth = date.getMonth() === today.getMonth();
+                           const isToday = date.toDateString() === today.toDateString();
+                           
+                           // Get tasks for this date
+                           const tasks = getTasksForDate(date);
+                           
+                           // Determine color based on task types (priority: urgent > harvest > plant > task)
+                           let circleColor = isCurrentMonth ? 'bg-slate-100' : 'bg-slate-50'; // Default (no tasks)
+                           let borderColor = 'border-slate-200';
+                           let textColor = isCurrentMonth ? 'text-slate-600' : 'text-slate-400';
+                           let hasUrgent = tasks.some(t => t.type === 'alert');
+                           let hasHarvest = tasks.some(t => t.type === 'harvest');
+                           let hasPlant = tasks.some(t => t.type === 'plant');
+                           let hasTask = tasks.some(t => t.type === 'task' || t.type === 'order');
+                           
+                           if (hasUrgent) {
+                              circleColor = 'bg-red-500';
+                              borderColor = 'border-red-600';
+                              textColor = 'text-white';
+                           } else if (hasHarvest) {
+                              circleColor = 'bg-teal-500';
+                              borderColor = 'border-teal-600';
+                              textColor = 'text-white';
+                           } else if (hasPlant) {
+                              circleColor = 'bg-emerald-500';
+                              borderColor = 'border-emerald-600';
+                              textColor = 'text-white';
+                           } else if (hasTask) {
+                              circleColor = 'bg-blue-500';
+                              borderColor = 'border-blue-600';
+                              textColor = 'text-white';
+                           }
+                           
+                           days.push(
+                              <button
+                                 key={i}
+                                 onClick={() => setSelectedCalendarDate(date)}
+                                 className={`relative w-full aspect-square rounded-md ${circleColor} ${borderColor} border flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${
+                                    isToday ? 'ring-1 ring-offset-1 ring-teal-400' : ''
+                                 } ${tasks.length > 0 ? 'shadow-sm' : ''}`}
+                              >
+                                 <span className={`text-[9px] font-bold ${textColor}`}>
+                                    {date.getDate()}
+                                 </span>
+                                 {tasks.length > 0 && (
+                                    <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-white rounded-full border border-slate-300 flex items-center justify-center">
+                                       <span className="text-[7px] font-bold text-slate-700">{tasks.length}</span>
+                                    </span>
+                                 )}
+                              </button>
+                           );
+                        }
+                        return days;
+                     })()}
                   </div>
                </div>
                
