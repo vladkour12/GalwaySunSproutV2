@@ -1372,7 +1372,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                </div>
                
                {/* Daily Schedule - Compact Timeline View */}
-               <div className="relative pl-4 space-y-3 before:absolute before:left-4 before:top-2 before:bottom-0 before:w-0.5 before:bg-gradient-to-b before:from-teal-200 before:via-slate-200 before:to-slate-200 before:rounded-full">
+               <div className="relative pl-3 space-y-2 before:absolute before:left-3 before:top-1.5 before:bottom-0 before:w-0.5 before:bg-gradient-to-b before:from-teal-200 before:via-slate-200 before:to-slate-200 before:rounded-full">
                   {calendarDays.map((day, idx) => {
                      const dailyHarvest = day.tasks.reduce((sum, t) => sum + (t.estYield || 0), 0);
                      const isToday = idx === 0;
@@ -1389,7 +1389,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                         className="relative pl-7"
                      >
                         {/* Compact Timeline Node */}
-                        <div className={`absolute left-0 top-0.5 w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-md transition-all ${
+                        <div className={`absolute left-0 top-0.5 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-md transition-all ${
                            isToday 
                               ? 'bg-gradient-to-br from-teal-500 to-teal-600 scale-110 shadow-teal-300' 
                               : 'bg-gradient-to-br from-slate-200 to-slate-300'
@@ -1398,26 +1398,26 @@ const CropManager: React.FC<CropManagerProps> = ({
                               <motion.div 
                                  animate={{ scale: [1, 1.2, 1] }}
                                  transition={{ duration: 2, repeat: Infinity }}
-                                 className="w-1.5 h-1.5 bg-white rounded-full"
+                                 className="w-1 h-1 bg-white rounded-full"
                               />
                            ) : (
-                              <div className="w-1 h-1 bg-white rounded-full" />
+                              <div className="w-0.5 h-0.5 bg-white rounded-full" />
                            )}
                         </div>
 
                         {/* Compact Date Header */}
-                        <div className="mb-2">
-                           <div className="flex items-center justify-between mb-1.5">
-                              <div className="flex items-center gap-2">
-                                 <div className="flex items-baseline gap-1.5">
-                                    <span className={`text-xl font-black leading-none ${isToday ? 'text-slate-900' : 'text-slate-500'}`}>
+                        <div className="mb-1.5">
+                           <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center gap-1.5">
+                                 <div className="flex items-baseline gap-1">
+                                    <span className={`text-base font-black leading-none ${isToday ? 'text-slate-900' : 'text-slate-500'}`}>
                                        {day.date.getDate()}
                                     </span>
-                                    <span className={`text-[9px] font-bold uppercase tracking-wide ${isToday ? 'text-teal-600' : 'text-slate-400'}`}>
+                                    <span className={`text-[8px] font-bold uppercase tracking-wide ${isToday ? 'text-teal-600' : 'text-slate-400'}`}>
                                        {monthName}
                                     </span>
                                  </div>
-                                 <span className={`text-xs font-bold ${isToday ? 'text-slate-800' : 'text-slate-500'}`}>
+                                 <span className={`text-[10px] font-bold ${isToday ? 'text-slate-800' : 'text-slate-500'}`}>
                                     {dayName}
                                  </span>
                               </div>
@@ -1448,13 +1448,13 @@ const CropManager: React.FC<CropManagerProps> = ({
                            <motion.div 
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
-                              className="p-3 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border border-dashed border-slate-200 text-center"
+                              className="p-2 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-dashed border-slate-200 text-center"
                            >
-                              <Calendar className="w-5 h-5 text-slate-300 mx-auto mb-1" />
-                              <p className="text-xs text-slate-400 font-medium">No tasks</p>
+                              <Calendar className="w-4 h-4 text-slate-300 mx-auto mb-0.5" />
+                              <p className="text-[10px] text-slate-400 font-medium">No tasks</p>
                            </motion.div>
                         ) : (
-                           <div className="space-y-2">
+                           <div className="space-y-1.5">
                               {day.tasks.map((task, tIdx) => {
                                  const Icon = task.icon;
                                  const isUrgent = task.type === 'alert';
@@ -1927,14 +1927,14 @@ const CropManager: React.FC<CropManagerProps> = ({
 
          {/* --- PLANNER (Functional) --- */}
          {activeTab === 'plan' && (
-            <div className="space-y-4">
+            <div className="space-y-2.5">
                
                {/* Weekly Orders Section - At Top */}
-               <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
-                  <div className="flex justify-between items-center mb-3">
-                     <div className="flex items-center gap-2">
-                        <ShoppingBag className="w-4 h-4 text-indigo-600" />
-                        <h3 className="font-bold text-slate-800 text-sm">Weekly Orders</h3>
+               <div className="bg-white rounded-xl p-2.5 border border-slate-200 shadow-sm">
+                  <div className="flex justify-between items-center mb-2">
+                     <div className="flex items-center gap-1.5">
+                        <ShoppingBag className="w-3.5 h-3.5 text-indigo-600" />
+                        <h3 className="font-bold text-slate-800 text-xs">Weekly Orders</h3>
                      </div>
                      <motion.button 
                         whileHover={{ scale: 1.05 }}
@@ -1958,9 +1958,9 @@ const CropManager: React.FC<CropManagerProps> = ({
                         exit={{ height: 0, opacity: 0 }} 
                         className="mb-3 overflow-hidden"
                      >
-                        <div className="bg-slate-50 p-3 rounded-lg border border-indigo-200 space-y-2.5">
+                        <div className="bg-slate-50 p-2 rounded-lg border border-indigo-200 space-y-2">
                            <div>
-                              <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Customer</label>
+                              <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5">Customer</label>
                               <CustomSelect 
                                  value={newOrderCustId}
                                  onChange={(val) => setNewOrderCustId(val)}
@@ -1973,7 +1973,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                            </div>
                            <div className="grid grid-cols-2 gap-2">
                               <div>
-                                 <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Crop</label>
+                                 <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5">Crop</label>
                                  <CustomSelect 
                                     value={newOrderCropId}
                                     onChange={(val) => setNewOrderCropId(val)}
@@ -1984,18 +1984,18 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  />
                               </div>
                               <div>
-                                 <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Amount (g)</label>
+                                 <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5">Amount (g)</label>
                                  <input 
                                     type="number" 
                                     placeholder="0" 
                                     value={newOrderAmount} 
                                     onChange={e => setNewOrderAmount(e.target.value)} 
-                                    className="w-full p-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-700 focus:ring-1 focus:ring-indigo-200 focus:border-indigo-400 outline-none" 
+                                    className="w-full p-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 focus:ring-1 focus:ring-indigo-200 focus:border-indigo-400 outline-none" 
                                  />
                               </div>
                            </div>
                            <div>
-                              <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Delivery Day</label>
+                              <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5">Delivery Day</label>
                               <CustomSelect 
                                  value={newOrderDay}
                                  onChange={(val) => setNewOrderDay(parseInt(val))}
@@ -2006,7 +2006,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
                               onClick={addRecurringOrder} 
-                              className="w-full py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-indigo-700 transition-all"
+                              className="w-full py-1.5 bg-indigo-600 text-white text-[10px] font-bold rounded-lg shadow-sm hover:bg-indigo-700 transition-all"
                            >
                               Save Order
                            </motion.button>
@@ -2015,11 +2015,11 @@ const CropManager: React.FC<CropManagerProps> = ({
                   )}
                   </AnimatePresence>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                      {recurringOrders.length === 0 && !isAddingOrder && (
-                        <div className="text-center py-4">
-                           <ShoppingBag className="w-6 h-6 text-slate-300 mx-auto mb-1 opacity-50" />
-                           <p className="text-xs text-slate-400 font-medium">No weekly orders</p>
+                        <div className="text-center py-2.5">
+                           <ShoppingBag className="w-5 h-5 text-slate-300 mx-auto mb-0.5 opacity-50" />
+                           <p className="text-[10px] text-slate-400 font-medium">No weekly orders</p>
                         </div>
                      )}
                      {recurringOrders.map(order => {
@@ -2030,14 +2030,14 @@ const CropManager: React.FC<CropManagerProps> = ({
                               key={order.id}
                               initial={{ opacity: 0, y: 3 }}
                               animate={{ opacity: 1, y: 0 }}
-                              className="group bg-slate-50 p-2 rounded-lg border border-slate-200 flex justify-between items-center hover:bg-white transition-all"
+                              className="group bg-slate-50 p-1.5 rounded-lg border border-slate-200 flex justify-between items-center hover:bg-white transition-all"
                            >
-                              <div className="flex items-center gap-2 flex-1 min-w-0">
-                                 <div className="p-1.5 rounded-md bg-indigo-50 text-indigo-600 flex-shrink-0">
-                                    <Truck className="w-3 h-3" />
+                              <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                                 <div className="p-1 rounded-md bg-indigo-50 text-indigo-600 flex-shrink-0">
+                                    <Truck className="w-2.5 h-2.5" />
                                  </div>
                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-bold text-slate-800 truncate">{cust?.name || 'Unknown'}</p>
+                                    <p className="text-[10px] font-bold text-slate-800 truncate">{cust?.name || 'Unknown'}</p>
                                     <div className="flex items-center gap-1.5 flex-wrap">
                                        <span className="text-[10px] font-medium text-slate-600">
                                           {order.amount >= 1000 ? `${(order.amount/1000).toFixed(1)}kg` : `${order.amount}g`}
@@ -2067,31 +2067,31 @@ const CropManager: React.FC<CropManagerProps> = ({
                </div>
                
                {/* Mode Switcher */}
-               <div className="bg-slate-100 p-1 rounded-xl flex">
+               <div className="bg-slate-100 p-0.5 rounded-lg flex">
                   <button 
                     onClick={() => setPlannerMode('event')} 
-                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center ${plannerMode === 'event' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}
+                    className={`flex-1 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center justify-center ${plannerMode === 'event' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}
                   >
-                    <Calendar className="w-3.5 h-3.5 mr-1.5" /> Event Date
+                    <Calendar className="w-3 h-3 mr-1" /> Event Date
                   </button>
                   <button 
                     onClick={() => setPlannerMode('recurring')} 
-                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center ${plannerMode === 'recurring' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}
+                    className={`flex-1 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center justify-center ${plannerMode === 'recurring' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}
                   >
-                    <Repeat className="w-3.5 h-3.5 mr-1.5" /> Weekly Routine
+                    <Repeat className="w-3 h-3 mr-1" /> Weekly Routine
                   </button>
                </div>
 
                {plannerMode === 'event' ? (
                  /* EVENT PLANNER MODE */
-                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                    <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center">
-                       <Calendar className="w-5 h-5 mr-2 text-teal-600" />
+                 <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                    <h3 className="text-sm font-bold text-slate-800 mb-2 flex items-center">
+                       <Calendar className="w-4 h-4 mr-1.5 text-teal-600" />
                        Backward Planner
                     </h3>
-                    <p className="text-sm text-slate-500 mb-6">Need crops for a specific date? Calculate exactly when to plant.</p>
+                    <p className="text-xs text-slate-500 mb-3">Need crops for a specific date? Calculate exactly when to plant.</p>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                        <div>
                           <CustomSelect 
                              label="Crop Variety"
@@ -2115,8 +2115,8 @@ const CropManager: React.FC<CropManagerProps> = ({
                     </div>
 
                     {eventSchedule && (
-                       <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 animate-in fade-in slide-in-from-bottom-2">
-                          <div className="flex justify-between items-center mb-6">
+                       <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 animate-in fade-in slide-in-from-bottom-2">
+                          <div className="flex justify-between items-center mb-3">
                              <div className="text-center">
                                 <span className="text-xs font-bold text-slate-400 uppercase block mb-1">Start Planting</span>
                                 <span className="text-xl font-bold text-teal-600">
@@ -2137,16 +2137,16 @@ const CropManager: React.FC<CropManagerProps> = ({
                           {/* Timeline Visualization */}
                           <div className="space-y-0 relative">
                              {/* Step 1: Soak/Plant */}
-                             <div className="flex items-start relative z-10 pb-6">
-                                <div className="flex flex-col items-center mr-4">
-                                   <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs shadow-sm border-2 border-white">1</div>
-                                   <div className="w-0.5 h-full bg-slate-200 absolute top-8"></div>
+                             <div className="flex items-start relative z-10 pb-3">
+                                <div className="flex flex-col items-center mr-3">
+                                   <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[10px] shadow-sm border-2 border-white">1</div>
+                                   <div className="w-0.5 h-full bg-slate-200 absolute top-6"></div>
                                 </div>
-                                <div className="flex-1 pt-1">
-                                   <p className="text-sm font-bold text-slate-800">Soak & Plant</p>
-                                   <p className="text-xs text-slate-500">{eventSchedule.plantDate.toDateString()}</p>
+                                <div className="flex-1 pt-0.5">
+                                   <p className="text-xs font-bold text-slate-800">Soak & Plant</p>
+                                   <p className="text-[10px] text-slate-500">{eventSchedule.plantDate.toDateString()}</p>
                                    {eventSchedule.crop.soakHours > 0 && (
-                                      <span className="inline-block mt-1 text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
+                                      <span className="inline-block mt-0.5 text-[9px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md">
                                          Soak for {eventSchedule.crop.soakHours} hours
                                       </span>
                                    )}
@@ -2154,15 +2154,15 @@ const CropManager: React.FC<CropManagerProps> = ({
                              </div>
                              
                              {/* Step 2: Blackout */}
-                             <div className="flex items-start relative z-10 pb-6">
-                                <div className="flex flex-col items-center mr-4">
-                                   <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs shadow-sm border-2 border-white">2</div>
-                                   <div className="w-0.5 h-full bg-slate-200 absolute top-8"></div>
+                             <div className="flex items-start relative z-10 pb-3">
+                                <div className="flex flex-col items-center mr-3">
+                                   <div className="w-6 h-6 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-[10px] shadow-sm border-2 border-white">2</div>
+                                   <div className="w-0.5 h-full bg-slate-200 absolute top-6"></div>
                                 </div>
-                                <div className="flex-1 pt-1">
-                                   <p className="text-sm font-bold text-slate-800">Enter Blackout</p>
-                                   <p className="text-xs text-slate-500">{eventSchedule.germEnd.toDateString()}</p>
-                                   <span className="inline-block mt-1 text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                                <div className="flex-1 pt-0.5">
+                                   <p className="text-xs font-bold text-slate-800">Enter Blackout</p>
+                                   <p className="text-[10px] text-slate-500">{eventSchedule.germEnd.toDateString()}</p>
+                                   <span className="inline-block mt-0.5 text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md">
                                       Duration: {eventSchedule.crop.blackoutDays} days
                                    </span>
                                 </div>
@@ -2170,13 +2170,13 @@ const CropManager: React.FC<CropManagerProps> = ({
 
                              {/* Step 3: Lights */}
                              <div className="flex items-start relative z-10">
-                                <div className="flex flex-col items-center mr-4">
-                                   <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-xs shadow-sm border-2 border-white">3</div>
+                                <div className="flex flex-col items-center mr-3">
+                                   <div className="w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-[10px] shadow-sm border-2 border-white">3</div>
                                 </div>
-                                <div className="flex-1 pt-1">
-                                   <p className="text-sm font-bold text-slate-800">Expose to Light</p>
-                                   <p className="text-xs text-slate-500">{eventSchedule.blackoutEnd.toDateString()}</p>
-                                   <span className="inline-block mt-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">
+                                <div className="flex-1 pt-0.5">
+                                   <p className="text-xs font-bold text-slate-800">Expose to Light</p>
+                                   <p className="text-[10px] text-slate-500">{eventSchedule.blackoutEnd.toDateString()}</p>
+                                   <span className="inline-block mt-0.5 text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md">
                                       Duration: {eventSchedule.crop.lightDays} days
                                    </span>
                                 </div>
@@ -2185,22 +2185,22 @@ const CropManager: React.FC<CropManagerProps> = ({
                        </div>
                     )}
                     {!eventSchedule && (
-                       <div className="bg-slate-50/50 p-8 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
-                          <Calendar className="w-10 h-10 text-slate-300 mb-2" />
-                          <p className="text-slate-400 text-sm">Select a crop and date above to see your schedule.</p>
+                       <div className="bg-slate-50/50 p-4 rounded-xl border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
+                          <Calendar className="w-6 h-6 text-slate-300 mb-1" />
+                          <p className="text-slate-400 text-xs">Select a crop and date above to see your schedule.</p>
                        </div>
                     )}
                  </div>
                ) : (
                  /* WEEKLY ROUTINE MODE */
-                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                    <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center">
-                       <Repeat className="w-5 h-5 mr-2 text-indigo-600" />
+                 <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                    <h3 className="text-sm font-bold text-slate-800 mb-2 flex items-center">
+                       <Repeat className="w-4 h-4 mr-1.5 text-indigo-600" />
                        Weekly Production
                     </h3>
-                    <p className="text-sm text-slate-500 mb-6">Establish a regular supply. Calculate trays needed for a weekly target.</p>
+                    <p className="text-xs text-slate-500 mb-3">Establish a regular supply. Calculate trays needed for a weekly target.</p>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                        <div>
                           <CustomSelect 
                              label="Crop Variety"
@@ -2235,30 +2235,30 @@ const CropManager: React.FC<CropManagerProps> = ({
                     </div>
 
                     {recurringSchedule && (
-                       <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 animate-in fade-in slide-in-from-bottom-2">
-                          <div className="flex flex-col items-center justify-center py-4 border-b border-slate-200 border-dashed mb-4">
-                              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">To Harvest {recurringTargetAmount}g Weekly</span>
-                              <div className="flex items-baseline space-x-2">
-                                 <span className="text-4xl font-bold text-indigo-600">{recurringSchedule.traysNeeded}</span>
-                                 <span className="text-lg font-bold text-slate-500">Trays Needed</span>
+                       <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 animate-in fade-in slide-in-from-bottom-2">
+                          <div className="flex flex-col items-center justify-center py-2 border-b border-slate-200 border-dashed mb-2">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">To Harvest {recurringTargetAmount}g Weekly</span>
+                              <div className="flex items-baseline space-x-1.5">
+                                 <span className="text-2xl font-bold text-indigo-600">{recurringSchedule.traysNeeded}</span>
+                                 <span className="text-sm font-bold text-slate-500">Trays Needed</span>
                               </div>
-                              <p className="text-xs text-slate-400 mt-2">
+                              <p className="text-[10px] text-slate-400 mt-1">
                                  Est. Yield: {recurringSchedule.yieldPerTray}g per tray
                               </p>
                           </div>
 
-                          <div className="bg-white p-5 rounded-xl border border-indigo-100 shadow-sm space-y-5">
+                          <div className="bg-white p-3 rounded-lg border border-indigo-100 shadow-sm space-y-3">
                               {/* 1. Header & Primary Instruction */}
-                              <div className="flex items-start space-x-4 pb-4 border-b border-indigo-50">
-                                 <div className="bg-indigo-50 p-2.5 rounded-xl text-indigo-600 mt-1">
-                                    <Calendar className="w-6 h-6" />
+                              <div className="flex items-start space-x-2.5 pb-2 border-b border-indigo-50">
+                                 <div className="bg-indigo-50 p-1.5 rounded-lg text-indigo-600 mt-0.5">
+                                    <Calendar className="w-4 h-4" />
                                  </div>
                                  <div className="flex-1">
-                                    <h4 className="font-bold text-slate-800 text-sm mb-1">Weekly Cycle</h4>
-                                    <div className="inline-block bg-indigo-600 text-white text-sm font-bold px-3 py-1.5 rounded-lg shadow-sm shadow-indigo-200">
+                                    <h4 className="font-bold text-slate-800 text-xs mb-0.5">Weekly Cycle</h4>
+                                    <div className="inline-block bg-indigo-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm shadow-indigo-200">
                                        Plant {recurringSchedule.traysNeeded} trays every {recurringSchedule.plantDayName}
                                     </div>
-                                    <p className="text-xs text-slate-500 mt-2">
+                                    <p className="text-[10px] text-slate-500 mt-1">
                                        To harvest fresh <strong>{recurringSchedule.crop.name}</strong> every <strong>{recurringSchedule.harvestDayName}</strong>.
                                     </p>
                                  </div>
@@ -2266,70 +2266,70 @@ const CropManager: React.FC<CropManagerProps> = ({
 
                               {/* 2. Detailed Timeline Flow */}
                               <div>
-                                 <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Routine Schedule</h5>
-                                 <div className="grid grid-cols-4 gap-2 text-center">
-                                    <div className="bg-slate-50 rounded-lg p-2 border border-slate-100">
-                                       <span className="block text-[10px] text-slate-400 uppercase font-bold">Plant</span>
-                                       <span className="text-xs font-bold text-indigo-600">{abbrDay(recurringSchedule.timeline.plant)}</span>
+                                 <h5 className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Routine Schedule</h5>
+                                 <div className="grid grid-cols-4 gap-1.5 text-center">
+                                    <div className="bg-slate-50 rounded-lg p-1.5 border border-slate-100">
+                                       <span className="block text-[9px] text-slate-400 uppercase font-bold">Plant</span>
+                                       <span className="text-[10px] font-bold text-indigo-600">{abbrDay(recurringSchedule.timeline.plant)}</span>
                                     </div>
-                                    <div className="bg-slate-50 rounded-lg p-2 border border-slate-100">
-                                       <span className="block text-[10px] text-slate-400 uppercase font-bold">Dark</span>
-                                       <span className="text-xs font-bold text-slate-700">{abbrDay(recurringSchedule.timeline.blackout)}</span>
+                                    <div className="bg-slate-50 rounded-lg p-1.5 border border-slate-100">
+                                       <span className="block text-[9px] text-slate-400 uppercase font-bold">Dark</span>
+                                       <span className="text-[10px] font-bold text-slate-700">{abbrDay(recurringSchedule.timeline.blackout)}</span>
                                     </div>
-                                    <div className="bg-slate-50 rounded-lg p-2 border border-slate-100">
-                                       <span className="block text-[10px] text-slate-400 uppercase font-bold">Light</span>
-                                       <span className="text-xs font-bold text-amber-500">{abbrDay(recurringSchedule.timeline.light)}</span>
+                                    <div className="bg-slate-50 rounded-lg p-1.5 border border-slate-100">
+                                       <span className="block text-[9px] text-slate-400 uppercase font-bold">Light</span>
+                                       <span className="text-[10px] font-bold text-amber-500">{abbrDay(recurringSchedule.timeline.light)}</span>
                                     </div>
-                                    <div className="bg-slate-50 rounded-lg p-2 border border-slate-100">
-                                       <span className="block text-[10px] text-slate-400 uppercase font-bold">Cut</span>
-                                       <span className="text-xs font-bold text-teal-600">{abbrDay(recurringSchedule.timeline.harvest)}</span>
+                                    <div className="bg-slate-50 rounded-lg p-1.5 border border-slate-100">
+                                       <span className="block text-[9px] text-slate-400 uppercase font-bold">Cut</span>
+                                       <span className="text-[10px] font-bold text-teal-600">{abbrDay(recurringSchedule.timeline.harvest)}</span>
                                     </div>
                                  </div>
                               </div>
 
                               {/* 3. Business Stats Grid */}
-                              <div className="grid grid-cols-2 gap-4 pt-2">
+                              <div className="grid grid-cols-2 gap-2 pt-1">
                                  {/* Revenue */}
-                                 <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-                                    <span className="text-[10px] font-bold text-emerald-600/70 uppercase block mb-0.5">Wk Revenue</span>
-                                    <div className="text-lg font-bold text-emerald-700">€{recurringSchedule.weeklyRevenue.toFixed(2)}</div>
+                                 <div className="bg-emerald-50 p-2 rounded-lg border border-emerald-100">
+                                    <span className="text-[9px] font-bold text-emerald-600/70 uppercase block mb-0.5">Wk Revenue</span>
+                                    <div className="text-sm font-bold text-emerald-700">€{recurringSchedule.weeklyRevenue.toFixed(2)}</div>
                                  </div>
                                  
                                  {/* Seed Cost */}
-                                 <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase block mb-0.5">Seed Cost</span>
-                                    <div className="text-lg font-bold text-slate-700">€{recurringSchedule.seedCost.toFixed(2)}</div>
-                                    <span className="text-[10px] text-slate-400 font-medium">{recurringSchedule.weeklySeedGrams}g / week</span>
+                                 <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                    <span className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">Seed Cost</span>
+                                    <div className="text-sm font-bold text-slate-700">€{recurringSchedule.seedCost.toFixed(2)}</div>
+                                    <span className="text-[9px] text-slate-400 font-medium">{recurringSchedule.weeklySeedGrams}g / week</span>
                                  </div>
 
                                  {/* Shelf Capacity */}
-                                 <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase block mb-0.5">Shelf Space</span>
-                                    <div className="text-lg font-bold text-slate-700">{recurringSchedule.shelfSpace} <span className="text-xs font-medium text-slate-400">trays</span></div>
-                                    <span className="text-[10px] text-slate-400 font-medium">Max ({recurringSchedule.lightBatches} wk cycle)</span>
+                                 <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                    <span className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">Shelf Space</span>
+                                    <div className="text-sm font-bold text-slate-700">{recurringSchedule.shelfSpace} <span className="text-[10px] font-medium text-slate-400">trays</span></div>
+                                    <span className="text-[9px] text-slate-400 font-medium">Max ({recurringSchedule.lightBatches} wk cycle)</span>
                                  </div>
 
                                  {/* Profit Margin (Simple) */}
-                                 <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
-                                    <span className="text-[10px] font-bold text-indigo-600/70 uppercase block mb-0.5">Est. Profit</span>
-                                    <div className="text-lg font-bold text-indigo-700">€{(recurringSchedule.weeklyRevenue - recurringSchedule.seedCost).toFixed(2)}</div>
+                                 <div className="bg-indigo-50 p-2 rounded-lg border border-indigo-100">
+                                    <span className="text-[9px] font-bold text-indigo-600/70 uppercase block mb-0.5">Est. Profit</span>
+                                    <div className="text-sm font-bold text-indigo-700">€{(recurringSchedule.weeklyRevenue - recurringSchedule.seedCost).toFixed(2)}</div>
                                  </div>
                               </div>
 
                               {/* 4. Upcoming Schedule */}
-                              <div className="pt-2 border-t border-slate-100">
-                                 <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Upcoming Plantings</h5>
-                                 <div className="bg-slate-50 rounded-xl border border-slate-100 divide-y divide-slate-100">
+                              <div className="pt-1.5 border-t border-slate-100">
+                                 <h5 className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Upcoming Plantings</h5>
+                                 <div className="bg-slate-50 rounded-lg border border-slate-100 divide-y divide-slate-100">
                                     {recurringSchedule.upcomingDates.map((date, idx) => (
-                                       <div key={idx} className="flex justify-between items-center p-3">
+                                       <div key={idx} className="flex justify-between items-center p-2">
                                           <div className="flex items-center">
-                                             <div className="w-8 text-center mr-3">
-                                                <span className="block text-[9px] font-bold text-slate-400 uppercase">{date.toLocaleDateString(undefined, {month:'short'})}</span>
-                                                <span className="block text-sm font-bold text-slate-700">{date.getDate()}</span>
+                                             <div className="w-6 text-center mr-2">
+                                                <span className="block text-[8px] font-bold text-slate-400 uppercase">{date.toLocaleDateString(undefined, {month:'short'})}</span>
+                                                <span className="block text-xs font-bold text-slate-700">{date.getDate()}</span>
                                              </div>
                                              <div>
-                                                <p className="text-xs font-bold text-slate-700">Plant {recurringSchedule.traysNeeded}x Trays</p>
-                                                <p className="text-[10px] text-slate-400">Target harvest: {new Date(date.getTime() + (recurringSchedule.totalGrowingDays * 24 * 60 * 60 * 1000)).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</p>
+                                                <p className="text-[10px] font-bold text-slate-700">Plant {recurringSchedule.traysNeeded}x Trays</p>
+                                                <p className="text-[9px] text-slate-400">Target harvest: {new Date(date.getTime() + (recurringSchedule.totalGrowingDays * 24 * 60 * 60 * 1000)).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</p>
                                              </div>
                                           </div>
                                           <button 
@@ -2339,7 +2339,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                 setPlantLocation('Shelf 1'); // Default
                                                 setIsAdding(true);
                                              }}
-                                             className="text-[10px] font-bold text-white bg-slate-800 px-2.5 py-1.5 rounded-lg hover:bg-slate-700"
+                                             className="text-[9px] font-bold text-white bg-slate-800 px-2 py-1 rounded-md hover:bg-slate-700"
                                           >
                                              Plant
                                           </button>
@@ -2617,144 +2617,6 @@ const CropManager: React.FC<CropManagerProps> = ({
                               </div>
                           </div>
                     </div>
-                 ) : null}
-                 
-                 {/* Weekly Orders Section */}
-                 <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm mt-4">
-                    <div className="flex justify-between items-center mb-3">
-                       <div className="flex items-center gap-2">
-                          <ShoppingBag className="w-4 h-4 text-indigo-600" />
-                          <h3 className="font-bold text-slate-800 text-sm">Weekly Orders</h3>
-                       </div>
-                       <motion.button 
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => setIsAddingOrder(!isAddingOrder)} 
-                          className={`text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-sm transition-all ${
-                             isAddingOrder 
-                                ? 'text-slate-600 bg-slate-100 border border-slate-200' 
-                                : 'text-white bg-indigo-600 border border-indigo-500'
-                          }`}
-                       >
-                          {isAddingOrder ? 'Cancel' : <><Plus className="w-3 h-3 inline mr-1" />Add</>}
-                       </motion.button>
-                    </div>
-
-                    <AnimatePresence>
-                    {isAddingOrder && (
-                       <motion.div 
-                          initial={{ height: 0, opacity: 0 }} 
-                          animate={{ height: 'auto', opacity: 1 }} 
-                          exit={{ height: 0, opacity: 0 }} 
-                          className="mb-3 overflow-hidden"
-                       >
-                          <div className="bg-slate-50 p-3 rounded-lg border border-indigo-200 space-y-2.5">
-                             <div>
-                                <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Customer</label>
-                                <CustomSelect 
-                                   value={newOrderCustId}
-                                   onChange={(val) => setNewOrderCustId(val)}
-                                   options={[
-                                      { value: "", label: "Select Customer..." },
-                                      ...state.customers.map(c => ({ value: c.id, label: c.name }))
-                                   ]}
-                                   className="w-full"
-                                />
-                             </div>
-                             <div className="grid grid-cols-2 gap-2">
-                                <div>
-                                   <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Crop</label>
-                                   <CustomSelect 
-                                      value={newOrderCropId}
-                                      onChange={(val) => setNewOrderCropId(val)}
-                                      options={[
-                                         { value: "", label: "Select Crop..." },
-                                         ...state.crops.map(c => ({ value: c.id, label: c.name }))
-                                      ]}
-                                   />
-                                </div>
-                                <div>
-                                   <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Amount (g)</label>
-                                   <input 
-                                      type="number" 
-                                      placeholder="0" 
-                                      value={newOrderAmount} 
-                                      onChange={e => setNewOrderAmount(e.target.value)} 
-                                      className="w-full p-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-700 focus:ring-1 focus:ring-indigo-200 focus:border-indigo-400 outline-none" 
-                                   />
-                                </div>
-                             </div>
-                             <div>
-                                <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Delivery Day</label>
-                                <CustomSelect 
-                                   value={newOrderDay}
-                                   onChange={(val) => setNewOrderDay(parseInt(val))}
-                                   options={DAYS_OF_WEEK.map((d, i) => ({ value: i, label: `Deliver on ${d}` }))}
-                                />
-                             </div>
-                             <motion.button 
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={addRecurringOrder} 
-                                className="w-full py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-indigo-700 transition-all"
-                             >
-                                Save Order
-                             </motion.button>
-                          </div>
-                       </motion.div>
-                    )}
-                    </AnimatePresence>
-
-                    <div className="space-y-2">
-                       {recurringOrders.length === 0 && !isAddingOrder && (
-                          <div className="text-center py-4">
-                             <ShoppingBag className="w-6 h-6 text-slate-300 mx-auto mb-1 opacity-50" />
-                             <p className="text-xs text-slate-400 font-medium">No weekly orders</p>
-                          </div>
-                       )}
-                       {recurringOrders.map(order => {
-                          const crop = state.crops.find(c => c.id === order.cropId);
-                          const cust = state.customers.find(c => c.id === order.customerId);
-                          return (
-                             <motion.div
-                                key={order.id}
-                                initial={{ opacity: 0, y: 3 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="group bg-slate-50 p-2 rounded-lg border border-slate-200 flex justify-between items-center hover:bg-white transition-all"
-                             >
-                                <div className="flex items-center gap-2 flex-1 min-w-0">
-                                   <div className="p-1.5 rounded-md bg-indigo-50 text-indigo-600 flex-shrink-0">
-                                      <Truck className="w-3 h-3" />
-                                   </div>
-                                   <div className="flex-1 min-w-0">
-                                      <p className="text-xs font-bold text-slate-800 truncate">{cust?.name || 'Unknown'}</p>
-                                      <div className="flex items-center gap-1.5 flex-wrap">
-                                         <span className="text-[10px] font-medium text-slate-600">
-                                            {order.amount >= 1000 ? `${(order.amount/1000).toFixed(1)}kg` : `${order.amount}g`}
-                                         </span>
-                                         <span className="text-slate-300">•</span>
-                                         <span className="text-[10px] font-bold text-emerald-600 truncate">{crop?.name || 'Unknown'}</span>
-                                         <span className="text-slate-300">•</span>
-                                         <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-md">
-                                            <Calendar className="w-2.5 h-2.5" />
-                                            {DAYS_OF_WEEK[order.dueDayOfWeek]}
-                                         </span>
-                                      </div>
-                                   </div>
-                                </div>
-                                <motion.button 
-                                   whileHover={{ scale: 1.1 }}
-                                   whileTap={{ scale: 0.9 }}
-                                   onClick={() => deleteOrder(order.id)} 
-                                   className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors flex-shrink-0"
-                                >
-                                   <X className="w-3 h-3" />
-                                </motion.button>
-                             </motion.div>
-                          );
-                       })}
-                    </div>
-                 </div>
                  ) : (
                               <div className="grid grid-cols-2 gap-3">
                                  <div>
