@@ -169,7 +169,10 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
 
   const payeeSuggestions = useMemo(() => {
      const uniquePayees = new Set<string>();
-     state.transactions.filter(t => t.type === type).forEach(t => { if (t.payee) uniquePayees.add(t.payee); });
+     // Only include payees from non-business expenses for suggestions
+     state.transactions
+       .filter(t => t.type === type && t.isBusinessExpense !== true)
+       .forEach(t => { if (t.payee) uniquePayees.add(t.payee); });
      return Array.from(uniquePayees);
   }, [state.transactions, type]);
 
@@ -308,7 +311,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
             style={{ touchAction: 'manipulation', position: 'relative', zIndex: 10 }}
             className={`w-full py-3 rounded-2xl shadow-lg flex items-center justify-center text-sm font-bold transition-all ${showExpenseForm ? 'bg-slate-100 text-slate-600 shadow-none' : 'bg-purple-600 text-white shadow-purple-200'}`}
           >
-            {showExpenseForm ? 'Cancel' : <><Plus className="w-4 h-4 mr-2" /> Add Business Expense</>}
+            {showExpenseForm ? 'Cancel' : <><Plus className="w-4 h-4 mr-2" /> Add Business Investment</>}
           </motion.button>
         )}
       </div>
@@ -564,7 +567,8 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                 className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 space-y-5 relative overflow-hidden"
               >
                 <div className="pointer-events-none absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400 to-pink-500"></div>
-                <h3 className="text-sm font-bold text-slate-800">{editingExpense ? 'Edit Business Expense' : 'New Business Expense'}</h3>
+                <h3 className="text-sm font-bold text-slate-800">{editingExpense ? 'Edit Business Investment' : 'New Business Investment'}</h3>
+                <p className="text-xs text-slate-500 -mt-1 mb-2">Infrastructure, upgrades, and business setup costs (separate from production expenses)</p>
                 
                 <div className="space-y-4">
                   <div className="relative">
@@ -599,13 +603,14 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                         onChange={(val) => setExpenseCategory(val)} 
                         options={[
                           { value: "", label: 'Select Category...' },
-                          { value: "Lights", label: 'Lights / Lighting' },
-                          { value: "Shed Upgrade", label: 'Shed Upgrade' },
-                          { value: "Equipment", label: 'Equipment' },
-                          { value: "Infrastructure", label: 'Infrastructure' },
-                          { value: "Tools", label: 'Tools' },
-                          { value: "Maintenance", label: 'Maintenance' },
-                          { value: "Other", label: 'Other Business Expense' }
+                          { value: "Shed Upgrade", label: 'Shed Upgrade / Renovation' },
+                          { value: "Land Rent", label: 'Land / Space Rent' },
+                          { value: "Infrastructure", label: 'Infrastructure / Setup' },
+                          { value: "Testing", label: 'Testing / R&D' },
+                          { value: "Equipment", label: 'Equipment Purchase' },
+                          { value: "Lights", label: 'Lights / Lighting System' },
+                          { value: "Tools", label: 'Tools / Hardware' },
+                          { value: "Other", label: 'Other Business Investment' }
                         ]}
                       />
                     </div>
@@ -734,7 +739,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                     type="submit" 
                     className="flex-1 py-3.5 rounded-2xl bg-purple-600 text-white font-bold hover:bg-purple-700 shadow-lg shadow-purple-200 transition-colors"
                   >
-                    {editingExpense ? 'Update Expense' : 'Save Expense'}
+                    {editingExpense ? 'Update Investment' : 'Save Investment'}
                   </button>
                 </div>
               </motion.form>
@@ -750,14 +755,15 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
               <div className="bg-gradient-to-br from-purple-900 to-purple-800 text-white p-6 rounded-3xl shadow-xl shadow-purple-200">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <p className="text-purple-200 text-xs font-bold uppercase tracking-wider mb-1">Total Business Expenses</p>
+                    <p className="text-purple-200 text-xs font-bold uppercase tracking-wider mb-1">Total Business Investments</p>
                     <h3 className="text-3xl font-bold text-white tracking-tight">€{totalSpent.toFixed(2)}</h3>
                   </div>
                   <div className="p-3 bg-white/10 backdrop-blur-md rounded-xl text-purple-200">
                     <Building2 className="w-6 h-6" />
                   </div>
                 </div>
-                <p className="text-purple-200 text-xs">{businessExpenses.length} expense{businessExpenses.length !== 1 ? 's' : ''} recorded</p>
+                <p className="text-purple-200 text-xs mb-2">{businessExpenses.length} investment{businessExpenses.length !== 1 ? 's' : ''} recorded</p>
+                <p className="text-purple-300 text-[10px] italic">Infrastructure, upgrades, and setup costs (excluded from production finances)</p>
               </div>
             );
           })()}
@@ -767,7 +773,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
             <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <h3 className="font-bold text-slate-800 flex items-center">
                 <Receipt className="w-4 h-4 mr-2 text-purple-600" />
-                Business Expenses
+                Business Investments
               </h3>
               <div className="w-40">
                 <CustomSelect 
@@ -810,7 +816,8 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                   return (
                     <div className="p-8 text-center text-slate-400">
                       <Building2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                      <p className="text-sm">No business expenses recorded yet.</p>
+                      <p className="text-sm">No business investments recorded yet.</p>
+                      <p className="text-xs text-slate-400 mt-1">Track infrastructure, upgrades, and setup costs here</p>
                     </div>
                   );
                 }
