@@ -265,6 +265,13 @@ const CropManager: React.FC<CropManagerProps> = ({
   const [editingTrayStartDate, setEditingTrayStartDate] = useState('');
   const [editingTrayPlantedDate, setEditingTrayPlantedDate] = useState('');
   
+  // Full-size image viewer state
+  const [fullSizeImage, setFullSizeImage] = useState<{ src: string; alt: string } | null>(null);
+  const [imageZoom, setImageZoom] = useState(1);
+  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
+  const [isPinching, setIsPinching] = useState(false);
+  const [lastPinchDistance, setLastPinchDistance] = useState(0);
+  
   // Event Planner State
   const [plannerCropId, setPlannerCropId] = useState('');
   const [plannerDate, setPlannerDate] = useState(new Date().toISOString().split('T')[0]);
@@ -866,7 +873,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                         <div key={location} className="space-y-4">
                            {/* Shelf Location Header - Drop Zone */}
                            <div 
-                              className={`flex items-center gap-3 px-3 py-2 bg-gradient-to-r from-slate-50 to-transparent rounded-2xl border-2 transition-all ${
+                              className={`flex items-center gap-2 px-2 py-1.5 bg-gradient-to-r from-slate-50 to-transparent rounded-xl border-2 transition-all ${
                                  dragOverLocation === location 
                                     ? 'border-teal-400 bg-teal-50 shadow-lg' 
                                     : 'border-slate-100'
@@ -929,18 +936,18 @@ const CropManager: React.FC<CropManagerProps> = ({
 
                            {/* Render shelves (4 trays per shelf) */}
                            {shelves.map((shelfTrays, shelfIndex) => (
-                              <div key={shelfIndex} className="space-y-3">
+                              <div key={shelfIndex} className="space-y-2">
                                  {shelves.length > 1 && (
-                                    <div className="flex items-center gap-2 px-2">
-                                       <div className="w-px h-4 bg-slate-200"></div>
-                                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                    <div className="flex items-center gap-1.5 px-1.5">
+                                       <div className="w-px h-3 bg-slate-200"></div>
+                                       <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
                                           {location} - Row {shelfIndex + 1}
                                        </span>
                                     </div>
                                  )}
                                  
                                  {/* 4-tray grid */}
-                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                                     {shelfTrays.map(tray => {
                   const crop = state.crops.find(c => c.id === tray.cropTypeId);
                   const crop2 = tray.cropTypeId2 ? state.crops.find(c => c.id === tray.cropTypeId2) : null;
@@ -1047,7 +1054,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                               setTouchStartPos(null);
                            }
                         }}
-                        className={`group bg-white rounded-2xl border-2 ${nextStageInfo.isOverdue ? 'border-red-300 bg-gradient-to-br from-red-50 to-white' : isHarvestReady ? 'border-teal-300 bg-gradient-to-br from-teal-50 to-white' : 'border-slate-200 hover:border-teal-200'} shadow-sm hover:shadow-lg transition-all duration-200 cursor-grab active:cursor-grabbing relative overflow-hidden ${draggedTray?.id === tray.id ? 'opacity-50 scale-95 shadow-xl' : ''}`}
+                        className={`group bg-white rounded-xl border-2 ${nextStageInfo.isOverdue ? 'border-red-300 bg-gradient-to-br from-red-50 to-white' : isHarvestReady ? 'border-teal-300 bg-gradient-to-br from-teal-50 to-white' : 'border-slate-200 hover:border-teal-200'} shadow-sm hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing relative overflow-hidden ${draggedTray?.id === tray.id ? 'opacity-50 scale-95 shadow-xl' : ''}`}
                         whileHover={{ scale: draggedTray ? 1 : 1.02 }}
                         whileTap={{ scale: 0.98 }}
                      >
@@ -1056,34 +1063,70 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                 <div className="absolute inset-0 border-2 border-red-400 rounded-2xl animate-pulse opacity-50 z-0"></div>
                                              )}
                                              
-                                             <div className="p-3 flex flex-col gap-2 relative z-10">
+                                             <div className="p-2 flex flex-col gap-1.5 relative z-10">
                                                 {/* Drag Handle Indicator */}
                                                 {!draggedTray && (
-                                                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                                      <div className="p-1 bg-slate-800/80 rounded-lg">
-                                                         <MapPin className="w-3 h-3 text-white" />
+                                                   <div className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                                      <div className="p-0.5 bg-slate-800/80 rounded-lg">
+                                                         <MapPin className="w-2.5 h-2.5 text-white" />
                                                       </div>
                                                    </div>
                                                 )}
                                                 
                                                 {/* Crop Image with Stage Badge - Half-Half Support */}
-                                                <div className={`relative w-full aspect-square rounded-lg flex items-center justify-center text-[10px] font-bold shadow-sm overflow-hidden border ${nextStageInfo.isOverdue ? 'border-red-300' : isHarvestReady ? 'border-teal-300' : 'border-slate-200'}`}>
+                                                <div className={`relative w-full aspect-square rounded-md flex items-center justify-center text-[9px] font-bold shadow-sm overflow-hidden border ${nextStageInfo.isOverdue ? 'border-red-300' : isHarvestReady ? 'border-teal-300' : 'border-slate-200'} cursor-pointer`}
+                                                     onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (crop2) {
+                                                           // For half-half, show first crop image
+                                                           if (crop.imageUrl) {
+                                                              setFullSizeImage({ src: crop.imageUrl, alt: crop.name });
+                                                              setImageZoom(1);
+                                                              setImagePosition({ x: 0, y: 0 });
+                                                           }
+                                                        } else {
+                                                           if (crop.imageUrl) {
+                                                              setFullSizeImage({ src: crop.imageUrl, alt: crop.name });
+                                                              setImageZoom(1);
+                                                              setImagePosition({ x: 0, y: 0 });
+                                                           }
+                                                        }
+                                                     }}
+                                                >
                                                    {crop2 ? (
                                                       /* Half-Half Tray: Split View */
                                                       <div className="w-full h-full flex">
-                                                         <div className={`flex-1 ${crop.color?.split(' ')[0] || 'bg-slate-200'} flex items-center justify-center relative`}>
+                                                         <div className={`flex-1 ${crop.color?.split(' ')[0] || 'bg-slate-200'} flex items-center justify-center relative`}
+                                                              onClick={(e) => {
+                                                                 e.stopPropagation();
+                                                                 if (crop.imageUrl) {
+                                                                    setFullSizeImage({ src: crop.imageUrl, alt: crop.name });
+                                                                    setImageZoom(1);
+                                                                    setImagePosition({ x: 0, y: 0 });
+                                                                 }
+                                                              }}
+                                                         >
                                                             {crop.imageUrl ? (
                                                                <img src={crop.imageUrl} alt={crop.name} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                                                             ) : (
-                                                               <span className="text-slate-600 text-[8px]">{crop.name.substring(0,2).toUpperCase()}</span>
+                                                               <span className="text-slate-600 text-[7px]">{crop.name.substring(0,2).toUpperCase()}</span>
                                                             )}
                                                          </div>
                                                          <div className="w-0.5 bg-slate-300"></div>
-                                                         <div className={`flex-1 ${crop2.color?.split(' ')[0] || 'bg-slate-200'} flex items-center justify-center relative`}>
+                                                         <div className={`flex-1 ${crop2.color?.split(' ')[0] || 'bg-slate-200'} flex items-center justify-center relative`}
+                                                              onClick={(e) => {
+                                                                 e.stopPropagation();
+                                                                 if (crop2.imageUrl) {
+                                                                    setFullSizeImage({ src: crop2.imageUrl, alt: crop2.name });
+                                                                    setImageZoom(1);
+                                                                    setImagePosition({ x: 0, y: 0 });
+                                                                 }
+                                                              }}
+                                                         >
                                                             {crop2.imageUrl ? (
                                                                <img src={crop2.imageUrl} alt={crop2.name} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                                                             ) : (
-                                                               <span className="text-slate-600 text-[8px]">{crop2.name.substring(0,2).toUpperCase()}</span>
+                                                               <span className="text-slate-600 text-[7px]">{crop2.name.substring(0,2).toUpperCase()}</span>
                                                             )}
                                                          </div>
                                                       </div>
@@ -1101,70 +1144,68 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                                }}
                                                             />
                                                          ) : (
-                                                            <span className="text-slate-600">{crop.name.substring(0,2).toUpperCase()}</span>
+                                                            <span className="text-slate-600 text-[8px]">{crop.name.substring(0,2).toUpperCase()}</span>
                                                          )}
                                                       </div>
                                                    )}
                                                    {/* Stage Indicator Badge */}
-                                                   <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-white flex items-center justify-center ${
+                                                   <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-white flex items-center justify-center ${
                                                       tray.stage === Stage.SEED || tray.stage === Stage.SOAK ? 'bg-slate-500' :
                                                       tray.stage === Stage.GERMINATION ? 'bg-blue-500' :
                                                       tray.stage === Stage.BLACKOUT ? 'bg-purple-500' :
                                                       tray.stage === Stage.LIGHT ? 'bg-amber-500' :
                                                       'bg-teal-500'
-                                                   }`}>
-                                                      <div className="w-1 h-1 bg-white rounded-full"></div>
-                                                   </div>
+                                                   }`}></div>
                                                 </div>
 
                                                 {/* Crop Name & Stage */}
-                                                <div className="space-y-1.5">
+                                                <div className="space-y-1">
                                                    <div className="flex items-start justify-between gap-1">
                                                       <div className="flex-1 min-w-0">
                                                          {crop2 ? (
                                                             <div className="space-y-0.5">
-                                                               <h3 className="text-[10px] font-bold text-slate-900 truncate">{crop.name}</h3>
-                                                               <h3 className="text-[10px] font-bold text-slate-700 truncate">+ {crop2.name}</h3>
+                                                               <h3 className="text-[9px] font-bold text-slate-900 truncate">{crop.name}</h3>
+                                                               <h3 className="text-[9px] font-bold text-slate-700 truncate">+ {crop2.name}</h3>
                                                             </div>
                                                          ) : (
-                                                            <h3 className="text-xs font-bold text-slate-900 truncate">{crop.name}</h3>
+                                                            <h3 className="text-[10px] font-bold text-slate-900 truncate">{crop.name}</h3>
                                                          )}
                                                       </div>
-                                                      <div className="flex items-center gap-1 flex-shrink-0">
+                                                      <div className="flex items-center gap-0.5 flex-shrink-0">
                                                          {crop2 && (
-                                                            <Package className="w-3 h-3 text-purple-500" title="Half-half tray" />
+                                                            <Package className="w-2.5 h-2.5 text-purple-500" title="Half-half tray" />
                                                          )}
                                                          {tray.notes && (
-                                                            <Info className="w-3 h-3 text-blue-500" title="Has notes" />
+                                                            <Info className="w-2.5 h-2.5 text-blue-500" title="Has notes" />
                                                          )}
                                                          {nextStageInfo.isOverdue && (
-                                                            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                                                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
                                                          )}
                                                       </div>
                                                    </div>
-                                                   <span className={`inline-block text-[9px] px-2 py-0.5 rounded-lg font-bold uppercase tracking-wide ${getStageColor(tray.stage)}`}>
+                                                   <span className={`inline-block text-[8px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wide ${getStageColor(tray.stage)}`}>
                                   {tray.stage}
                                </span>
                         </div>
 
                                                 {/* Status Info */}
-                                                <div className="space-y-1 pt-1 border-t border-slate-100">
+                                                <div className="space-y-0.5 pt-0.5 border-t border-slate-100">
                            {isHarvestReady ? (
-                                                      <div className="flex items-center gap-1.5 text-teal-600">
-                                                         <CheckCircle className="w-3 h-3 flex-shrink-0" />
-                                                         <span className="text-[10px] font-bold">Ready</span>
+                                                      <div className="flex items-center gap-1 text-teal-600">
+                                                         <CheckCircle className="w-2.5 h-2.5 flex-shrink-0" />
+                                                         <span className="text-[9px] font-bold">Ready</span>
                               </div>
                            ) : (
                               <>
-                                                         <div className="flex items-center justify-between text-[10px]">
+                                                         <div className="flex items-center justify-between text-[9px]">
                                                             <span className="text-slate-500">Harvest:</span>
                                                             <span className="font-bold text-slate-700">{formatShortDate(harvestDate)}</span>
                                  </div>
                                                          <div className="flex items-center justify-between">
-                                                            <span className={`text-[10px] font-medium ${nextStageInfo.isOverdue ? 'text-red-600' : 'text-teal-600'}`}>
+                                                            <span className={`text-[9px] font-medium ${nextStageInfo.isOverdue ? 'text-red-600' : 'text-teal-600'}`}>
                                                                Next:
                                                             </span>
-                                                            <span className={`text-[10px] font-bold ${nextStageInfo.isOverdue ? 'text-red-600' : 'text-slate-700'}`}>
+                                                            <span className={`text-[9px] font-bold ${nextStageInfo.isOverdue ? 'text-red-600' : 'text-slate-700'}`}>
                                        {nextStageInfo.text}
                                     </span>
                                  </div>
@@ -1180,7 +1221,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                                     {Array.from({ length: 4 - shelfTrays.length }).map((_, emptyIndex) => (
                                        <div 
                                           key={`empty-${emptyIndex}`} 
-                                          className={`aspect-square rounded-2xl border-2 border-dashed transition-all ${
+                                          className={`aspect-square rounded-xl border-2 border-dashed transition-all ${
                                              dragOverLocation === location && draggedTray 
                                                 ? 'border-teal-400 bg-teal-50' 
                                                 : 'border-slate-200 bg-slate-50/50'
@@ -1207,7 +1248,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                                        >
                                           <div className="text-center">
                                              <Sprout className="w-6 h-6 text-slate-300 mx-auto mb-1" />
-                                             <span className="text-[9px] text-slate-400 font-medium">Empty</span>
+                                             <span className="text-[8px] text-slate-400 font-medium">Empty</span>
                                           </div>
                                        </div>
                                     ))}
@@ -2960,8 +3001,119 @@ const CropManager: React.FC<CropManagerProps> = ({
             </motion.div>
          )}
       </AnimatePresence>
-    </div>
-  );
+
+      {/* Full-Size Image Viewer with Pinch-to-Zoom */}
+      <AnimatePresence>
+         {fullSizeImage && (
+            <motion.div
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center"
+               onClick={() => {
+                  setFullSizeImage(null);
+                  setImageZoom(1);
+                  setImagePosition({ x: 0, y: 0 });
+               }}
+            >
+               <button
+                  onClick={(e) => {
+                     e.stopPropagation();
+                     setFullSizeImage(null);
+                     setImageZoom(1);
+                     setImagePosition({ x: 0, y: 0 });
+                  }}
+                  className="absolute top-4 right-4 z-10 p-2 bg-white/20 hover:bg-white/30 rounded-full backdrop-blur-sm transition-colors"
+               >
+                  <X className="w-6 h-6 text-white" />
+               </button>
+               
+               <div
+                  className="relative w-full h-full flex items-center justify-center overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => {
+                     if (e.touches.length === 2) {
+                        setIsPinching(true);
+                        const touch1 = e.touches[0];
+                        const touch2 = e.touches[1];
+                        const distance = Math.hypot(
+                           touch2.clientX - touch1.clientX,
+                           touch2.clientY - touch1.clientY
+                        );
+                        setLastPinchDistance(distance);
+                     }
+                  }}
+                  onTouchMove={(e) => {
+                     if (e.touches.length === 2 && isPinching) {
+                        e.preventDefault();
+                        const touch1 = e.touches[0];
+                        const touch2 = e.touches[1];
+                        const distance = Math.hypot(
+                           touch2.clientX - touch1.clientX,
+                           touch2.clientY - touch1.clientY
+                        );
+                        
+                        if (lastPinchDistance > 0) {
+                           const scale = distance / lastPinchDistance;
+                           const newZoom = Math.max(1, Math.min(5, imageZoom * scale));
+                           setImageZoom(newZoom);
+                           setLastPinchDistance(distance);
+                        }
+                     } else if (e.touches.length === 1 && imageZoom > 1) {
+                        // Pan when zoomed
+                        const touch = e.touches[0];
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const centerX = rect.left + rect.width / 2;
+                        const centerY = rect.top + rect.height / 2;
+                        
+                        setImagePosition({
+                           x: (touch.clientX - centerX) * 0.5,
+                           y: (touch.clientY - centerY) * 0.5
+                        });
+                     }
+                  }}
+                  onTouchEnd={(e) => {
+                     if (e.touches.length < 2) {
+                        setIsPinching(false);
+                        setLastPinchDistance(0);
+                     }
+                  }}
+               >
+                  <motion.img
+                     src={fullSizeImage.src}
+                     alt={fullSizeImage.alt}
+                     className="max-w-full max-h-full object-contain select-none"
+                     style={{
+                        transform: `scale(${imageZoom}) translate(${imagePosition.x}px, ${imagePosition.y}px)`,
+                        transformOrigin: 'center center',
+                        transition: isPinching ? 'none' : 'transform 0.1s ease-out'
+                     }}
+                     drag={imageZoom > 1}
+                     dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
+                     onDrag={(e, info) => {
+                        if (imageZoom > 1) {
+                           setImagePosition({ x: info.offset.x, y: info.offset.y });
+                        }
+                     }}
+                     whileDrag={{ cursor: 'grabbing' }}
+                  />
+               </div>
+               
+               {/* Zoom indicator */}
+               {imageZoom > 1 && (
+                  <motion.div
+                     initial={{ opacity: 0 }}
+                     animate={{ opacity: 1 }}
+                     className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-bold"
+                  >
+                     {Math.round(imageZoom * 100)}%
+                  </motion.div>
+               )}
+            </motion.div>
+         )}
+      </AnimatePresence>
+   </div>
+);
 };
 
 export default CropManager;
