@@ -1287,12 +1287,14 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                    const diff = task.targetTime - now;
                                                    let timeText = '';
                                                    let isOverdue = false;
+                                                   let hours = 0;
                                                    
                                                    if (diff < 0) {
                                                       timeText = 'Overdue';
                                                       isOverdue = true;
+                                                      hours = Math.abs(Math.floor(diff / (1000 * 60 * 60)));
                                                    } else {
-                                                      const hours = Math.floor(diff / (1000 * 60 * 60));
+                                                      hours = Math.floor(diff / (1000 * 60 * 60));
                                                       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                                                       if (hours > 0) {
                                                          timeText = `${hours}h ${minutes}m`;

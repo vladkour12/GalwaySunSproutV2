@@ -165,8 +165,8 @@ const App: React.FC = () => {
         // Background: flush any pending changes, then refresh snapshot from remote.
         (async () => {
           if (isCancelled) return;
+          // Don't show status when syncing in background
           setSyncStatus('syncing');
-          setSyncMessage('Syncing…');
 
           // Try a few small passes to drain the queue quickly.
           for (let i = 0; i < 3; i++) {
@@ -177,7 +177,7 @@ const App: React.FC = () => {
 
           // Only overwrite local snapshot when queue is drained (avoid clobbering offline edits).
           try {
-            setSyncMessage('Refreshing…');
+            // Don't show message when refreshing
             
             // Ensure database is set up first
             try {
@@ -248,8 +248,8 @@ const App: React.FC = () => {
       if (isCancelled || isRunning) return;
       isRunning = true;
       try {
+        // Don't show status when syncing normally, only on error
         setSyncStatus('syncing');
-        setSyncMessage(reason === 'kick' ? 'Syncing changes…' : 'Syncing…');
 
         // Check if there are pending local changes
         const { listSyncQueue } = await import('./services/syncService');
@@ -305,9 +305,19 @@ const App: React.FC = () => {
         // If we actually pushed changes, refresh snapshot so other devices stay consistent.
         // Also refresh if we didn't push changes but there might be remote updates
         if (result.processed > 0 || (!hasPendingChanges && reason === 'tab-change')) {
-          setSyncMessage('Refreshing…');
-          const fresh = await refreshLocalFromRemote();
-          if (!isCancelled) setAppState(fresh);
+          // Don't show message when refreshing
+          try {
+            const fresh = await refreshLocalFromRemote();
+            if (!isCancelled) setAppState(fresh);
+          } catch (e) {
+            // Only show error if it's a network issue
+            const errorMsg = (e as Error)?.message || String(e);
+            const isNetworkError = errorMsg.includes('fetch') || errorMsg.includes('network') || errorMsg.includes('Failed to fetch');
+            if (isNetworkError) {
+              setSyncStatus('error');
+              setSyncMessage('Offline mode (network error)');
+            }
+          }
         }
 
         setSyncStatus('idle');
@@ -345,8 +355,7 @@ const App: React.FC = () => {
         // If no pending changes, refresh from remote first to preserve database changes
         // This prevents the app from overwriting changes made directly in the database
         if (pendingItems.length === 0) {
-          setSyncStatus('syncing');
-          setSyncMessage('Checking for updates…');
+          // Don't show message when just checking for updates
           try {
             const fresh = await refreshLocalFromRemote();
             if (!isCancelled) {
@@ -357,15 +366,20 @@ const App: React.FC = () => {
             }
           } catch (e) {
             console.warn('Failed to refresh from remote on tab change:', e);
+            // Only show error if it's a network issue
+            const errorMsg = (e as Error)?.message || String(e);
+            const isNetworkError = errorMsg.includes('fetch') || errorMsg.includes('network') || errorMsg.includes('Failed to fetch');
+            if (isNetworkError) {
+              setSyncStatus('error');
+              setSyncMessage('Offline mode (network error)');
+            }
             // Continue with normal sync if refresh fails
           }
         }
         
         // Only sync if there are pending changes
         if (pendingItems.length > 0) {
-          setSyncStatus('syncing');
-          setSyncMessage('Syncing…');
-
+          // Don't show message when syncing normally
           const result = await flushSyncQueueOnce();
           if (!result.didSync && result.remaining > 0) {
             setSyncStatus('error');
@@ -377,18 +391,38 @@ const App: React.FC = () => {
             }
             return;
           }
-          
+
           // Refresh from remote when switching tabs if we processed changes
           if (result.processed > 0) {
-            setSyncMessage('Refreshing…');
-            const fresh = await refreshLocalFromRemote();
-            if (!isCancelled) setAppState(fresh);
+            // Don't show message when refreshing
+            try {
+              const fresh = await refreshLocalFromRemote();
+              if (!isCancelled) setAppState(fresh);
+            } catch (e) {
+              // Only show error if it's a network issue
+              const errorMsg = (e as Error)?.message || String(e);
+              const isNetworkError = errorMsg.includes('fetch') || errorMsg.includes('network') || errorMsg.includes('Failed to fetch');
+              if (isNetworkError) {
+                setSyncStatus('error');
+                setSyncMessage('Offline mode (network error)');
+              }
+            }
           }
         } else {
           // No pending changes, just refresh from remote to get latest data
-          setSyncMessage('Refreshing…');
-          const fresh = await refreshLocalFromRemote();
-          if (!isCancelled) setAppState(fresh);
+          // Don't show message when refreshing
+          try {
+            const fresh = await refreshLocalFromRemote();
+            if (!isCancelled) setAppState(fresh);
+          } catch (e) {
+            // Only show error if it's a network issue
+            const errorMsg = (e as Error)?.message || String(e);
+            const isNetworkError = errorMsg.includes('fetch') || errorMsg.includes('network') || errorMsg.includes('Failed to fetch');
+            if (isNetworkError) {
+              setSyncStatus('error');
+              setSyncMessage('Offline mode (network error)');
+            }
+          }
         }
 
         setSyncStatus('idle');
@@ -923,15 +957,9 @@ const App: React.FC = () => {
           </div>
         </div>
       )}
-      {syncMessage && (
+      {syncMessage && syncStatus === 'error' && (
         <div className="px-4 pt-2">
-          <div
-            className={`rounded-2xl border px-4 py-2 text-xs font-bold ${
-              syncStatus === 'error'
-                ? 'border-red-200 bg-red-50 text-red-800'
-                : 'border-slate-200 bg-slate-50 text-slate-700'
-            }`}
-          >
+          <div className="rounded-2xl border border-red-200 bg-red-50 text-red-800 px-4 py-2 text-xs font-bold">
             {syncMessage}
           </div>
         </div>
