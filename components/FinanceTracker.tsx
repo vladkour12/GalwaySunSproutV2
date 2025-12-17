@@ -200,6 +200,73 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
      return Array.from(catMap.entries()).map(([name, value], index) => ({ name, value, color: COLORS[index % COLORS.length] }));
   }, [filteredTransactions]);
 
+  // Business Investments Summary Data
+  const allBusinessExpenses = useMemo(() => {
+    return state.transactions.filter(t => t.isBusinessExpense === true || t.isBusinessExpense === 'true');
+  }, [state.transactions]);
+
+  const businessExpensesByTimeRange = useMemo(() => {
+    return allBusinessExpenses.filter(t => {
+      if (timeRange === 'all') return true;
+      const d = new Date(t.date);
+      if (isNaN(d.getTime())) return false;
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      if (timeRange === 'month') return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      if (timeRange === 'last_month') {
+        const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+        const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+        return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
+      }
+      if (timeRange === 'year') return d.getFullYear() === currentYear;
+      return true;
+    });
+  }, [allBusinessExpenses, timeRange]);
+
+  const businessExpensesSummary = useMemo(() => {
+    const totalSpent = allBusinessExpenses.reduce((sum, t) => sum + t.amount, 0);
+    const periodTotal = businessExpensesByTimeRange.reduce((sum, t) => sum + t.amount, 0);
+    
+    // Category breakdown
+    const catMap = new Map<string, number>();
+    businessExpensesByTimeRange.forEach(t => {
+      const cat = t.category || 'Uncategorized';
+      catMap.set(cat, (catMap.get(cat) || 0) + t.amount);
+    });
+    const categoryBreakdown = Array.from(catMap.entries())
+      .map(([name, value]) => ({ name, value, percentage: periodTotal > 0 ? (value / periodTotal) * 100 : 0 }))
+      .sort((a, b) => b.value - a.value);
+    
+    // Monthly trend (last 6 months)
+    const monthlyMap = new Map<string, number>();
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      monthlyMap.set(key, 0);
+    }
+    
+    allBusinessExpenses.forEach(t => {
+      const d = new Date(t.date);
+      if (isNaN(d.getTime())) return;
+      const key = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      if (monthlyMap.has(key)) {
+        monthlyMap.set(key, (monthlyMap.get(key) || 0) + t.amount);
+      }
+    });
+    
+    const monthlyTrend = Array.from(monthlyMap.entries()).map(([month, amount]) => ({ month, amount }));
+    
+    return {
+      totalSpent,
+      periodTotal,
+      categoryBreakdown,
+      monthlyTrend,
+      totalItems: allBusinessExpenses.length
+    };
+  }, [allBusinessExpenses, businessExpensesByTimeRange]);
+
   const handleTxSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !category) return;
@@ -752,135 +819,78 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
           </AnimatePresence>
 
           {/* Summary Block */}
-          {(() => {
-            const allBusinessExpenses = state.transactions.filter(t => t.isBusinessExpense === true || t.isBusinessExpense === 'true');
-            const totalSpent = allBusinessExpenses.reduce((sum, t) => sum + t.amount, 0);
-            
-            // Filter by time range
-            const filteredByTime = allBusinessExpenses.filter(t => {
-              if (timeRange === 'all') return true;
-              const d = new Date(t.date);
-              if (isNaN(d.getTime())) return false;
-              const now = new Date();
-              const currentMonth = now.getMonth();
-              const currentYear = now.getFullYear();
-              if (timeRange === 'month') return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-              if (timeRange === 'last_month') {
-                const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-                const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-                return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
-              }
-              if (timeRange === 'year') return d.getFullYear() === currentYear;
-              return true;
-            });
-            
-            const periodTotal = filteredByTime.reduce((sum, t) => sum + t.amount, 0);
-            
-            // Category breakdown
-            const catMap = new Map<string, number>();
-            filteredByTime.forEach(t => {
-              const cat = t.category || 'Uncategorized';
-              catMap.set(cat, (catMap.get(cat) || 0) + t.amount);
-            });
-            const categoryBreakdown = Array.from(catMap.entries())
-              .map(([name, value]) => ({ name, value, percentage: periodTotal > 0 ? (value / periodTotal) * 100 : 0 }))
-              .sort((a, b) => b.value - a.value);
-            
-            // Monthly trend (last 6 months)
-            const monthlyMap = new Map<string, number>();
-            const now = new Date();
-            for (let i = 5; i >= 0; i--) {
-              const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-              const key = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-              monthlyMap.set(key, 0);
-            }
-            
-            allBusinessExpenses.forEach(t => {
-              const d = new Date(t.date);
-              if (isNaN(d.getTime())) return;
-              const key = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-              if (monthlyMap.has(key)) {
-                monthlyMap.set(key, (monthlyMap.get(key) || 0) + t.amount);
-              }
-            });
-            
-            const monthlyTrend = Array.from(monthlyMap.entries()).map(([month, amount]) => ({ month, amount }));
-            
-            return (
-              <div className="space-y-4">
-                {/* Main Summary Card */}
-                <div className="bg-gradient-to-br from-purple-900 to-purple-800 text-white p-6 rounded-3xl shadow-xl shadow-purple-200">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <p className="text-purple-200 text-xs font-bold uppercase tracking-wider mb-1">Total Business Investments</p>
-                      <h3 className="text-3xl font-bold text-white tracking-tight">€{totalSpent.toFixed(2)}</h3>
-                    </div>
-                    <div className="p-3 bg-white/10 backdrop-blur-md rounded-xl text-purple-200">
-                      <Building2 className="w-6 h-6" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div className="bg-white/10 backdrop-blur-md rounded-xl p-3">
-                      <p className="text-purple-300 text-[10px] font-bold uppercase mb-1">This Period</p>
-                      <p className="text-xl font-bold text-white">€{periodTotal.toFixed(2)}</p>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-md rounded-xl p-3">
-                      <p className="text-purple-300 text-[10px] font-bold uppercase mb-1">Total Items</p>
-                      <p className="text-xl font-bold text-white">{allBusinessExpenses.length}</p>
-                    </div>
-                  </div>
-                  <p className="text-purple-300 text-[10px] italic mt-3">Infrastructure, upgrades, and setup costs (excluded from production finances)</p>
+          <div className="space-y-4">
+            {/* Main Summary Card */}
+            <div className="bg-gradient-to-br from-purple-900 to-purple-800 text-white p-6 rounded-3xl shadow-xl shadow-purple-200">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-purple-200 text-xs font-bold uppercase tracking-wider mb-1">Total Business Investments</p>
+                  <h3 className="text-3xl font-bold text-white tracking-tight">€{businessExpensesSummary.totalSpent.toFixed(2)}</h3>
                 </div>
-                
-                {/* Category Breakdown */}
-                {categoryBreakdown.length > 0 && (
-                  <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-bold text-slate-800 flex items-center">
-                        <BarChart3 className="w-4 h-4 mr-2 text-purple-600" />
-                        Category Breakdown
-                      </h4>
-                      <span className="text-xs text-slate-500">{timeRange === 'all' ? 'All Time' : timeRange === 'month' ? 'This Month' : timeRange === 'year' ? 'This Year' : 'Last Month'}</span>
-                    </div>
-                    <div className="space-y-3">
-                      {categoryBreakdown.slice(0, 5).map((cat, idx) => (
-                        <div key={idx} className="space-y-1">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="font-medium text-slate-700">{cat.name}</span>
-                            <span className="font-bold text-purple-600">€{cat.value.toFixed(2)}</span>
-                          </div>
-                          <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                            <div 
-                              className="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all"
-                              style={{ width: `${Math.min(cat.percentage, 100)}%` }}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Monthly Trend */}
-                {monthlyTrend.length > 0 && (
-                  <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
-                    <h4 className="font-bold text-slate-800 flex items-center mb-4">
-                      <TrendingUp className="w-4 h-4 mr-2 text-purple-600" />
-                      Last 6 Months
-                    </h4>
-                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                      {monthlyTrend.map((month, idx) => (
-                        <div key={idx} className="text-center">
-                          <p className="text-[10px] text-slate-500 mb-1">{month.month}</p>
-                          <p className="text-sm font-bold text-purple-600">€{month.amount.toFixed(0)}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <div className="p-3 bg-white/10 backdrop-blur-md rounded-xl text-purple-200">
+                  <Building2 className="w-6 h-6" />
+                </div>
               </div>
-            );
-          })()}
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-3">
+                  <p className="text-purple-300 text-[10px] font-bold uppercase mb-1">This Period</p>
+                  <p className="text-xl font-bold text-white">€{businessExpensesSummary.periodTotal.toFixed(2)}</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-3">
+                  <p className="text-purple-300 text-[10px] font-bold uppercase mb-1">Total Items</p>
+                  <p className="text-xl font-bold text-white">{businessExpensesSummary.totalItems}</p>
+                </div>
+              </div>
+              <p className="text-purple-300 text-[10px] italic mt-3">Infrastructure, upgrades, and setup costs (excluded from production finances)</p>
+            </div>
+            
+            {/* Category Breakdown */}
+            {businessExpensesSummary.categoryBreakdown.length > 0 && (
+              <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="font-bold text-slate-800 flex items-center">
+                    <BarChart3 className="w-4 h-4 mr-2 text-purple-600" />
+                    Category Breakdown
+                  </h4>
+                  <span className="text-xs text-slate-500">{timeRange === 'all' ? 'All Time' : timeRange === 'month' ? 'This Month' : timeRange === 'year' ? 'This Year' : 'Last Month'}</span>
+                </div>
+                <div className="space-y-3">
+                  {businessExpensesSummary.categoryBreakdown.slice(0, 5).map((cat, idx) => (
+                    <div key={idx} className="space-y-1">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium text-slate-700">{cat.name}</span>
+                        <span className="font-bold text-purple-600">€{cat.value.toFixed(2)}</span>
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div 
+                          className="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all"
+                          style={{ width: `${Math.min(cat.percentage, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Monthly Trend */}
+            {businessExpensesSummary.monthlyTrend.length > 0 && (
+              <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+                <h4 className="font-bold text-slate-800 flex items-center mb-4">
+                  <TrendingUp className="w-4 h-4 mr-2 text-purple-600" />
+                  Last 6 Months
+                </h4>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  {businessExpensesSummary.monthlyTrend.map((month, idx) => (
+                    <div key={idx} className="text-center">
+                      <p className="text-[10px] text-slate-500 mb-1">{month.month}</p>
+                      <p className="text-sm font-bold text-purple-600">€{month.amount.toFixed(0)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Business Expenses List */}
           <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
@@ -940,24 +950,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
             
             <div className="divide-y divide-slate-50">
               {(() => {
-                let businessExpenses = state.transactions
-                  .filter(t => t.isBusinessExpense === true || t.isBusinessExpense === 'true')
-                  .filter(t => {
-                    if (timeRange === 'all') return true;
-                    const d = new Date(t.date);
-                    if (isNaN(d.getTime())) return false;
-                    const now = new Date();
-                    const currentMonth = now.getMonth();
-                    const currentYear = now.getFullYear();
-                    if (timeRange === 'month') return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-                    if (timeRange === 'last_month') {
-                      const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-                      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-                      return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
-                    }
-                    if (timeRange === 'year') return d.getFullYear() === currentYear;
-                    return true;
-                  });
+                let businessExpenses = [...businessExpensesByTimeRange];
                 
                 // Apply category filter
                 if (expenseCategoryFilter !== 'all') {
