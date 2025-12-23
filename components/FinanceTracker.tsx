@@ -1007,11 +1007,28 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                               // Open full size image in modal
                               const modal = document.createElement('div');
                               modal.className = 'fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4';
-                              modal.onclick = () => modal.remove();
+                              modal.onclick = (e) => {
+                                if (e.target === modal) modal.remove();
+                              };
+                              
+                              const container = document.createElement('div');
+                              container.className = 'relative max-w-full max-h-full';
+                              
                               const img = document.createElement('img');
                               img.src = expense.receiptImage!;
                               img.className = 'max-w-full max-h-full object-contain rounded-xl';
-                              modal.appendChild(img);
+                              
+                              const closeBtn = document.createElement('button');
+                              closeBtn.className = 'absolute -top-10 right-0 p-2 bg-white text-black rounded-full hover:bg-slate-200 transition-colors font-bold text-xl w-10 h-10 flex items-center justify-center';
+                              closeBtn.textContent = '×';
+                              closeBtn.onclick = (e) => {
+                                e.stopPropagation();
+                                modal.remove();
+                              };
+                              
+                              container.appendChild(img);
+                              container.appendChild(closeBtn);
+                              modal.appendChild(container);
                               document.body.appendChild(modal);
                             }}
                           />
