@@ -2171,7 +2171,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                   <div className="flex justify-between items-center mb-2">
                      <div className="flex items-center gap-1.5">
                         <ShoppingBag className="w-3.5 h-3.5 text-indigo-600" />
-                        <h3 className="font-bold text-slate-800 text-xs">Weekly Orders</h3>
+                        <h3 className="font-bold text-slate-100 text-xs">Weekly Orders</h3>
                      </div>
                      <motion.button 
                         whileHover={{ scale: 1.05 }}
@@ -2621,10 +2621,10 @@ const CropManager: React.FC<CropManagerProps> = ({
       {/* Add Tray Modal */}
       <AnimatePresence>
          {isAdding && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto border border-slate-700">
                   <div className="flex justify-between items-center">
-                     <h3 className="text-lg font-bold text-slate-800">Plant New</h3>
+                     <h3 className="text-lg font-bold text-slate-100">Plant New</h3>
                      <button onClick={() => {
                         setIsAdding(false);
                         setIsHalfHalf(false);
@@ -2756,8 +2756,8 @@ const CropManager: React.FC<CropManagerProps> = ({
       {/* Tray Detail / Action Modal */}
       <AnimatePresence>
          {selectedTray && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto border border-slate-700">
                   {/* Header */}
                   <div className="flex justify-between items-start">
                      <div>
@@ -3037,14 +3037,14 @@ const CropManager: React.FC<CropManagerProps> = ({
       {/* Detail & Edit Crop Modal (Unified) */}
       <AnimatePresence>
          {selectedCrop && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-5 max-h-[85vh] overflow-y-auto">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-5 max-h-[85vh] overflow-y-auto border border-slate-700">
                   
                   {/* Header Actions */}
                   <div className="flex justify-between items-center mb-2">
                      <div className="flex items-center space-x-2">
                        {!isEditingCrop && selectedCrop.id && (
-                          <button onClick={() => setIsEditingCrop(true)} className="flex items-center text-xs font-bold text-teal-600 bg-teal-50 px-3 py-1.5 rounded-full hover:bg-teal-100 transition-colors">
+                          <button onClick={() => setIsEditingCrop(true)} className="flex items-center text-xs font-bold text-emerald-400 bg-emerald-900/30 px-3 py-1.5 rounded-full hover:bg-emerald-900/50 transition-colors">
                              <Edit2 className="w-3 h-3 mr-1" /> Edit
                           </button>
                        )}
