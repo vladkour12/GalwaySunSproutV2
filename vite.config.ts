@@ -31,11 +31,12 @@ export default defineConfig(({ mode }) => {
           '@': path.resolve(__dirname, '.'),
         }
       },
-      assetsInclude: ['**/*.json', '**/*.html'],
+      assetsInclude: ['**/*.json'],
       build: {
         rollupOptions: {
           input: path.resolve(__dirname, 'index.html')
-        }
+        },
+        outDir: 'dist'
       },
       optimizeDeps: {
         exclude: ['manifest.json']
