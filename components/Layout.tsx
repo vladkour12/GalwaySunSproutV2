@@ -295,7 +295,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
       {/* Main Content with Transition */}
       <main
         ref={mainRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden relative z-10"
+        className="flex-1 overflow-y-auto overflow-x-hidden relative z-10 min-h-0"
         style={{ 
           WebkitOverflowScrolling: 'touch', // Smooth scrolling on iOS
           overscrollBehavior: 'contain', // Prevent scroll chaining to body
@@ -324,7 +324,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
           }
         }}
       >
-        <div className="max-w-4xl mx-auto p-4 sm:p-6">
+        <div className="max-w-4xl mx-auto p-4 sm:p-6 w-full">
           {/* Enhanced page transitions */}
           <AnimatePresence initial={false} mode="wait">
             <motion.div
@@ -334,6 +334,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15, ease: "easeInOut" }}
               style={{ position: 'relative', zIndex: 1 }}
+              className="w-full"
             >
               {children}
             </motion.div>
