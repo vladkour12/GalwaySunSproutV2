@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
 import NotificationManager from './components/NotificationManager';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { AppState, View, Stage, Transaction, CropType, Customer, Tray, Location, Order, WaterSchedule } from './types';
 import { INITIAL_CROPS, MOCK_TRANSACTIONS, INITIAL_CUSTOMERS } from './constants';
 import { getFarmAlerts } from './services/alertService';
@@ -1024,4 +1025,10 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default function AppWithTheme() {
+  return (
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
+  );
+}

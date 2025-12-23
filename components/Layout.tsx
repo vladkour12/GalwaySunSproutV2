@@ -4,6 +4,7 @@ import { View, AppState, Stage, Tray, CropType } from '../types';
 import { Leaf, Home, TrendingUp, CreditCard, BarChart3, LogOut, Bell, X, Clock, AlertCircle, Moon, Sun, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
 import { getFarmAlerts } from '../services/alertService';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -56,6 +57,7 @@ const getTimeToNextStage = (tray: Tray, crop: CropType) => {
 };
 
 const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLogout, alertCount = 0, appState }) => {
+  const { theme, toggleTheme } = useTheme();
   const mainRef = useRef<HTMLElement | null>(null);
   const dockRef = useRef<HTMLDivElement | null>(null);
   const [bottomPadPx, setBottomPadPx] = useState(0);
@@ -237,7 +239,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
       <motion.header 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="sticky top-0 z-40 px-6 py-4 bg-white/95 backdrop-blur-xl border-b border-slate-200/60 supports-[backdrop-filter]:bg-white/80 shadow-sm"
+        className="sticky top-0 z-40 px-6 py-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-slate-900/80 shadow-sm"
       >
         <div className="max-w-4xl mx-auto flex justify-between items-center">
             {/* Spacer for balance */}
@@ -250,7 +252,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1 }}
             >
-                <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-800 dark:from-slate-100 to-slate-600 dark:to-slate-300 bg-clip-text text-transparent">
                   Galway Sun Sprouts
                 </h1>
             </motion.div>
@@ -260,7 +262,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               {/* Notification Button */}
               <motion.button 
                  onClick={() => setShowNotifications(true)}
-                 className="relative w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all duration-200 active:scale-95 flex items-center justify-center"
+                 className="relative w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200 active:scale-95 flex items-center justify-center"
                  title={alertCount > 0 ? `${alertCount} notifications` : 'Notifications'}
                  whileHover={{ scale: 1.05 }}
                  whileTap={{ scale: 0.95 }}
@@ -278,10 +280,21 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                  )}
               </motion.button>
 
+              {/* Theme Toggle Button */}
+              <motion.button 
+                 onClick={toggleTheme}
+                 className="p-2.5 rounded-xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-slate-800 dark:hover:text-amber-400 transition-all duration-200 active:scale-95"
+                 title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                 whileHover={{ scale: 1.05 }}
+                 whileTap={{ scale: 0.95 }}
+              >
+                 {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+              </motion.button>
+
               {/* Logout Button */}
               <motion.button 
                  onClick={onLogout}
-                 className="p-2.5 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
+                 className="p-2.5 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950 dark:hover:text-red-400 transition-all duration-200 active:scale-95"
                  title="Sign Out / Back to Website"
                  whileHover={{ scale: 1.05 }}
                  whileTap={{ scale: 0.95 }}
@@ -350,7 +363,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
         {/* Hamburger Button */}
         <motion.button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="relative w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all duration-200 active:scale-95 flex items-center justify-center"
+          className="relative w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200 active:scale-95 flex items-center justify-center"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
