@@ -690,4 +690,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
   );
 };
 
-export default Dashboard;
+const MemoizedDashboard = React.memo(Dashboard);
+MemoizedDashboard.displayName = 'Dashboard';
+
+export default MemoizedDashboard;

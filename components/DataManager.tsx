@@ -543,4 +543,7 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
   );
 };
 
-export default DataManager;
+const MemoizedDataManager = React.memo(DataManager);
+MemoizedDataManager.displayName = 'DataManager';
+
+export default MemoizedDataManager;

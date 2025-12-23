@@ -3580,4 +3580,7 @@ const CropManager: React.FC<CropManagerProps> = ({
 );
 };
 
-export default CropManager;
+const MemoizedCropManager = React.memo(CropManager);
+MemoizedCropManager.displayName = 'CropManager';
+
+export default MemoizedCropManager;

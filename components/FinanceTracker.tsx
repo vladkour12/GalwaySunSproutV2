@@ -1096,4 +1096,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
   );
 };
 
-export default FinanceTracker;
+const MemoizedFinanceTracker = React.memo(FinanceTracker);
+MemoizedFinanceTracker.displayName = 'FinanceTracker';
+
+export default MemoizedFinanceTracker;
