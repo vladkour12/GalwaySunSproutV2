@@ -56,9 +56,9 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full p-3 flex items-center justify-between bg-slate-50 border rounded-xl font-bold text-left outline-none transition-all ${
-          isOpen ? 'border-teal-400 ring-2 ring-teal-100' : 'border-slate-100 hover:border-slate-200'
-        } ${selectedOption ? 'text-slate-700' : 'text-slate-400'}`}
+        className={`w-full p-3 flex items-center justify-between bg-slate-700 border rounded-xl font-bold text-left outline-none transition-all ${
+          isOpen ? 'border-emerald-400 ring-2 ring-emerald-500/30' : 'border-slate-600 hover:border-slate-500'
+        } ${selectedOption ? 'text-slate-100' : 'text-slate-400'}`}
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
         <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -71,7 +71,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.1 }}
-            className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl max-h-60 overflow-y-auto no-scrollbar"
+            className="absolute z-50 w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto no-scrollbar"
           >
             <div className="p-1 space-y-0.5">
               {options.map((option) => {

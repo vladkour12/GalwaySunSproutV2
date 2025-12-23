@@ -448,7 +448,7 @@ export const INITIAL_CROPS: CropType[] = [
     pricePerTray: 13.00,
     price500g: 11.00,
     price1kg: 20.10,
-    color: 'bg-white text-slate-800 border-slate-200',
+    color: 'bg-slate-700 text-slate-100 border-slate-600',
     summary: 'Spicy taste. White stems.',
     imageUrl: '/images/crops/Radish_Daikon.PNG'
   },

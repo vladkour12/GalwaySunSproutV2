@@ -153,51 +153,51 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
 
       {showForm && (
         <>
-          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setShowForm(false)}></div>
+          <div className="fixed inset-0 bg-black/60 z-40" onClick={() => setShowForm(false)}></div>
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 w-full max-w-2xl shadow-xl">
-          <h3 className="font-semibold text-slate-900">
+            <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 space-y-4 w-full max-w-2xl shadow-xl">
+          <h3 className="font-semibold text-slate-100">
             {selectedOrder ? 'Edit Order' : 'Create New Order'}
           </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-slate-100 mb-1">
                   Customer *
                 </label>
                 <select
                   value={formData.customerId || ''}
                   onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-600 rounded-lg bg-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
-                  <option value="">Select Customer</option>
+                  <option value="" className="bg-slate-800 text-slate-100">Select Customer</option>
                   {customers.map((c) => (
-                    <option key={c.id} value={c.id}>
+                    <option key={c.id} value={c.id} className="bg-slate-800 text-slate-100">
                       {c.name}
                     </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-slate-100 mb-1">
                   Order Date *
                 </label>
                 <input
                   type="date"
                   value={formData.date || ''}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-600 rounded-lg bg-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-slate-100 mb-1">
                   Due Date *
                 </label>
                 <input
                   type="date"
                   value={formData.dueDate || ''}
                   onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-600 rounded-lg bg-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
             </div>

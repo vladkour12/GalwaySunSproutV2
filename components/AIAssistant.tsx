@@ -77,23 +77,23 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ state }) => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden relative">
+    <div className="flex flex-col h-[calc(100vh-140px)] bg-slate-800 rounded-3xl shadow-sm border border-slate-700 overflow-hidden relative">
       {/* Header */}
-      <div className="bg-white/90 backdrop-blur-sm border-b border-slate-100 p-4 flex items-center justify-center absolute top-0 left-0 right-0 z-10">
+      <div className="bg-slate-800/90 backdrop-blur-sm border-b border-slate-700 p-4 flex items-center justify-center absolute top-0 left-0 right-0 z-10">
          <div className="flex flex-col items-center">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Consultant</span>
             <div className="flex items-center space-x-1.5">
                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                </span>
-               <h3 className="font-bold text-slate-800">Sprout AI</h3>
+               <h3 className="font-bold text-slate-100">Sprout AI</h3>
             </div>
          </div>
       </div>
       
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto pt-20 pb-4 px-4 space-y-6 bg-gradient-to-b from-slate-50 to-white">
+      <div className="flex-1 overflow-y-auto pt-20 pb-4 px-4 space-y-6 bg-gradient-to-b from-slate-900 to-slate-800">
         <AnimatePresence>
         {messages.map((msg) => (
           <motion.div 
@@ -104,17 +104,17 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ state }) => {
             className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div className={`flex max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse space-x-reverse' : 'flex-row'} items-end space-x-2`}>
-               <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${msg.sender === 'user' ? 'bg-slate-800' : 'bg-teal-100 border border-teal-200'}`}>
-                  {msg.sender === 'user' ? <User className="w-4 h-4 text-white" /> : <Sprout className="w-4 h-4 text-teal-600" />}
+               <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${msg.sender === 'user' ? 'bg-emerald-600' : 'bg-emerald-900/30 border border-emerald-700'}`}>
+                  {msg.sender === 'user' ? <User className="w-4 h-4 text-white" /> : <Sprout className="w-4 h-4 text-emerald-400" />}
                </div>
                
                <div className={`p-4 rounded-3xl text-sm leading-relaxed shadow-sm ${
                  msg.sender === 'user' 
-                   ? 'bg-slate-800 text-white rounded-br-none' 
-                   : 'bg-white text-slate-700 border border-slate-100 rounded-bl-none'
+                   ? 'bg-emerald-600 text-white rounded-br-none' 
+                   : 'bg-slate-700 text-slate-100 border border-slate-600 rounded-bl-none'
                }`}>
                  <div dangerouslySetInnerHTML={{ __html: msg.text.replace(/\n/g, '<br/>') }} />
-                 <span className={`text-[10px] block mt-2 opacity-60 ${msg.sender === 'user' ? 'text-slate-300' : 'text-slate-400'}`}>
+                 <span className={`text-[10px] block mt-2 opacity-60 ${msg.sender === 'user' ? 'text-white' : 'text-slate-400'}`}>
                     {msg.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                  </span>
                </div>
@@ -129,10 +129,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ state }) => {
             animate={{ opacity: 1 }}
             className="flex justify-start"
           >
-             <div className="flex items-center space-x-2 bg-white border border-slate-100 px-4 py-3 rounded-2xl rounded-bl-none shadow-sm ml-10">
-                <div className="w-1.5 h-1.5 bg-teal-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-1.5 h-1.5 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-1.5 h-1.5 bg-teal-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+             <div className="flex items-center space-x-2 bg-slate-700 border border-slate-600 px-4 py-3 rounded-2xl rounded-bl-none shadow-sm ml-10">
+                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
              </div>
           </motion.div>
         )}
@@ -140,14 +140,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ state }) => {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-white border-t border-slate-100">
-        <div className="flex items-center space-x-2 bg-slate-50 p-2 rounded-2xl border border-slate-100 focus-within:ring-2 focus-within:ring-teal-100 transition-shadow">
+      <div className="p-4 bg-slate-800 border-t border-slate-700">
+        <div className="flex items-center space-x-2 bg-slate-700 p-2 rounded-2xl border border-slate-600 focus-within:ring-2 focus-within:ring-emerald-500 transition-shadow">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Ask about planting schedules..."
+            className="flex-1 bg-slate-700 text-slate-100 placeholder-slate-400 outline-none"
             className="flex-1 p-2 bg-transparent border-none focus:outline-none text-slate-800 placeholder:text-slate-400 font-medium"
             disabled={isLoading}
           />

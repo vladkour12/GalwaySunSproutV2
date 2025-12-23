@@ -823,9 +823,9 @@ const CropManager: React.FC<CropManagerProps> = ({
   return (
     <div>
       {/* 1. Simple Header & Tabs */}
-      <div className="bg-white sticky top-0 z-20 pt-4 pb-2 px-1 border-b border-slate-100 shadow-sm">
+      <div className="bg-slate-800 sticky top-0 z-20 pt-4 pb-2 px-1 border-b border-slate-700 shadow-sm">
          <div className="flex justify-between items-center mb-4 px-2">
-            <h2 className="text-2xl font-bold text-slate-800">
+            <h2 className="text-2xl font-bold text-slate-100">
                {activeTab === 'production' ? 'My Shed' : activeTab === 'varieties' ? 'Seeds' : activeTab === 'calendar' ? 'Calendar' : 'Plan'}
             </h2>
             <div className="text-xs font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">
@@ -834,11 +834,11 @@ const CropManager: React.FC<CropManagerProps> = ({
                {activeTab === 'calendar' && new Date().toLocaleDateString(undefined, {weekday: 'long'})}
             </div>
          </div>
-         <div className="flex p-1 bg-slate-100 rounded-xl mx-2 overflow-x-auto no-scrollbar">
-            <button onClick={() => setActiveTab('production')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'production' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}>Shed</button>
-            <button onClick={() => setActiveTab('calendar')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'calendar' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}>Calendar</button>
-            <button onClick={() => setActiveTab('plan')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'plan' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}>Planner</button>
-            <button onClick={() => setActiveTab('varieties')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'varieties' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}>Seeds</button>
+         <div className="flex p-1 bg-slate-700 rounded-xl mx-2 overflow-x-auto no-scrollbar">
+            <button onClick={() => setActiveTab('production')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'production' ? 'bg-slate-600 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}>Shed</button>
+            <button onClick={() => setActiveTab('calendar')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'calendar' ? 'bg-slate-600 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}>Calendar</button>
+            <button onClick={() => setActiveTab('plan')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'plan' ? 'bg-slate-600 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}>Planner</button>
+            <button onClick={() => setActiveTab('varieties')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'varieties' ? 'bg-slate-600 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}>Seeds</button>
          </div>
       </div>
 

@@ -82,14 +82,14 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
       </div>
 
       {showForm && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
-          <h3 className="font-semibold text-slate-900">
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 space-y-4">
+          <h3 className="font-semibold text-slate-100">
             {editingId ? 'Edit Location' : 'New Location'}
           </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-slate-100 mb-1">
                   Location Name *
                 </label>
                 <input
@@ -97,7 +97,7 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g., Shelf 1-A, Grow Room 1"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-slate-600 rounded-lg bg-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
               <div>
