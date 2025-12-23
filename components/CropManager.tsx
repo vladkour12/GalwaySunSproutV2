@@ -136,7 +136,6 @@ const getTimeToNextStage = (tray: Tray, crop: CropType) => {
     if (hours > 0) return { text: `${hours}h`, isOverdue: false, hours: totalHours };
     return { text: "Now", isOverdue: false, hours: 0 };
   } catch (e) {
-    console.error('Error in getTimeToNextStage:', e);
     return { text: "Error", isOverdue: false, hours: 0 };
   }
 };
@@ -156,7 +155,6 @@ const getDaysSinceStart = (tray: Tray) => {
     
     return { days, hours, text: `${days}d ${hours}h` };
   } catch (e) {
-    console.error('Error in getDaysSinceStart:', e);
     return { days: 0, hours: 0, text: "--" };
   }
 };
@@ -423,7 +421,6 @@ const CropManager: React.FC<CropManagerProps> = ({
      
      return { crop, plantDate, germEnd, blackoutEnd, harvestDate: target };
      } catch (e) {
-       console.error('Planner (event) crashed', e);
        return null;
      }
   }, [plannerCropId, plannerDate, state.crops]);
@@ -503,7 +500,6 @@ const CropManager: React.FC<CropManagerProps> = ({
         },
     };
     } catch (e) {
-      console.error('Planner (recurring) crashed', e);
       return null;
     }
   }, [recurringCropId, recurringTargetAmount, recurringHarvestDay, state.crops]);
@@ -514,7 +510,6 @@ const CropManager: React.FC<CropManagerProps> = ({
       const days = [];
       const today = new Date();
       if (isNaN(today.getTime())) {
-        console.error('Invalid today date');
         return [];
       }
   
@@ -661,7 +656,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                 });
               }
             } catch (e) {
-              console.error('Error processing SOAK task:', e);
+              // Silent failure
             }
          }
       });
@@ -714,7 +709,6 @@ const CropManager: React.FC<CropManagerProps> = ({
     }
     return days;
       } catch (e) {
-        console.error('Calendar generation crashed', e);
         return [];
       }
   }, [activeTrays, recurringOrders, state.crops, state.customers]);
@@ -1163,7 +1157,6 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                                alt={crop.name} 
                                                                className="w-full h-full object-cover"
                                                                onError={(e) => {
-                                                                  console.warn(`Failed to load image for ${crop.name}:`, crop.imageUrl);
                                                                   e.currentTarget.style.display = 'none';
                                                                }}
                                                             />
@@ -2120,7 +2113,6 @@ const CropManager: React.FC<CropManagerProps> = ({
                                     alt={crop.name} 
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
-                                       console.warn(`Failed to load image for ${crop.name}:`, crop.imageUrl);
                                        e.currentTarget.style.display = 'none';
                                     }}
                                  />
@@ -3080,7 +3072,6 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  alt={selectedCrop.name} 
                                  className="w-full h-full object-cover"
                                  onError={(e) => {
-                                    console.warn(`Failed to load image for ${selectedCrop.name}:`, selectedCrop.imageUrl);
                                     e.currentTarget.style.display = 'none';
                                  }}
                               />

@@ -39,9 +39,7 @@ export const generateCSV = (
 // Helper to download file
 export const downloadFile = (content: string, filename: string, mimeType: string): void => {
   try {
-    console.log(`Creating blob for ${filename}...`);
     const blob = new Blob([content], { type: mimeType });
-    console.log(`Blob created, size: ${blob.size} bytes`);
     
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -49,14 +47,11 @@ export const downloadFile = (content: string, filename: string, mimeType: string
     link.download = filename;
     document.body.appendChild(link);
     
-    console.log(`Triggering download for ${filename}...`);
     link.click();
     
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
-    console.log(`Download completed for ${filename}`);
   } catch (error) {
-    console.error('Error in downloadFile:', error);
     throw new Error(`Failed to download file: ${(error as Error).message}`);
   }
 };
@@ -102,14 +97,12 @@ export const exportCropsSummary = (crops: CropType[], trays: Tray[]): void => {
     'Difficulty',
   ]);
   } catch (error) {
-    console.error('Error exporting crops summary:', error);
     alert('Error exporting crops summary: ' + (error as Error).message);
   }
 };
 
 // Generate Tray Production Report (CSV)
 export const exportTrayReport = (trays: Tray[], crops: CropType[]): void => {
-  console.log('Exporting tray report. Trays:', trays.length, 'Crops:', crops.length);
   try {
     if (!trays || trays.length === 0) {
       alert('No trays to export');
@@ -159,7 +152,6 @@ export const exportFinancialReport = (
   customers: Customer[],
   dateRange?: { from: string; to: string }
 ): void => {
-  console.log('Exporting financial report. Transactions:', transactions.length, 'Customers:', customers.length);
   try {
     if (!transactions || transactions.length === 0) {
       alert('No transactions to export');
@@ -221,7 +213,6 @@ export const exportFinancialReport = (
 
 // Generate Customer Report (CSV)
 export const exportCustomerReport = (customers: Customer[], transactions: Transaction[]): void => {
-  console.log('Exporting customer report. Customers:', customers.length, 'Transactions:', transactions.length);
   try {
     if (!customers || customers.length === 0) {
       alert('No customers to export');
@@ -266,7 +257,6 @@ export const exportCompleteReport = (
   transactions: Transaction[],
   customers: Customer[]
 ): void => {
-  console.log('Exporting complete report. Crops:', crops.length, 'Trays:', trays.length, 'Transactions:', transactions.length, 'Customers:', customers.length);
   try {
     const report: string[] = [];
 
@@ -298,7 +288,6 @@ export const exportCompleteReport = (
     exportFinancialReport(transactions, customers);
     exportCustomerReport(customers, transactions);
   } catch (error) {
-    console.error('Error exporting complete report:', error);
     alert('Error exporting complete report: ' + (error as Error).message);
   }
 };

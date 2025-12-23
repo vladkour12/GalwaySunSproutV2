@@ -183,7 +183,6 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
     await api.setup();
   } catch (setupError) {
     // Setup errors are OK - tables might already exist
-    console.warn('Database setup warning (may already exist):', setupError);
   }
 
   try {
@@ -197,7 +196,6 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
     // Local-first apps should not "erase" local defaults due to an empty remote DB.
     // If the remote DB is empty, seed it with initial test data.
     if (crops.length === 0) {
-      console.log('Database is empty, seeding initial data...');
       try {
       await api.seed({ crops: INITIAL_CROPS, customers: INITIAL_CUSTOMERS });
       const [seededCrops, seededTrays, seededTransactions, seededCustomers] = await Promise.all([
@@ -213,10 +211,8 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
         customers: seededCustomers,
       };
       await saveState(seeded);
-        console.log('Database seeded successfully');
       return seeded;
       } catch (seedError) {
-        console.error('Failed to seed database:', seedError);
         // If seeding fails, return empty state but don't crash
         const emptyState: AppState = {
           crops: INITIAL_CROPS,
@@ -231,17 +227,8 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
 
     const state: AppState = { crops, trays, transactions, customers };
     
-    // Log image URLs for debugging
-    console.log('Loaded crops from database:', crops.length);
-    const cropsWithImages = crops.filter(c => c.imageUrl);
-    const cropsWithoutImages = crops.filter(c => !c.imageUrl);
-    console.log(`Crops with images: ${cropsWithImages.length}/${crops.length}`);
-    
     // Convert image URLs to base64 for offline access
-    console.log('Converting remote image URLs to base64 for local storage...');
     const cropsWithConvertedImages = await convertCropImagesToBase64(state.crops);
-    const convertedCount = cropsWithConvertedImages.filter(c => c.imageUrl?.startsWith('data:')).length;
-    console.log(`Converted ${convertedCount}/${state.crops.length} crop images to base64`);
     
     const stateWithConvertedImages: AppState = {
       ...state,
@@ -250,7 +237,6 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
     
     // Save to local storage with converted images
     await saveState(stateWithConvertedImages, false); // false because we already converted
-    console.log('Successfully saved to local storage with converted images');
     return stateWithConvertedImages;
   } catch (e) {
     const msg = (e as Error)?.message ?? String(e);
@@ -258,7 +244,6 @@ export const refreshLocalFromRemote = async (): Promise<AppState> => {
     
     // Check if this is a "Vite dev server" error (API routes not available)
     if (isLocalDev && (msg.includes('dev:vercel') || msg.includes('Vite cannot run serverless') || msg.includes('API routes not available'))) {
-      console.warn('API routes not available in Vite dev mode. Working offline. Use "npm run dev:vercel" for full API support.');
       // Return empty state - app will work offline
       const emptyState: AppState = { crops: [], trays: [], transactions: [], customers: [] };
       return emptyState;
