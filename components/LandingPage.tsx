@@ -43,25 +43,25 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
   const varieties = INITIAL_CROPS.map(crop => crop.name);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 font-sans text-slate-100 overflow-x-hidden">
+    <div className="min-h-screen bg-white font-sans text-slate-900 overflow-x-hidden">
       
       {/* Background Elements */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
         <motion.div 
           animate={{ 
             scale: [1, 1.2, 1],
-            opacity: [0.15, 0.25, 0.15]
+            opacity: [0.3, 0.5, 0.3]
           }}
           transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-20 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" 
+          className="absolute top-20 right-10 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl" 
         />
         <motion.div 
           animate={{ 
             scale: [1, 1.15, 1],
-            opacity: [0.15, 0.25, 0.15]
+            opacity: [0.3, 0.5, 0.3]
           }}
           transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute -bottom-40 -left-20 w-96 h-96 bg-slate-600/10 rounded-full blur-3xl" 
+          className="absolute -bottom-40 -left-20 w-96 h-96 bg-emerald-200/20 rounded-full blur-3xl" 
         />
       </div>
       
@@ -70,7 +70,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-4 bg-slate-900/90 backdrop-blur-md border-b border-slate-700"
+        className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-4 bg-white/95 backdrop-blur-md border-b border-slate-100"
       >
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <motion.div 
@@ -78,17 +78,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-lg flex items-center justify-center text-slate-900">
+            <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-lg flex items-center justify-center text-white">
               <Sprout className="w-5 h-5" />
             </div>
-            <span className="font-bold text-lg text-slate-100 hidden sm:inline">Sun Sprouts</span>
+            <span className="font-bold text-lg text-slate-900 hidden sm:inline">Sun Sprouts</span>
           </motion.div>
           
           <motion.button
             onClick={onLoginClick}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-6 py-2 bg-emerald-600 text-white rounded-lg font-semibold text-sm hover:bg-emerald-700 transition-all duration-200"
+            className="px-6 py-2 bg-slate-900 text-white rounded-lg font-semibold text-sm hover:bg-slate-800 transition-all duration-200"
           >
             Login
           </motion.button>
@@ -98,40 +98,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       {/* Hero Section - Clean & Minimal */}
       <section className="relative pt-24 pb-32 px-4 sm:px-6 z-10">
         <div className="max-w-5xl mx-auto text-center">
-          {/* Logo Background */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.05, duration: 0.8 }}
-            className="mb-6"
-          >
-            <svg className="w-40 h-40 mx-auto" viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* Galway Sun Sprouts Logo - Green leaves on dark */}
-              <circle cx="100" cy="100" r="90" fill="none" opacity="0.1" />
-              {/* Left leaf - curved style */}
-              <ellipse cx="75" cy="85" rx="22" ry="35" fill="#059669" transform="rotate(-35 75 85)" />
-              <path d="M 75 60 Q 85 75 75 110" stroke="#ffffff" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-              <path d="M 70 65 Q 78 78 72 105" stroke="#ffffff" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7" />
-              
-              {/* Top right leaf */}
-              <ellipse cx="115" cy="65" rx="20" ry="32" fill="#059669" transform="rotate(25 115 65)" />
-              <path d="M 115 40 Q 120 55 115 90" stroke="#ffffff" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-              <path d="M 112 48 Q 118 60 113 85" stroke="#ffffff" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7" />
-              
-              {/* Center bottom leaf */}
-              <ellipse cx="100" cy="110" rx="18" ry="30" fill="#059669" transform="rotate(0 100 110)" />
-              <path d="M 100 85 L 100 135" stroke="#ffffff" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-              <path d="M 97 90 L 98 132" stroke="#ffffff" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7" />
-              <path d="M 103 90 L 102 132" stroke="#ffffff" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7" />
-            </svg>
-          </motion.div>
-
           {/* Badge */}
           <motion.div 
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.1, duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-900/30 border border-emerald-700/50 rounded-full mb-6 text-sm font-medium text-emerald-300"
+            className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full mb-6 text-sm font-medium text-emerald-700"
           >
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-pulse"></span>
@@ -147,13 +119,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 leading-tight"
           >
-            <span className="text-slate-100">Premium Microgreens</span>
+            <span className="text-slate-900">Premium Microgreens</span>
             <br />
             <motion.span 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.6 }}
-              className="bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent"
+              className="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent"
             >
               Grown Right Here
             </motion.span>
@@ -164,7 +136,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-12"
+            className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-12"
           >
             Precision-grown microgreens delivered fresh to your restaurant or home. Ultra-nutritious, packed with flavor, and grown sustainably in Galway.
           </motion.p>
@@ -180,7 +152,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
               href="mailto:hello@galwaysunsprouts.com"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 bg-emerald-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:bg-emerald-700 transition-all duration-200 flex items-center justify-center gap-2"
+              className="px-8 py-4 bg-slate-900 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:bg-slate-800 transition-all duration-200 flex items-center justify-center gap-2"
             >
               <Mail className="w-5 h-5" />
               Contact Us
@@ -192,7 +164,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 bg-slate-700 text-slate-100 rounded-xl font-semibold border border-slate-600 hover:bg-slate-600 transition-all duration-200 flex items-center justify-center gap-2"
+              className="px-8 py-4 bg-slate-100 text-slate-900 rounded-xl font-semibold border border-slate-200 hover:bg-slate-50 transition-all duration-200 flex items-center justify-center gap-2"
             >
               <Instagram className="w-5 h-5" />
               Follow Us

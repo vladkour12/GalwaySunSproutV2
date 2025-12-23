@@ -849,27 +849,27 @@ const App: React.FC = () => {
   if (fatalError) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950 p-6">
-        <div className="w-full max-w-xl bg-slate-800 rounded-3xl border border-slate-700 shadow-2xl overflow-hidden">
-          <div className="p-6 border-b border-slate-700">
-            <h2 className="text-lg font-extrabold text-slate-100">App crashed</h2>
-            <p className="text-sm text-slate-400 mt-1">
+        <div className="w-full max-w-xl bg-white rounded-3xl border border-slate-100 shadow-2xl overflow-hidden">
+          <div className="p-6 border-b border-slate-100">
+            <h2 className="text-lg font-extrabold text-slate-900">App crashed</h2>
+            <p className="text-sm text-slate-500 mt-1">
               View: <span className="font-mono text-xs">{currentView}</span>
             </p>
           </div>
           <div className="p-6 space-y-3">
-            <div className="rounded-2xl bg-slate-700 border border-slate-600 p-4">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Error</div>
-              <div className="mt-1 font-mono text-xs text-slate-100 whitespace-pre-wrap break-words">{fatalError.message}</div>
+            <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Error</div>
+              <div className="mt-1 font-mono text-xs text-slate-900 whitespace-pre-wrap break-words">{fatalError.message}</div>
               {fatalError.source && (
-                <div className="mt-2 text-[10px] font-mono text-slate-400 whitespace-pre-wrap break-words">
+                <div className="mt-2 text-[10px] font-mono text-slate-500 whitespace-pre-wrap break-words">
                   {fatalError.source}
                 </div>
               )}
             </div>
             {fatalError.stack && (
-              <div className="rounded-2xl bg-slate-700 border border-slate-600 p-4 max-h-52 overflow-auto">
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Stack</div>
-                <div className="mt-1 font-mono text-[10px] text-slate-200 whitespace-pre-wrap break-words">
+              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 max-h-52 overflow-auto">
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stack</div>
+                <div className="mt-1 font-mono text-[10px] text-slate-700 whitespace-pre-wrap break-words">
                   {fatalError.stack}
                 </div>
               </div>
@@ -880,18 +880,18 @@ const App: React.FC = () => {
                   setFatalError(null);
                   setCurrentView('dashboard');
                 }}
-                className="flex-1 px-4 py-3 rounded-2xl bg-emerald-600 text-white font-bold hover:bg-emerald-700"
+                className="flex-1 px-4 py-3 rounded-2xl bg-slate-900 text-white font-bold"
               >
                 Recover
               </button>
               <button
                 onClick={() => window.location.reload()}
-                className="flex-1 px-4 py-3 rounded-2xl bg-slate-700 text-slate-100 font-bold hover:bg-slate-600"
+                className="flex-1 px-4 py-3 rounded-2xl bg-slate-100 text-slate-900 font-bold"
               >
                 Reload
               </button>
             </div>
-            <p className="text-[10px] text-slate-500 font-mono">crash-capture:v1</p>
+            <p className="text-[10px] text-slate-400 font-mono">crash-capture:v1</p>
           </div>
         </div>
       </div>

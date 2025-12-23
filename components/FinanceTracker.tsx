@@ -327,17 +327,17 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between items-center">
            <div>
-              <h2 className="text-2xl font-bold text-slate-100 tracking-tight">
+              <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
                 {viewMode === 'transactions' ? 'Finances' : viewMode === 'customers' ? 'Customers' : 'Business Expenses'}
               </h2>
-              <p className="text-xs text-slate-400 font-medium">
+              <p className="text-xs text-slate-500 font-medium">
                 {viewMode === 'transactions' ? 'Cash Flow & Records' : viewMode === 'customers' ? 'Client Management' : 'Track Business Spending'}
               </p>
            </div>
-           <div className="flex bg-slate-700 p-1 rounded-xl relative z-10">
-              <button onClick={() => setViewMode('transactions')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-lg transition-all ${viewMode === 'transactions' ? 'bg-slate-600 text-slate-100 shadow-sm' : 'text-slate-400'}`}><LayoutGrid className="w-5 h-5" /></button>
-              <button onClick={() => setViewMode('customers')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-lg transition-all ${viewMode === 'customers' ? 'bg-slate-600 text-emerald-400 shadow-sm' : 'text-slate-400'}`}><Users className="w-5 h-5" /></button>
-              <button onClick={() => setViewMode('expenses')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-lg transition-all ${viewMode === 'expenses' ? 'bg-slate-600 text-purple-400 shadow-sm' : 'text-slate-400'}`}><Building2 className="w-5 h-5" /></button>
+           <div className="flex bg-slate-100 p-1 rounded-xl relative z-10">
+              <button onClick={() => setViewMode('transactions')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-lg transition-all ${viewMode === 'transactions' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}><LayoutGrid className="w-5 h-5" /></button>
+              <button onClick={() => setViewMode('customers')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-lg transition-all ${viewMode === 'customers' ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-400'}`}><Users className="w-5 h-5" /></button>
+              <button onClick={() => setViewMode('expenses')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-lg transition-all ${viewMode === 'expenses' ? 'bg-white text-purple-700 shadow-sm' : 'text-slate-400'}`}><Building2 className="w-5 h-5" /></button>
            </div>
         </div>
 
@@ -347,7 +347,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
             whileTap={{ scale: 0.99 }}
             onClick={() => { if (showTxForm) { setShowTxForm(false); resetForm(); } else { setShowTxForm(true); resetForm(); } }}
             style={{ touchAction: 'manipulation', position: 'relative', zIndex: 10 }}
-            className={`w-full py-3 rounded-2xl shadow-lg flex items-center justify-center text-sm font-bold transition-all ${showTxForm ? 'bg-slate-700 text-slate-300 shadow-none' : 'bg-slate-700 text-slate-100 shadow-black/30'}`}
+            className={`w-full py-3 rounded-2xl shadow-lg flex items-center justify-center text-sm font-bold transition-all ${showTxForm ? 'bg-slate-100 text-slate-600 shadow-none' : 'bg-slate-900 text-white shadow-slate-200'}`}
           >
             {showTxForm ? 'Cancel Entry' : <><Plus className="w-4 h-4 mr-2" /> Add Transaction</>}
           </motion.button>
@@ -391,16 +391,16 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
         <div className="space-y-6">
           <AnimatePresence>
           {showTxForm && (
-            <motion.form initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: 'easeInOut' }} onSubmit={handleTxSubmit} className="bg-slate-800 p-6 rounded-3xl shadow-xl shadow-black/30 border border-slate-700 space-y-5 relative overflow-hidden">
+            <motion.form initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: 'easeInOut' }} onSubmit={handleTxSubmit} className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 space-y-5 relative overflow-hidden">
                <div className={`pointer-events-none absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${editingTx ? 'from-amber-400 to-orange-500' : 'from-teal-400 to-blue-500'}`}></div>
-               <h3 className="text-sm font-bold text-slate-100">{editingTx ? 'Edit Transaction' : 'New Transaction'}</h3>
+               <h3 className="text-sm font-bold text-slate-800">{editingTx ? 'Edit Transaction' : 'New Transaction'}</h3>
                <div className="bg-slate-100 p-1.5 rounded-2xl flex relative">
                  <motion.div className="pointer-events-none absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-white rounded-xl shadow-sm" animate={{ x: type === 'expense' ? '100%' : '0%' }} transition={{ type: "spring", stiffness: 500, damping: 30 }} />
                  <button type="button" onClick={() => setType('income')} onPointerUp={() => setType('income')} style={{ touchAction: 'manipulation' }} className={`relative flex-1 py-2.5 text-sm font-bold rounded-xl transition-colors z-10 ${type === 'income' ? 'text-teal-700' : 'text-slate-500'}`}>Income</button>
                  <button type="button" onClick={() => setType('expense')} onPointerUp={() => setType('expense')} style={{ touchAction: 'manipulation' }} className={`relative flex-1 py-2.5 text-sm font-bold rounded-xl transition-colors z-10 ${type === 'expense' ? 'text-red-700' : 'text-slate-500'}`}>Expense</button>
                </div>
                <div className="space-y-4">
-                  <div className="relative"><span className="absolute left-4 top-3.5 text-slate-500 font-medium">€</span><input type="number" value={amount} onChange={e => setAmount(e.target.value)} onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()} className="w-full pl-8 pr-4 py-3.5 bg-slate-700 border-none rounded-2xl text-lg font-bold text-slate-100 focus:ring-2 focus:ring-emerald-500/50 placeholder:text-slate-500 transition-all" placeholder="0.00" required /></div>
+                  <div className="relative"><span className="absolute left-4 top-3.5 text-slate-400 font-medium">€</span><input type="number" value={amount} onChange={e => setAmount(e.target.value)} onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()} className="w-full pl-8 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-lg font-bold text-slate-800 focus:ring-2 focus:ring-teal-100 placeholder:text-slate-300 transition-all" placeholder="0.00" required /></div>
                   {editingTx && ( <div className="relative"><Calendar className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" /><input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-base font-bold text-slate-700 focus:ring-2 focus:ring-teal-100 outline-none" /></div> )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <div className="relative">
@@ -468,8 +468,8 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
               transition={{ delay: 0.1 }}
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
-              <div className="bg-slate-800 p-5 rounded-3xl shadow-sm border border-slate-700 relative z-0">
-                <h4 className="text-sm font-bold text-slate-100 mb-4">Cash Flow (Last 7 Days)</h4>
+              <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 relative z-0">
+                <h4 className="text-sm font-bold text-slate-800 mb-4">Cash Flow (Last 7 Days)</h4>
                 <div ref={chartRef1} className="h-48 w-full" style={{ minHeight: 192, position: 'relative', pointerEvents: 'none' }}>
                   {chartWidth > 0 && (
                     <BarChart width={chartWidth} height={192} data={cashFlowData}>
@@ -482,8 +482,8 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                 </div>
                 {isTouchUI && <p className="mt-2 text-[10px] text-slate-400 font-bold">Charts are view-only on mobile.</p>}
              </div>
-              <div className="bg-slate-800 p-5 rounded-3xl shadow-sm border border-slate-700 relative z-0">
-                <h4 className="text-sm font-bold text-slate-100 mb-4">Expenses by Category</h4>
+              <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 relative z-0">
+                <h4 className="text-sm font-bold text-slate-800 mb-4">Expenses by Category</h4>
                 <div ref={chartRef2} className="h-48 w-full" style={{ minHeight: 192, position: 'relative', pointerEvents: 'none' }}>
                   {chartWidth > 0 && (
                     <PieChart width={chartWidth} height={192}>
@@ -500,18 +500,18 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
           </motion.div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-slate-800 p-5 rounded-3xl shadow-sm border border-slate-700">
-                <div className="h-48 w-full rounded-2xl bg-slate-700 border border-slate-700 animate-pulse" />
+              <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+                <div className="h-48 w-full rounded-2xl bg-slate-50 border border-slate-100 animate-pulse" />
               </div>
-              <div className="bg-slate-800 p-5 rounded-3xl shadow-sm border border-slate-700">
-                <div className="h-48 w-full rounded-2xl bg-slate-700 border border-slate-700 animate-pulse" />
+              <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+                <div className="h-48 w-full rounded-2xl bg-slate-50 border border-slate-100 animate-pulse" />
               </div>
             </div>
           )}
 
-          <div className="bg-slate-800 rounded-3xl shadow-sm border border-slate-700 overflow-hidden">
-             <div className="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-700/50">
-                <h3 className="font-bold text-slate-100">Recent Transactions</h3>
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+             <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 className="font-bold text-slate-800">Recent Transactions</h3>
                 <div className="flex space-x-2 items-center">
                    <div className="w-40">
                       <CustomSelect 
@@ -533,13 +533,13 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                 {filteredTransactions.slice().reverse().map(tx => (
                    <motion.div key={tx.id} variants={{ hidden: { opacity: 0, x: -10 }, visible: { opacity: 1, x: 0 } }} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors group">
                       <div className="flex items-center space-x-3">
-                         <div className={`p-2.5 rounded-xl ${tx.type === 'income' ? 'bg-emerald-900/30 text-emerald-400' : 'bg-red-900/30 text-red-400'}`}>{getCategoryIcon(tx.category, tx.type)}</div>
-                         <div><div className="font-bold text-slate-100 text-sm">{tx.description || tx.category}</div><div className="text-[10px] text-slate-500 font-medium">{(() => { const d = new Date(tx.date); return isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString(); })()} • {tx.payee || tx.customerId ? (tx.payee || state.customers.find(c => c.id === tx.customerId)?.name) : 'General'}</div></div>
+                         <div className={`p-2.5 rounded-xl ${tx.type === 'income' ? 'bg-teal-50 text-teal-600' : 'bg-red-50 text-red-600'}`}>{getCategoryIcon(tx.category, tx.type)}</div>
+                         <div><div className="font-bold text-slate-800 text-sm">{tx.description || tx.category}</div><div className="text-[10px] text-slate-400 font-medium">{(() => { const d = new Date(tx.date); return isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString(); })()} • {tx.payee || tx.customerId ? (tx.payee || state.customers.find(c => c.id === tx.customerId)?.name) : 'General'}</div></div>
                       </div>
-                      <div className="flex items-center space-x-3"><span className={`font-bold text-sm ${tx.type === 'income' ? 'text-emerald-400' : 'text-slate-300'}`}>{tx.type === 'income' ? '+' : '-'}€{tx.amount.toFixed(2)}</span><div className="flex space-x-1"><button onClick={() => setEditingTx(tx)} className="p-2 text-slate-500 hover:text-blue-400 bg-slate-700 rounded-lg active:bg-blue-600"><Edit2 className="w-4 h-4" /></button><button onClick={() => onDeleteTransaction(tx.id)} className="p-2 text-slate-500 hover:text-red-400 bg-slate-700 rounded-lg active:bg-red-600"><Trash2 className="w-4 h-4" /></button></div></div>
+                      <div className="flex items-center space-x-3"><span className={`font-bold text-sm ${tx.type === 'income' ? 'text-teal-600' : 'text-slate-900'}`}>{tx.type === 'income' ? '+' : '-'}€{tx.amount.toFixed(2)}</span><div className="flex space-x-1"><button onClick={() => setEditingTx(tx)} className="p-2 text-slate-400 hover:text-blue-500 bg-slate-50 rounded-lg active:bg-blue-50"><Edit2 className="w-4 h-4" /></button><button onClick={() => onDeleteTransaction(tx.id)} className="p-2 text-slate-400 hover:text-red-500 bg-slate-50 rounded-lg active:bg-red-50"><Trash2 className="w-4 h-4" /></button></div></div>
                    </motion.div>
                 ))}
-                {filteredTransactions.length === 0 && <div className="p-8 text-center text-slate-500 text-sm">No transactions found for this period.</div>}
+                {filteredTransactions.length === 0 && <div className="p-8 text-center text-slate-400 text-sm">No transactions found for this period.</div>}
              </motion.div>
           </div>
         </div>
@@ -548,26 +548,26 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
       {viewMode === 'customers' && (
          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {state.customers.map(cust => (
-               <motion.div key={cust.id} whileHover={{ scale: 1.01 }} className="bg-slate-800 p-5 rounded-3xl shadow-sm border border-slate-700 hover:shadow-md transition-all group relative">
-                  <div className="absolute top-4 right-4 flex space-x-1"><button onClick={() => openEditCustomerModal(cust)} className="p-2 text-slate-500 hover:text-blue-400 bg-slate-700 rounded-lg active:bg-blue-600"><Edit2 className="w-4 h-4" /></button><button onClick={() => onDeleteCustomer(cust.id)} className="p-2 text-slate-500 hover:text-red-400 bg-slate-700 rounded-lg active:bg-red-600"><Trash2 className="w-4 h-4" /></button></div>
-                  <div className="flex items-center space-x-3 mb-4"><div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-slate-400 text-lg font-bold">{cust.name.charAt(0)}</div><div><h3 className="font-bold text-slate-100">{cust.name}</h3><span className="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full border border-slate-600">{cust.type}</span></div></div>
-                  <div className="space-y-2 mb-4"><div className="flex items-center text-xs text-slate-400"><User className="w-3.5 h-3.5 mr-2" />{cust.contact}</div><div className="flex items-center text-xs text-slate-400"><Mail className="w-3.5 h-3.5 mr-2" />{cust.email}</div>{cust.notes && <div className="text-[10px] text-slate-300 italic mt-2 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/50">"{cust.notes}"</div>}</div>
+               <motion.div key={cust.id} whileHover={{ scale: 1.01 }} className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-all group relative">
+                  <div className="absolute top-4 right-4 flex space-x-1"><button onClick={() => openEditCustomerModal(cust)} className="p-2 text-slate-400 hover:text-blue-500 bg-slate-50 rounded-lg active:bg-blue-50"><Edit2 className="w-4 h-4" /></button><button onClick={() => onDeleteCustomer(cust.id)} className="p-2 text-slate-400 hover:text-red-500 bg-slate-50 rounded-lg active:bg-red-50"><Trash2 className="w-4 h-4" /></button></div>
+                  <div className="flex items-center space-x-3 mb-4"><div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-lg font-bold">{cust.name.charAt(0)}</div><div><h3 className="font-bold text-slate-800">{cust.name}</h3><span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full border border-slate-200">{cust.type}</span></div></div>
+                  <div className="space-y-2 mb-4"><div className="flex items-center text-xs text-slate-500"><User className="w-3.5 h-3.5 mr-2" />{cust.contact}</div><div className="flex items-center text-xs text-slate-500"><Mail className="w-3.5 h-3.5 mr-2" />{cust.email}</div>{cust.notes && <div className="text-[10px] text-slate-400 italic mt-2 bg-yellow-50 p-2 rounded-lg border border-yellow-100">"{cust.notes}"</div>}</div>
                </motion.div>
             ))}
-            {state.customers.length === 0 && <div className="col-span-1 md:col-span-2 text-center py-12 text-slate-400 bg-slate-800 rounded-3xl border border-dashed border-slate-700"><Users className="w-10 h-10 mx-auto mb-3 opacity-50" /><p>No customers added yet.</p></div>}
+            {state.customers.length === 0 && <div className="col-span-1 md:col-span-2 text-center py-12 text-slate-400 bg-slate-50 rounded-3xl border border-dashed border-slate-200"><Users className="w-10 h-10 mx-auto mb-3 opacity-50" /><p>No customers added yet.</p></div>}
          </div>
       )}
 
       <AnimatePresence>
       {showCustomerModal && (
-         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-            <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-slate-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden p-6 space-y-4 max-h-[85vh] overflow-y-auto border border-slate-700">
+         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
+            <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden p-6 space-y-4 max-h-[85vh] overflow-y-auto">
                <div className="flex justify-between items-center">
-                   <h3 className="text-lg font-bold text-slate-100">{editingCustomer.id ? 'Edit Customer' : 'Add New Customer'}</h3>
-                   <button onClick={() => setShowCustomerModal(false)} className="p-3 bg-slate-700 rounded-full hover:bg-slate-600 active:bg-slate-500 transition-colors"><X className="w-5 h-5 text-slate-300" /></button>
+                   <h3 className="text-lg font-bold text-slate-800">{editingCustomer.id ? 'Edit Customer' : 'Add New Customer'}</h3>
+                   <button onClick={() => setShowCustomerModal(false)} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5 text-slate-500" /></button>
                </div>
                <div className="space-y-3">
-                  <div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Name</label><input type="text" value={editingCustomer.name} onChange={e => setEditingCustomer({...editingCustomer, name: e.target.value})} className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-base font-bold text-slate-100 focus:ring-2 focus:ring-emerald-500 outline-none" /></div>
+                  <div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Name</label><input type="text" value={editingCustomer.name} onChange={e => setEditingCustomer({...editingCustomer, name: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none" /></div>
                   <div>
                      <CustomSelect 
                         label="Type"
@@ -580,10 +580,10 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                         ]}
                      />
                   </div>
-                  <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Contact Person</label><input type="text" value={editingCustomer.contact} onChange={e => setEditingCustomer({...editingCustomer, contact: e.target.value})} className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-base font-medium focus:ring-2 focus:ring-emerald-500 outline-none text-slate-100" /></div><div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Email</label><input type="email" value={editingCustomer.email} onChange={e => setEditingCustomer({...editingCustomer, email: e.target.value})} className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-base font-medium focus:ring-2 focus:ring-emerald-500 outline-none text-slate-100" /></div></div>
-                  <div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Notes</label><textarea value={editingCustomer.notes} onChange={e => setEditingCustomer({...editingCustomer, notes: e.target.value})} className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-base font-medium focus:ring-2 focus:ring-emerald-500 outline-none resize-none h-20 text-slate-100" /></div>
+                  <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Contact Person</label><input type="text" value={editingCustomer.contact} onChange={e => setEditingCustomer({...editingCustomer, contact: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-medium focus:ring-2 focus:ring-teal-500 outline-none" /></div><div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Email</label><input type="email" value={editingCustomer.email} onChange={e => setEditingCustomer({...editingCustomer, email: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-medium focus:ring-2 focus:ring-teal-500 outline-none" /></div></div>
+                  <div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Notes</label><textarea value={editingCustomer.notes} onChange={e => setEditingCustomer({...editingCustomer, notes: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-medium focus:ring-2 focus:ring-teal-500 outline-none resize-none h-20" /></div>
                </div>
-               <div className="flex space-x-3 pt-2"><button onClick={() => setShowCustomerModal(false)} className="flex-1 py-3 bg-slate-700 border border-slate-600 text-slate-300 font-bold rounded-xl">Cancel</button><button onClick={handleSaveCustomer} className="flex-1 py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-900/30">Save Customer</button></div>
+               <div className="flex space-x-3 pt-2"><button onClick={() => setShowCustomerModal(false)} className="flex-1 py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl">Cancel</button><button onClick={handleSaveCustomer} className="flex-1 py-3 bg-teal-600 text-white font-bold rounded-xl shadow-lg shadow-teal-200">Save Customer</button></div>
             </motion.div>
          </motion.div>
       )}

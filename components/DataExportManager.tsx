@@ -79,30 +79,30 @@ export const DataExportManager: React.FC<DataExportManagerProps> = ({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-100 mb-2">Data Export</h2>
-        <p className="text-slate-400">Generate CSV reports for accounting and analysis</p>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">Data Export</h2>
+        <p className="text-slate-600">Generate CSV reports for accounting and analysis</p>
       </div>
 
       {/* Date Range Filter */}
-      <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
-        <h3 className="font-semibold text-slate-100 mb-4">Financial Report Date Range</h3>
+      <div className="bg-white border border-slate-100 rounded-xl p-6">
+        <h3 className="font-semibold text-slate-900 mb-4">Financial Report Date Range</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-100 mb-1">From</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">From</label>
             <input
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-600 rounded-lg bg-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-100 mb-1">To</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">To</label>
             <input
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-600 rounded-lg bg-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
         </div>
@@ -116,23 +116,23 @@ export const DataExportManager: React.FC<DataExportManagerProps> = ({
             <button
               key={report.id}
               onClick={report.onClick}
-              className="bg-slate-800 border border-slate-700 rounded-xl p-6 hover:border-emerald-600 hover:shadow-md transition-all text-left group"
+              className="bg-white border border-slate-100 rounded-xl p-6 hover:border-green-200 hover:shadow-md transition-all text-left group"
             >
               <div className="flex items-start justify-between mb-3">
-                <IconComponent className="w-8 h-8 text-emerald-400 group-hover:scale-110 transition-transform" />
-                <Download className="w-5 h-5 text-slate-400 group-hover:text-emerald-400 transition-colors" />
+                <IconComponent className="w-8 h-8 text-green-600 group-hover:scale-110 transition-transform" />
+                <Download className="w-5 h-5 text-slate-400 group-hover:text-green-600 transition-colors" />
               </div>
-              <h3 className="font-semibold text-slate-100 mb-1">{report.title}</h3>
-              <p className="text-sm text-slate-400">{report.description}</p>
+              <h3 className="font-semibold text-slate-900 mb-1">{report.title}</h3>
+              <p className="text-sm text-slate-600">{report.description}</p>
             </button>
           );
         })}
       </div>
 
       {/* Info Section */}
-      <div className="bg-blue-900/30 border border-blue-700 rounded-xl p-6">
-        <h3 className="font-semibold text-blue-300 mb-2">Export Information</h3>
-        <ul className="text-sm text-blue-200 space-y-1">
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+        <h3 className="font-semibold text-blue-900 mb-2">Export Information</h3>
+        <ul className="text-sm text-blue-800 space-y-1">
           <li>• All reports are exported as CSV files that can be opened in Excel or Google Sheets</li>
           <li>• Complete Business Report exports all data as individual CSV files and a summary text file</li>
           <li>• Financial reports can be filtered by date range for specific periods</li>

@@ -195,28 +195,28 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
                     const crop2 = tray.cropTypeId2 ? state.crops.find(c => c.id === tray.cropTypeId2) : null;
                     const displayName = crop2 ? `${crop?.name || 'Unknown'} + ${crop2.name}` : (crop?.name || 'Unknown Crop');
                     return (
-                       <div key={tray.id} className="bg-slate-700 p-3 rounded-xl border border-slate-600 flex justify-between items-center">
+                       <div key={tray.id} className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex justify-between items-center">
                           <div>
                              <div className="flex items-center gap-2">
-                                <p className="font-bold text-slate-100 text-sm">{displayName}</p>
+                                <p className="font-bold text-slate-800 text-sm">{displayName}</p>
                                 {crop2 && (
-                                   <span className="text-[9px] font-bold text-purple-300 bg-purple-900/30 px-1.5 py-0.5 rounded">Half-Half</span>
+                                   <span className="text-[9px] font-bold text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded">Half-Half</span>
                                 )}
                              </div>
-                             <div className="flex items-center space-x-2 text-[10px] text-slate-400 mt-1">
-                                <span className={`px-1.5 py-0.5 rounded border ${tray.stage === 'Harvested' ? 'bg-emerald-900/30 border-emerald-700/50 text-emerald-300' : 'bg-slate-600 border-slate-500'}`}>{tray.stage}</span>
+                             <div className="flex items-center space-x-2 text-[10px] text-slate-500 mt-1">
+                                <span className={`px-1.5 py-0.5 rounded border ${tray.stage === 'Harvested' ? 'bg-teal-50 border-teal-100 text-teal-700' : 'bg-white border-slate-200'}`}>{tray.stage}</span>
                                 <span>{new Date(tray.startDate).toLocaleDateString()}</span>
                                 <span>{tray.location}</span>
                              </div>
                           </div>
                           <div className="text-right">
                              {tray.yield && (
-                                <span className="flex items-center justify-end text-xs font-bold text-emerald-400 mb-1">
+                                <span className="flex items-center justify-end text-xs font-bold text-teal-600 mb-1">
                                    <Scale className="w-3 h-3 mr-1" />
                                    {tray.yield}g
                                 </span>
                              )}
-                             <span className="text-[10px] text-slate-500 block">ID: {tray.id.substr(0,4)}</span>
+                             <span className="text-[10px] text-slate-400 block">ID: {tray.id.substr(0,4)}</span>
                           </div>
                        </div>
                     );
@@ -228,17 +228,17 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
                <div className="space-y-2">
                   {state.transactions.length === 0 && <p className="text-slate-400 text-center py-4">No records found.</p>}
                   {state.transactions.slice().reverse().map((tx: Transaction) => (
-                     <div key={tx.id} className="bg-slate-700 p-3 rounded-xl border border-slate-600 flex justify-between items-center">
+                     <div key={tx.id} className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex justify-between items-center">
                         <div className="flex items-center space-x-3">
-                           <div className={`p-2 rounded-lg ${tx.type === 'income' ? 'bg-emerald-900/30 text-emerald-400' : 'bg-red-900/30 text-red-400'}`}>
+                           <div className={`p-2 rounded-lg ${tx.type === 'income' ? 'bg-teal-100 text-teal-600' : 'bg-red-100 text-red-600'}`}>
                               <DollarSign className="w-4 h-4" />
                            </div>
                            <div>
-                              <p className="font-bold text-slate-100 text-sm">{tx.category}</p>
-                              <p className="text-[10px] text-slate-400">{tx.description} • {new Date(tx.date).toLocaleDateString()}</p>
+                              <p className="font-bold text-slate-800 text-sm">{tx.category}</p>
+                              <p className="text-[10px] text-slate-500">{tx.description} • {new Date(tx.date).toLocaleDateString()}</p>
                            </div>
                         </div>
-                        <span className={`font-bold text-sm ${tx.type === 'income' ? 'text-emerald-400' : 'text-slate-300'}`}>
+                        <span className={`font-bold text-sm ${tx.type === 'income' ? 'text-teal-600' : 'text-slate-700'}`}>
                            {tx.type === 'income' ? '+' : '-'}€{tx.amount}
                         </span>
                      </div>
@@ -250,12 +250,12 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
                <div className="space-y-2">
                   {state.customers.length === 0 && <p className="text-slate-400 text-center py-4">No records found.</p>}
                   {state.customers.map((cust: Customer) => (
-                     <div key={cust.id} className="bg-slate-700 p-3 rounded-xl border border-slate-600">
+                     <div key={cust.id} className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                         <div className="flex justify-between items-start mb-1">
-                           <p className="font-bold text-slate-100 text-sm">{cust.name}</p>
-                           <span className="text-[10px] bg-slate-600 px-1.5 py-0.5 rounded border border-slate-500 text-slate-300">{cust.type}</span>
+                           <p className="font-bold text-slate-800 text-sm">{cust.name}</p>
+                           <span className="text-[10px] bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-500">{cust.type}</span>
                         </div>
-                        <p className="text-[11px] text-slate-400">{cust.contact} • {cust.email}</p>
+                        <p className="text-[11px] text-slate-500">{cust.contact} • {cust.email}</p>
                      </div>
                   ))}
                </div>
@@ -264,13 +264,13 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
             return (
                <div className="space-y-2">
                   {state.crops.map((crop: CropType) => (
-                     <div key={crop.id} className="bg-slate-700 p-3 rounded-xl border border-slate-600 flex items-center space-x-3">
+                     <div key={crop.id} className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center space-x-3">
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs shadow-sm ${crop.color.split(' ')[0]} ${crop.color.split(' ')[1]}`}>
                            {crop.name.charAt(0)}
                         </div>
                         <div className="flex-1">
-                           <p className="font-bold text-slate-100 text-sm">{crop.name}</p>
-                           <p className="text-[10px] text-slate-400">{crop.seedingRate}g seed • {crop.estimatedYieldPerTray}g yield</p>
+                           <p className="font-bold text-slate-800 text-sm">{crop.name}</p>
+                           <p className="text-[10px] text-slate-500">{crop.seedingRate}g seed • {crop.estimatedYieldPerTray}g yield</p>
                         </div>
                      </div>
                   ))}
@@ -316,19 +316,19 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
   return (
     <div className="space-y-6">
        <div className="flex flex-col space-y-1 mb-6">
-        <h2 className="text-3xl font-bold text-slate-100 tracking-tight">Data Management</h2>
+        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Data Management</h2>
         <p className="text-slate-500 text-sm">Monitor storage usage and inspect records.</p>
       </div>
 
       {/* Storage Stats Card */}
-      <div className="bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-700 relative overflow-hidden">
+      <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
                <div className="p-3 bg-blue-50 rounded-2xl text-blue-600">
                   <HardDrive className="w-6 h-6" />
                </div>
                <div>
-                  <h3 className="font-bold text-slate-100">Storage Usage</h3>
+                  <h3 className="font-bold text-slate-800">Storage Usage</h3>
                   <p className="text-xs text-slate-400 font-medium">IndexedDB System</p>
                </div>
             </div>

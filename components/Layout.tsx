@@ -222,13 +222,13 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
   ] as const, []);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans text-slate-100 selection:bg-emerald-500 selection:text-white relative bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800" style={{ minHeight: '100vh' }}>
+    <div className="min-h-screen flex flex-col font-sans text-slate-900 selection:bg-teal-200 selection:text-teal-900 relative" style={{ minHeight: '100vh' }}>
       {/* Logo Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden opacity-10">
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <img 
           src="/logo.png" 
           alt="Galway Sun Sprouts Logo" 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] object-contain"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] opacity-[0.4] object-contain"
           style={{ maxWidth: '95vw', maxHeight: '95vh' }}
         />
       </div>
@@ -237,7 +237,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
       <motion.header 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="sticky top-0 z-40 px-6 py-4 bg-slate-800/80 backdrop-blur-xl border-b border-slate-700/60 supports-[backdrop-filter]:bg-slate-800/70 shadow-lg"
+        className="sticky top-0 z-40 px-6 py-4 bg-white/95 backdrop-blur-xl border-b border-slate-200/60 supports-[backdrop-filter]:bg-white/80 shadow-sm"
       >
         <div className="max-w-4xl mx-auto flex justify-between items-center">
             {/* Spacer for balance */}
@@ -350,7 +350,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
         {/* Hamburger Button */}
         <motion.button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="relative w-10 h-10 rounded-lg bg-slate-700 hover:bg-slate-600 text-emerald-400 hover:text-emerald-300 transition-all duration-200 active:scale-95 flex items-center justify-center"
+          className="relative w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all duration-200 active:scale-95 flex items-center justify-center"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -372,7 +372,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: -20, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="fixed top-5 left-16 h-10 bg-slate-700/95 backdrop-blur-lg border border-slate-600/50 rounded-lg shadow-2xl overflow-hidden z-50 flex items-center"
+              className="fixed top-5 left-16 h-10 bg-slate-900/95 backdrop-blur-lg border border-white/10 rounded-lg shadow-2xl overflow-hidden z-50 flex items-center"
             >
               {/* Navigation Items */}
               <div className="flex items-center h-full">
@@ -386,8 +386,8 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                       onClick={() => handleNavigate(item.id as View)}
                       className={`px-2 py-1 flex items-center justify-center transition-all duration-200 h-full ${
                         isActive
-                          ? 'bg-emerald-500/30 text-emerald-300'
-                          : 'text-slate-400 hover:bg-slate-600 hover:text-slate-200'
+                          ? 'bg-teal-500/20 text-white'
+                          : 'text-slate-400 hover:bg-white/10 hover:text-slate-300'
                       }`}
                       title={item.label}
                       whileHover={{ scale: 1.1 }}
@@ -400,7 +400,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               </div>
 
               {/* Divider */}
-              <div className="h-6 w-px bg-slate-600/50 mx-1"></div>
+              <div className="h-6 w-px bg-white/10 mx-1"></div>
 
               {/* Logout Button */}
               <motion.button
@@ -426,25 +426,25 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
             onClick={() => setShowNotifications(false)}
           >
             <motion.div 
               initial={{ scale: 0.95, y: 10 }} 
               animate={{ scale: 1, y: 0 }} 
               exit={{ scale: 0.95, y: 10 }} 
-              className="bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto border border-slate-700"
+              className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-100">Notifications</h3>
-                  <p className="text-sm text-slate-400 mt-1">Current alerts and upcoming tasks</p>
+                  <h3 className="text-xl font-bold text-slate-800">Notifications</h3>
+                  <p className="text-sm text-slate-500 mt-1">Current alerts and upcoming tasks</p>
                 </div>
                 <button 
                   onClick={() => setShowNotifications(false)} 
-                  className="p-3 bg-slate-700 rounded-full hover:bg-slate-600 active:bg-slate-500 transition-colors"
+                  className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>

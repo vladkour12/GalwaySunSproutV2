@@ -31,12 +31,12 @@ interface RecurringOrder {
 }
 
 const COLOR_OPTIONS = [
-  'bg-green-900/30 text-green-300 border-green-700/50',
-  'bg-red-900/30 text-red-300 border-red-700/50',
-  'bg-purple-900/30 text-purple-300 border-purple-700/50',
-  'bg-yellow-900/30 text-yellow-300 border-yellow-700/50',
-  'bg-orange-900/30 text-orange-300 border-orange-700/50',
-  'bg-emerald-900/30 text-emerald-300 border-emerald-700/50',
+  'bg-green-100 text-green-800 border-green-200',
+  'bg-red-100 text-red-800 border-red-200',
+  'bg-purple-100 text-purple-800 border-purple-200',
+  'bg-yellow-100 text-yellow-800 border-yellow-200',
+  'bg-orange-100 text-orange-800 border-orange-200',
+  'bg-teal-100 text-teal-700 border-teal-200',
 ];
 
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -51,13 +51,13 @@ const abbrDay = (dayName: string) => (typeof dayName === 'string' && dayName.len
 
 const getStageColor = (stage: Stage) => {
   switch (stage) {
-    case Stage.SEED: return 'bg-slate-700 text-slate-300';
-    case Stage.SOAK: return 'bg-blue-900/30 text-blue-300';
-    case Stage.GERMINATION: return 'bg-purple-900/30 text-purple-300';
-    case Stage.BLACKOUT: return 'bg-slate-700 text-slate-100';
-    case Stage.LIGHT: return 'bg-amber-900/30 text-amber-300';
-    case Stage.HARVEST_READY: return 'bg-emerald-900/30 text-emerald-300';
-    default: return 'bg-slate-700 text-slate-400';
+    case Stage.SEED: return 'bg-slate-100 text-slate-600';
+    case Stage.SOAK: return 'bg-blue-100 text-blue-700';
+    case Stage.GERMINATION: return 'bg-purple-100 text-purple-700';
+    case Stage.BLACKOUT: return 'bg-gray-800 text-white';
+    case Stage.LIGHT: return 'bg-amber-100 text-amber-700';
+    case Stage.HARVEST_READY: return 'bg-teal-100 text-teal-700';
+    default: return 'bg-slate-50 text-slate-400';
   }
 };
 
@@ -823,9 +823,9 @@ const CropManager: React.FC<CropManagerProps> = ({
   return (
     <div>
       {/* 1. Simple Header & Tabs */}
-      <div className="bg-slate-800 sticky top-0 z-20 pt-4 pb-2 px-1 border-b border-slate-700 shadow-sm">
+      <div className="bg-white sticky top-0 z-20 pt-4 pb-2 px-1 border-b border-slate-100 shadow-sm">
          <div className="flex justify-between items-center mb-4 px-2">
-            <h2 className="text-2xl font-bold text-slate-100">
+            <h2 className="text-2xl font-bold text-slate-800">
                {activeTab === 'production' ? 'My Shed' : activeTab === 'varieties' ? 'Seeds' : activeTab === 'calendar' ? 'Calendar' : 'Plan'}
             </h2>
             <div className="text-xs font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">
@@ -834,11 +834,11 @@ const CropManager: React.FC<CropManagerProps> = ({
                {activeTab === 'calendar' && new Date().toLocaleDateString(undefined, {weekday: 'long'})}
             </div>
          </div>
-         <div className="flex p-1 bg-slate-700 rounded-xl mx-2 overflow-x-auto no-scrollbar">
-            <button onClick={() => setActiveTab('production')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'production' ? 'bg-slate-600 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}>Shed</button>
-            <button onClick={() => setActiveTab('calendar')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'calendar' ? 'bg-slate-600 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}>Calendar</button>
-            <button onClick={() => setActiveTab('plan')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'plan' ? 'bg-slate-600 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}>Planner</button>
-            <button onClick={() => setActiveTab('varieties')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'varieties' ? 'bg-slate-600 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}>Seeds</button>
+         <div className="flex p-1 bg-slate-100 rounded-xl mx-2 overflow-x-auto no-scrollbar">
+            <button onClick={() => setActiveTab('production')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'production' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}>Shed</button>
+            <button onClick={() => setActiveTab('calendar')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'calendar' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}>Calendar</button>
+            <button onClick={() => setActiveTab('plan')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'plan' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}>Planner</button>
+            <button onClick={() => setActiveTab('varieties')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'varieties' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}>Seeds</button>
          </div>
       </div>
 
@@ -2171,7 +2171,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                   <div className="flex justify-between items-center mb-2">
                      <div className="flex items-center gap-1.5">
                         <ShoppingBag className="w-3.5 h-3.5 text-indigo-600" />
-                        <h3 className="font-bold text-slate-100 text-xs">Weekly Orders</h3>
+                        <h3 className="font-bold text-slate-800 text-xs">Weekly Orders</h3>
                      </div>
                      <motion.button 
                         whileHover={{ scale: 1.05 }}
@@ -2621,10 +2621,10 @@ const CropManager: React.FC<CropManagerProps> = ({
       {/* Add Tray Modal */}
       <AnimatePresence>
          {isAdding && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto border border-slate-700">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto">
                   <div className="flex justify-between items-center">
-                     <h3 className="text-lg font-bold text-slate-100">Plant New</h3>
+                     <h3 className="text-lg font-bold text-slate-800">Plant New</h3>
                      <button onClick={() => {
                         setIsAdding(false);
                         setIsHalfHalf(false);
@@ -2756,8 +2756,8 @@ const CropManager: React.FC<CropManagerProps> = ({
       {/* Tray Detail / Action Modal */}
       <AnimatePresence>
          {selectedTray && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto border border-slate-700">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto">
                   {/* Header */}
                   <div className="flex justify-between items-start">
                      <div>
@@ -3037,14 +3037,14 @@ const CropManager: React.FC<CropManagerProps> = ({
       {/* Detail & Edit Crop Modal (Unified) */}
       <AnimatePresence>
          {selectedCrop && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-5 max-h-[85vh] overflow-y-auto border border-slate-700">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-5 max-h-[85vh] overflow-y-auto">
                   
                   {/* Header Actions */}
                   <div className="flex justify-between items-center mb-2">
                      <div className="flex items-center space-x-2">
                        {!isEditingCrop && selectedCrop.id && (
-                          <button onClick={() => setIsEditingCrop(true)} className="flex items-center text-xs font-bold text-emerald-400 bg-emerald-900/30 px-3 py-1.5 rounded-full hover:bg-emerald-900/50 transition-colors">
+                          <button onClick={() => setIsEditingCrop(true)} className="flex items-center text-xs font-bold text-teal-600 bg-teal-50 px-3 py-1.5 rounded-full hover:bg-teal-100 transition-colors">
                              <Edit2 className="w-3 h-3 mr-1" /> Edit
                           </button>
                        )}
