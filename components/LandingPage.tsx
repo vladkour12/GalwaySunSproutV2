@@ -98,6 +98,34 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       {/* Hero Section - Clean & Minimal */}
       <section className="relative pt-24 pb-32 px-4 sm:px-6 z-10">
         <div className="max-w-5xl mx-auto text-center">
+          {/* Logo Background */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.05, duration: 0.8 }}
+            className="mb-6"
+          >
+            <svg className="w-40 h-40 mx-auto" viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Galway Sun Sprouts Logo - Green leaves on dark */}
+              <circle cx="100" cy="100" r="90" fill="none" opacity="0.1" />
+              {/* Left leaf - curved style */}
+              <ellipse cx="75" cy="85" rx="22" ry="35" fill="#059669" transform="rotate(-35 75 85)" />
+              <path d="M 75 60 Q 85 75 75 110" stroke="#ffffff" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              <path d="M 70 65 Q 78 78 72 105" stroke="#ffffff" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7" />
+              
+              {/* Top right leaf */}
+              <ellipse cx="115" cy="65" rx="20" ry="32" fill="#059669" transform="rotate(25 115 65)" />
+              <path d="M 115 40 Q 120 55 115 90" stroke="#ffffff" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              <path d="M 112 48 Q 118 60 113 85" stroke="#ffffff" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7" />
+              
+              {/* Center bottom leaf */}
+              <ellipse cx="100" cy="110" rx="18" ry="30" fill="#059669" transform="rotate(0 100 110)" />
+              <path d="M 100 85 L 100 135" stroke="#ffffff" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              <path d="M 97 90 L 98 132" stroke="#ffffff" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7" />
+              <path d="M 103 90 L 102 132" stroke="#ffffff" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7" />
+            </svg>
+          </motion.div>
+
           {/* Badge */}
           <motion.div 
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
