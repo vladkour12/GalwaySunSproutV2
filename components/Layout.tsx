@@ -222,13 +222,13 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
   ] as const, []);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans text-white selection:bg-accent-teal selection:text-dark-bg relative bg-dark-bg" style={{ minHeight: '100vh' }}>
+    <div className="min-h-screen flex flex-col font-sans text-slate-100 selection:bg-emerald-500 selection:text-white relative bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800" style={{ minHeight: '100vh' }}>
       {/* Logo Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-dark-bg">
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden opacity-10">
         <img 
           src="/logo.png" 
           alt="Galway Sun Sprouts Logo" 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] opacity-[0.4] object-contain"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] object-contain"
           style={{ maxWidth: '95vw', maxHeight: '95vh' }}
         />
       </div>
@@ -237,7 +237,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
       <motion.header 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="sticky top-0 z-40 px-6 py-4 bg-dark-bg-secondary/95 backdrop-blur-xl border-b border-dark-bg-tertiary/60 supports-[backdrop-filter]:bg-dark-bg-secondary/80 shadow-sm"
+        className="sticky top-0 z-40 px-6 py-4 bg-slate-800/80 backdrop-blur-xl border-b border-slate-700/60 supports-[backdrop-filter]:bg-slate-800/70 shadow-lg"
       >
         <div className="max-w-4xl mx-auto flex justify-between items-center">
             {/* Spacer for balance */}
@@ -260,7 +260,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               {/* Notification Button */}
               <motion.button 
                  onClick={() => setShowNotifications(true)}
-                 className="relative w-10 h-10 rounded-lg bg-dark-bg-tertiary hover:bg-accent-teal/20 text-accent-teal hover:text-accent-teal transition-all duration-200 active:scale-95 flex items-center justify-center"
+                 className="relative w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all duration-200 active:scale-95 flex items-center justify-center"
                  title={alertCount > 0 ? `${alertCount} notifications` : 'Notifications'}
                  whileHover={{ scale: 1.05 }}
                  whileTap={{ scale: 0.95 }}
@@ -268,7 +268,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                  <Bell className="w-4 h-4" />
                  {alertCount > 0 && (
                    <motion.span 
-                     className="absolute -top-1 -right-1 w-5 h-5 bg-accent-coral text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-dark-bg-secondary"
+                     className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white"
                      initial={{ scale: 0 }}
                      animate={{ scale: 1 }}
                      transition={{ type: "spring", stiffness: 500, damping: 15 }}
@@ -350,7 +350,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
         {/* Hamburger Button */}
         <motion.button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="relative w-10 h-10 rounded-lg bg-dark-bg-tertiary hover:bg-accent-teal/20 text-accent-teal hover:text-accent-teal transition-all duration-200 active:scale-95 flex items-center justify-center"
+          className="relative w-10 h-10 rounded-lg bg-slate-700 hover:bg-slate-600 text-emerald-400 hover:text-emerald-300 transition-all duration-200 active:scale-95 flex items-center justify-center"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -372,7 +372,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: -20, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="fixed top-5 left-16 h-10 bg-dark-bg-secondary/95 backdrop-blur-lg border border-dark-bg-tertiary rounded-lg shadow-2xl overflow-hidden z-50 flex items-center"
+              className="fixed top-5 left-16 h-10 bg-slate-700/95 backdrop-blur-lg border border-slate-600/50 rounded-lg shadow-2xl overflow-hidden z-50 flex items-center"
             >
               {/* Navigation Items */}
               <div className="flex items-center h-full">
@@ -386,8 +386,8 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                       onClick={() => handleNavigate(item.id as View)}
                       className={`px-2 py-1 flex items-center justify-center transition-all duration-200 h-full ${
                         isActive
-                          ? 'bg-accent-teal/20 text-accent-teal'
-                          : 'text-slate-500 hover:bg-dark-bg-tertiary hover:text-accent-teal'
+                          ? 'bg-emerald-500/30 text-emerald-300'
+                          : 'text-slate-400 hover:bg-slate-600 hover:text-slate-200'
                       }`}
                       title={item.label}
                       whileHover={{ scale: 1.1 }}
@@ -400,12 +400,12 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               </div>
 
               {/* Divider */}
-              <div className="h-6 w-px bg-dark-bg-tertiary mx-1"></div>
+              <div className="h-6 w-px bg-slate-600/50 mx-1"></div>
 
               {/* Logout Button */}
               <motion.button
                 onClick={onLogout}
-                className="px-2 py-1 flex items-center justify-center text-accent-coral hover:bg-accent-coral/20 transition-all duration-200 h-full"
+                className="px-2 py-1 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-all duration-200 h-full"
                 title="Sign Out"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -426,25 +426,25 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
             onClick={() => setShowNotifications(false)}
           >
             <motion.div 
               initial={{ scale: 0.95, y: 10 }} 
               animate={{ scale: 1, y: 0 }} 
               exit={{ scale: 0.95, y: 10 }} 
-              className="bg-dark-bg-secondary w-full max-w-md rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
+              className="bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto border border-slate-700"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h3 className="text-xl font-bold text-white">Notifications</h3>
+                  <h3 className="text-xl font-bold text-slate-100">Notifications</h3>
                   <p className="text-sm text-slate-400 mt-1">Current alerts and upcoming tasks</p>
                 </div>
                 <button 
                   onClick={() => setShowNotifications(false)} 
-                  className="p-3 bg-dark-bg-tertiary rounded-full hover:bg-dark-bg-tertiary/80 active:bg-dark-bg-tertiary/60 transition-colors text-white"
+                  className="p-3 bg-slate-700 rounded-full hover:bg-slate-600 active:bg-slate-500 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>

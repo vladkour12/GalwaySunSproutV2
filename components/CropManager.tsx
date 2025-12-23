@@ -31,12 +31,12 @@ interface RecurringOrder {
 }
 
 const COLOR_OPTIONS = [
-  'bg-green-100 text-green-800 border-green-200',
-  'bg-red-100 text-red-800 border-red-200',
-  'bg-purple-100 text-purple-800 border-purple-200',
-  'bg-yellow-100 text-yellow-800 border-yellow-200',
-  'bg-orange-100 text-orange-800 border-orange-200',
-  'bg-teal-100 text-teal-700 border-teal-200',
+  'bg-green-900/30 text-green-300 border-green-700/50',
+  'bg-red-900/30 text-red-300 border-red-700/50',
+  'bg-purple-900/30 text-purple-300 border-purple-700/50',
+  'bg-yellow-900/30 text-yellow-300 border-yellow-700/50',
+  'bg-orange-900/30 text-orange-300 border-orange-700/50',
+  'bg-emerald-900/30 text-emerald-300 border-emerald-700/50',
 ];
 
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -51,13 +51,13 @@ const abbrDay = (dayName: string) => (typeof dayName === 'string' && dayName.len
 
 const getStageColor = (stage: Stage) => {
   switch (stage) {
-    case Stage.SEED: return 'bg-slate-100 text-slate-600';
-    case Stage.SOAK: return 'bg-blue-100 text-blue-700';
-    case Stage.GERMINATION: return 'bg-purple-100 text-purple-700';
-    case Stage.BLACKOUT: return 'bg-gray-800 text-white';
-    case Stage.LIGHT: return 'bg-amber-100 text-amber-700';
-    case Stage.HARVEST_READY: return 'bg-teal-100 text-teal-700';
-    default: return 'bg-slate-50 text-slate-400';
+    case Stage.SEED: return 'bg-slate-700 text-slate-300';
+    case Stage.SOAK: return 'bg-blue-900/30 text-blue-300';
+    case Stage.GERMINATION: return 'bg-purple-900/30 text-purple-300';
+    case Stage.BLACKOUT: return 'bg-slate-700 text-slate-100';
+    case Stage.LIGHT: return 'bg-amber-900/30 text-amber-300';
+    case Stage.HARVEST_READY: return 'bg-emerald-900/30 text-emerald-300';
+    default: return 'bg-slate-700 text-slate-400';
   }
 };
 

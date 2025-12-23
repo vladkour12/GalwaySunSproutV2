@@ -14,12 +14,14 @@ export default {
         outfit: ['Outfit', 'sans-serif'],
       },
       colors: {
-        'dark-bg': '#191835',
-        'dark-bg-secondary': '#1f1d3d',
-        'dark-bg-tertiary': '#2a2850',
-        'accent-teal': '#00B365',
-        'accent-coral': '#FF6464',
-        'accent-orange': '#FF9E00',
+        dark: {
+          bg: '#0f0f1e',      // Very dark navy
+          primary: '#1a1a3d',  // Dark blue
+          secondary: '#242850', // Lighter dark blue
+          accent: '#00d084',   // Teal accent
+          text: '#e0e0ff',     // Light text
+          border: '#3a3a5a',   // Dark border
+        },
       },
     },
   },
