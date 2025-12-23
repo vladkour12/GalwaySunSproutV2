@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { View, AppState, Stage, Tray, CropType } from '../types';
-import { Leaf, Sprout, Euro, Database, Calculator, LogOut, Bell, X, Clock, AlertCircle, Moon, Sun, CheckCircle } from 'lucide-react';
+import { Leaf, Home, TrendingUp, CreditCard, BarChart3, LogOut, Bell, X, Clock, AlertCircle, Moon, Sun, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
 import { getFarmAlerts } from '../services/alertService';
 
@@ -62,6 +62,8 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
   const [isNavigating, setIsNavigating] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
   
   // Update time every minute for live timers
   useEffect(() => {
@@ -144,6 +146,8 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
     if (!el) return;
     // Reset scroll immediately
     el.scrollTop = 0;
+    // Close menu when navigating
+    setIsMenuOpen(false);
     // Force a layout recalculation after a brief delay to clear any lingering height issues
     const id = window.setTimeout(() => {
     el.scrollTop = 0;
@@ -155,6 +159,21 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
     return () => window.clearTimeout(id);
   }, [currentView]);
 
+  // Handle clicking outside menu to close it
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const menu = dockRef.current;
+      if (menu && !menu.contains(e.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [isMenuOpen]);
+
   // Make bottom padding match the fixed dock height (prevents excessive blank scroll space).
   useEffect(() => {
     const dockEl = dockRef.current;
@@ -165,22 +184,16 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
     const measure = () => {
       const rect = dockEl.getBoundingClientRect();
       const viewportH = window.innerHeight || 0;
-      const viewportW = window.innerWidth || 0;
       
       // Calculate actual space needed: distance from bottom of viewport to top of dock
-      const dockBottomMargin = 24; // bottom-6 = 24px
-      const dockHeight = rect.height || 56;
+      // Use spaceFromBottom as the authoritative measurement since nav is fixed
       const spaceFromBottom = viewportH - rect.top;
       
-      // On large screens (desktop), use minimal padding to prevent excessive empty space
-      // On smaller screens (mobile/tablet), use more padding for comfortable scrolling
-      const isLargeScreen = viewportW >= 1024; // lg breakpoint
-      const basePadding = isLargeScreen 
-        ? Math.ceil(dockHeight + dockBottomMargin + 8)  // Minimal padding on desktop
-        : Math.ceil(spaceFromBottom + 12);  // Full space on mobile
+      // Always use full space from bottom to ensure no overlap
+      const padding = Math.ceil(spaceFromBottom + 16);
       
-      // Conservative clamp: tighter limits prevent huge empty spaces
-      setBottomPadPx(clamp(basePadding, 56, isLargeScreen ? 96 : 128));
+      // Set padding with large minimum to prevent any overlap - ensure everything stays above nav
+      setBottomPadPx(Math.max(padding, 120));
     };
 
     measure();
@@ -201,11 +214,11 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
   }, [currentView]); // Recalculate when view changes to fix bottom spacing issues
 
   const navItems = useMemo(() => [
-    { id: 'dashboard', label: 'Overview', icon: Leaf, color: 'from-emerald-500 to-teal-500' },
-    { id: 'crops', label: 'My Crops', icon: Sprout, color: 'from-green-500 to-emerald-500' },
-    { id: 'calculator', label: 'Profit', icon: Calculator, color: 'from-blue-500 to-cyan-500' },
-    { id: 'finance', label: 'Finance', icon: Euro, color: 'from-amber-500 to-orange-500' },
-    { id: 'data', label: 'Data', icon: Database, color: 'from-purple-500 to-pink-500' },
+    { id: 'dashboard', label: 'Overview', icon: Home, color: 'from-emerald-500 to-teal-500' },
+    { id: 'crops', label: 'My Crops', icon: Leaf, color: 'from-green-500 to-emerald-500' },
+    { id: 'calculator', label: 'Profit', icon: TrendingUp, color: 'from-blue-500 to-cyan-500' },
+    { id: 'finance', label: 'Finance', icon: CreditCard, color: 'from-amber-500 to-orange-500' },
+    { id: 'data', label: 'Data', icon: BarChart3, color: 'from-purple-500 to-pink-500' },
   ] as const, []);
 
   return (
@@ -284,8 +297,6 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
         ref={mainRef}
         className="flex-1 overflow-y-auto overflow-x-hidden relative z-10"
         style={{ 
-          paddingBottom: `calc(${bottomPadPx}px + env(safe-area-inset-bottom))`,
-          minHeight: 0, // Prevent flex item from growing beyond content on large screens
           WebkitOverflowScrolling: 'touch', // Smooth scrolling on iOS
           overscrollBehavior: 'contain', // Prevent scroll chaining to body
           overscrollBehaviorY: 'contain' // Prevent pull-to-refresh
@@ -318,14 +329,10 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
           <AnimatePresence initial={false} mode="wait">
             <motion.div
               key={currentView}
-              initial={{ opacity: 0, y: 8, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.98 }}
-              transition={{ 
-                duration: 0.2, 
-                ease: [0.4, 0, 0.2, 1],
-                opacity: { duration: 0.15 }
-              }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15, ease: "easeInOut" }}
               style={{ position: 'relative', zIndex: 1 }}
             >
               {children}
@@ -334,134 +341,81 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
         </div>
       </main>
 
-      {/* Bottom Navigation - Enhanced Modern Dock */}
+      {/* Hamburger Menu - Top Left Corner */}
       <motion.nav 
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2, type: "spring", stiffness: 100, damping: 20 }}
-        className="fixed bottom-6 left-6 right-6 z-50"
+        ref={dockRef}
+        className="fixed top-5 left-6 z-50"
       >
-        <motion.div
-          ref={dockRef}
-          className="max-w-3xl mx-auto bg-gradient-to-br from-slate-900/99 via-slate-800/99 to-slate-900/99 backdrop-blur-3xl border border-white/20 rounded-full shadow-2xl shadow-slate-950/90 px-2 py-3 flex justify-center items-center gap-1"
-          whileHover={{ scale: 1.01, boxShadow: "0 0 40px rgba(0,0,0,0.6)" }}
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        {/* Hamburger Button */}
+        <motion.button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="relative w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all duration-200 active:scale-95 flex items-center justify-center"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          {/* Divider line effect background */}
-          <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-          </div>
+          <motion.div
+            animate={{ rotate: isMenuOpen ? 90 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </motion.div>
+        </motion.button>
 
-          {navItems.map((item, index) => {
-            const Icon = item.icon;
-            const isActive = currentView === item.id;
-            
-            return (
-              <motion.div
-                key={item.id}
-                className="relative flex-1 max-w-xs"
-              >
-                {/* Divider between items */}
-                {index > 0 && (
-                  <div className="absolute left-0 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-white/5 to-transparent pointer-events-none"></div>
-                )}
-
-                <motion.button
-                  onClick={() => handleNavigate(item.id as View)}
-                  className="relative w-full flex items-center justify-center outline-none focus:outline-none py-2.5 px-3 group"
-                  style={{ WebkitTapHighlightColor: 'transparent' }}
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.92 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
-                  title={item.label}
-                >
-                  {/* Active Pill Background with Enhanced Gradient and Glow */}
-                  {isActive && (
-                    <>
-                      <motion.div 
-                        layoutId="nav-pill"
-                        className={`absolute inset-0 bg-gradient-to-br ${item.color} rounded-2xl shadow-2xl`}
-                        style={{
-                          boxShadow: `0 0 30px rgba(${item.color.includes('emerald') ? '16,185,129' : item.color.includes('green') ? '34,197,94' : item.color.includes('blue') ? '59,130,246' : item.color.includes('amber') ? '217,119,6' : '147,51,234'}, 0.4), 0 0 60px rgba(${item.color.includes('emerald') ? '16,185,129' : item.color.includes('green') ? '34,197,94' : item.color.includes('blue') ? '59,130,246' : item.color.includes('amber') ? '217,119,6' : '147,51,234'}, 0.1)`
-                        }}
-                        transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                        initial={false}
-                      />
-                      <motion.div 
-                        className={`absolute inset-0 bg-gradient-to-br ${item.color} rounded-2xl opacity-20 blur-lg`}
-                        transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                        initial={false}
-                      />
-                    </>
-                  )}
+        {/* Dropdown Menu */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, x: -20, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -20, scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="fixed top-5 left-16 h-10 bg-slate-900/95 backdrop-blur-lg border border-white/10 rounded-lg shadow-2xl overflow-hidden z-50 flex items-center"
+            >
+              {/* Navigation Items */}
+              <div className="flex items-center h-full">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = currentView === item.id;
                   
-                  {/* Hover background glow for inactive items */}
-                  {!isActive && (
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      initial={false}
-                    />
-                  )}
-                  
-                  <motion.div 
-                    className={`relative z-10 flex items-center gap-2 px-1 transition-all duration-200 rounded-2xl`}
-                    animate={{
-                      scale: isActive ? 1.1 : 1,
-                    }}
-                  >
-                    <motion.div
-                      animate={{
-                        y: isActive ? -2 : 0,
-                        scale: isActive ? 1.2 : 1,
-                        filter: isActive ? 'drop-shadow(0 0 8px currentColor)' : 'drop-shadow(0 0 0px)',
-                      }}
-                      transition={{ duration: 0.3 }}
+                  return (
+                    <motion.button
+                      key={item.id}
+                      onClick={() => handleNavigate(item.id as View)}
+                      className={`px-2 py-1 flex items-center justify-center transition-all duration-200 h-full ${
+                        isActive
+                          ? 'bg-teal-500/20 text-white'
+                          : 'text-slate-400 hover:bg-white/10 hover:text-slate-300'
+                      }`}
+                      title={item.label}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
                     >
-                      <Icon 
-                        className={`w-5.5 h-5.5 transition-all duration-200 ${
-                          isActive 
-                            ? 'text-white drop-shadow-lg' 
-                            : 'text-slate-400 group-hover:text-white'
-                        }`}
-                        strokeWidth={isActive ? 2.5 : 2}
-                      />
-                    </motion.div>
-                    
-                    {/* Animated Label with improved styling */}
-                    <AnimatePresence initial={false} mode="popLayout">
-                      {isActive && (
-                        <motion.span 
-                          initial={{ width: 0, opacity: 0, marginRight: -4 }}
-                          animate={{ width: 'auto', opacity: 1, marginRight: 0 }}
-                          exit={{ width: 0, opacity: 0, marginRight: -4 }}
-                          transition={{ 
-                            duration: 0.4, 
-                            ease: [0.34, 1.56, 0.64, 1],
-                            opacity: { duration: 0.25 }
-                          }}
-                          className="text-xs font-bold whitespace-nowrap overflow-hidden text-white drop-shadow-lg tracking-wide"
-                        >
-                          {item.label}
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
+                      <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                    </motion.button>
+                  );
+                })}
+              </div>
 
-                  {/* Ripple effect on click */}
-                  {isActive && (
-                    <motion.div
-                      className="absolute inset-0 rounded-2xl border-2 border-white/30"
-                      initial={{ opacity: 1, scale: 0.8 }}
-                      animate={{ opacity: 0, scale: 1.2 }}
-                      transition={{ duration: 0.5 }}
-                      key={`ripple-${item.id}`}
-                    />
-                  )}
-                </motion.button>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+              {/* Divider */}
+              <div className="h-6 w-px bg-white/10 mx-1"></div>
+
+              {/* Logout Button */}
+              <motion.button
+                onClick={onLogout}
+                className="px-2 py-1 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-all duration-200 h-full"
+                title="Sign Out"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.nav>
 
       {/* Notifications Modal */}
@@ -471,7 +425,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
             onClick={() => setShowNotifications(false)}
           >
             <motion.div 

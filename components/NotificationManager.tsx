@@ -84,7 +84,7 @@ const NotificationManager: React.FC<NotificationManagerProps> = ({ alerts }) => 
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                className="fixed bottom-24 right-6 z-50 bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-teal-500/30 max-w-xs flex flex-col gap-3"
+                className="fixed bottom-28 right-6 z-40 bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-teal-500/30 max-w-xs flex flex-col gap-3"
             >
                 <div className="flex justify-between items-start">
                     <div className="flex items-center gap-2 text-teal-400 font-bold">

@@ -2488,7 +2488,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                animate={{ scale: 1 }} 
                exit={{ scale: 0 }}
                onClick={() => setIsAdding(true)}
-               className="fixed bottom-28 right-6 w-14 h-14 bg-slate-900 text-white rounded-full shadow-xl shadow-slate-300 flex items-center justify-center z-30 active:scale-95 transition-transform"
+               className="fixed bottom-24 right-6 w-14 h-14 bg-slate-900 text-white rounded-full shadow-xl shadow-slate-300 flex items-center justify-center z-40 active:scale-95 transition-transform"
             >
                <Plus className="w-7 h-7" />
             </motion.button>
