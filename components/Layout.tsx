@@ -4,7 +4,6 @@ import { View, AppState, Stage, Tray, CropType } from '../types';
 import { Leaf, Home, TrendingUp, CreditCard, BarChart3, LogOut, Bell, X, Clock, AlertCircle, Moon, Sun, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
 import { getFarmAlerts } from '../services/alertService';
-import { useTheme } from '../contexts/ThemeContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -57,7 +56,6 @@ const getTimeToNextStage = (tray: Tray, crop: CropType) => {
 };
 
 const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavigate, onLogout, alertCount = 0, appState }) => {
-  const { theme, toggleTheme } = useTheme();
   const mainRef = useRef<HTMLElement | null>(null);
   const dockRef = useRef<HTMLDivElement | null>(null);
   const [bottomPadPx, setBottomPadPx] = useState(0);
@@ -224,9 +222,9 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
   ] as const, []);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans text-slate-900 selection:bg-teal-200 selection:text-teal-900 relative" style={{ minHeight: '100vh' }}>
+    <div className="min-h-screen flex flex-col font-sans text-white selection:bg-accent-teal selection:text-dark-bg relative bg-dark-bg" style={{ minHeight: '100vh' }}>
       {/* Logo Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-dark-bg">
         <img 
           src="/logo.png" 
           alt="Galway Sun Sprouts Logo" 
@@ -239,7 +237,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
       <motion.header 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="sticky top-0 z-40 px-6 py-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-700/60 supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-slate-900/80 shadow-sm"
+        className="sticky top-0 z-40 px-6 py-4 bg-dark-bg-secondary/95 backdrop-blur-xl border-b border-dark-bg-tertiary/60 supports-[backdrop-filter]:bg-dark-bg-secondary/80 shadow-sm"
       >
         <div className="max-w-4xl mx-auto flex justify-between items-center">
             {/* Spacer for balance */}
@@ -252,7 +250,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1 }}
             >
-                <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-800 dark:from-slate-100 to-slate-600 dark:to-slate-300 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                   Galway Sun Sprouts
                 </h1>
             </motion.div>
@@ -262,7 +260,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               {/* Notification Button */}
               <motion.button 
                  onClick={() => setShowNotifications(true)}
-                 className="relative w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200 active:scale-95 flex items-center justify-center"
+                 className="relative w-10 h-10 rounded-lg bg-dark-bg-tertiary hover:bg-accent-teal/20 text-accent-teal hover:text-accent-teal transition-all duration-200 active:scale-95 flex items-center justify-center"
                  title={alertCount > 0 ? `${alertCount} notifications` : 'Notifications'}
                  whileHover={{ scale: 1.05 }}
                  whileTap={{ scale: 0.95 }}
@@ -270,7 +268,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                  <Bell className="w-4 h-4" />
                  {alertCount > 0 && (
                    <motion.span 
-                     className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white"
+                     className="absolute -top-1 -right-1 w-5 h-5 bg-accent-coral text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-dark-bg-secondary"
                      initial={{ scale: 0 }}
                      animate={{ scale: 1 }}
                      transition={{ type: "spring", stiffness: 500, damping: 15 }}
@@ -280,21 +278,10 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                  )}
               </motion.button>
 
-              {/* Theme Toggle Button */}
-              <motion.button 
-                 onClick={toggleTheme}
-                 className="p-2.5 rounded-xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-slate-800 dark:hover:text-amber-400 transition-all duration-200 active:scale-95"
-                 title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-                 whileHover={{ scale: 1.05 }}
-                 whileTap={{ scale: 0.95 }}
-              >
-                 {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-              </motion.button>
-
               {/* Logout Button */}
               <motion.button 
                  onClick={onLogout}
-                 className="p-2.5 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950 dark:hover:text-red-400 transition-all duration-200 active:scale-95"
+                 className="p-2.5 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
                  title="Sign Out / Back to Website"
                  whileHover={{ scale: 1.05 }}
                  whileTap={{ scale: 0.95 }}
@@ -363,7 +350,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
         {/* Hamburger Button */}
         <motion.button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="relative w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200 active:scale-95 flex items-center justify-center"
+          className="relative w-10 h-10 rounded-lg bg-dark-bg-tertiary hover:bg-accent-teal/20 text-accent-teal hover:text-accent-teal transition-all duration-200 active:scale-95 flex items-center justify-center"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -385,7 +372,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: -20, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="fixed top-5 left-16 h-10 bg-slate-900/95 backdrop-blur-lg border border-white/10 rounded-lg shadow-2xl overflow-hidden z-50 flex items-center"
+              className="fixed top-5 left-16 h-10 bg-dark-bg-secondary/95 backdrop-blur-lg border border-dark-bg-tertiary rounded-lg shadow-2xl overflow-hidden z-50 flex items-center"
             >
               {/* Navigation Items */}
               <div className="flex items-center h-full">
@@ -399,8 +386,8 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                       onClick={() => handleNavigate(item.id as View)}
                       className={`px-2 py-1 flex items-center justify-center transition-all duration-200 h-full ${
                         isActive
-                          ? 'bg-teal-500/20 text-white'
-                          : 'text-slate-400 hover:bg-white/10 hover:text-slate-300'
+                          ? 'bg-accent-teal/20 text-accent-teal'
+                          : 'text-slate-500 hover:bg-dark-bg-tertiary hover:text-accent-teal'
                       }`}
                       title={item.label}
                       whileHover={{ scale: 1.1 }}
@@ -413,12 +400,12 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               </div>
 
               {/* Divider */}
-              <div className="h-6 w-px bg-white/10 mx-1"></div>
+              <div className="h-6 w-px bg-dark-bg-tertiary mx-1"></div>
 
               {/* Logout Button */}
               <motion.button
                 onClick={onLogout}
-                className="px-2 py-1 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-all duration-200 h-full"
+                className="px-2 py-1 flex items-center justify-center text-accent-coral hover:bg-accent-coral/20 transition-all duration-200 h-full"
                 title="Sign Out"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -446,18 +433,18 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               initial={{ scale: 0.95, y: 10 }} 
               animate={{ scale: 1, y: 0 }} 
               exit={{ scale: 0.95, y: 10 }} 
-              className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
+              className="bg-dark-bg-secondary w-full max-w-md rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-800">Notifications</h3>
-                  <p className="text-sm text-slate-500 mt-1">Current alerts and upcoming tasks</p>
+                  <h3 className="text-xl font-bold text-white">Notifications</h3>
+                  <p className="text-sm text-slate-400 mt-1">Current alerts and upcoming tasks</p>
                 </div>
                 <button 
                   onClick={() => setShowNotifications(false)} 
-                  className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"
+                  className="p-3 bg-dark-bg-tertiary rounded-full hover:bg-dark-bg-tertiary/80 active:bg-dark-bg-tertiary/60 transition-colors text-white"
                 >
                   <X className="w-5 h-5" />
                 </button>

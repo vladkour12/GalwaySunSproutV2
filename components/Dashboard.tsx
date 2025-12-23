@@ -245,8 +245,8 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
     >
       {/* Top Header */}
       <motion.div variants={item} className="flex flex-col space-y-1 mb-2">
-        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Business Overview</h2>
-        <p className="text-slate-500 text-sm">Welcome back. Here's what's happening in the shed.</p>
+        <h2 className="text-3xl font-bold text-white tracking-tight">Business Overview</h2>
+        <p className="text-slate-400 text-sm">Welcome back. Here's what's happening in the shed.</p>
       </motion.div>
 
       {/* --- Key Metrics Grid --- */}
@@ -254,7 +254,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
         {/* Metric 1: Active Trays */}
         <motion.div 
           variants={item}
-          className="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:border-teal-200 transition-colors"
+          className="bg-dark-bg-secondary p-4 sm:p-5 rounded-3xl shadow-sm border border-dark-bg-tertiary flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:border-accent-teal transition-colors"
           onClick={() => onNavigate('crops')}
           whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
           whileTap={{ scale: 0.98 }}
