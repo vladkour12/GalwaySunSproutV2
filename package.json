@@ -1,0 +1,37 @@
+{
+  "name": "galway-sun-sprouts",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:vercel": "vercel dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "save": "git add . && git commit -m \"Auto-update\" && git push"
+  },
+  "dependencies": {
+    "@google/genai": "^1.31.0",
+    "@neondatabase/serverless": "^1.0.2",
+    "@vercel/edge-config": "^1.4.3",
+    "@vercel/postgres": "^0.10.0",
+    "framer-motion": "^11.0.8",
+    "lucide-react": "^0.556.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-error-boundary": "^6.0.0",
+    "recharts": "^3.5.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.0.0",
+    "autoprefixer": "^10.4.22",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.19",
+    "typescript": "~5.8.2",
+    "vite": "6.2.0"
+  }
+}
