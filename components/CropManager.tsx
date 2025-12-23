@@ -1711,11 +1711,139 @@ const CropManager: React.FC<CropManagerProps> = ({
                {/* Date Tasks Popup */}
                <AnimatePresence>
                   {selectedCalendarDate && (() => {
-                     const dayData = calendarDays.find(d => 
-                        d.date.toDateString() === selectedCalendarDate.toDateString()
-                     );
-                     const tasks = dayData?.tasks || [];
-                     const isToday = selectedCalendarDate.toDateString() === new Date().toDateString();
+                     // Get tasks for selected date using the same logic as calendar grid
+                     const today = new Date();
+                     const dayOfWeek = selectedCalendarDate.getDay();
+                     const isToday = selectedCalendarDate.toDateString() === today.toDateString();
+                     const tasks: any[] = [];
+                     
+                     // 1. Alerts (only for today)
+                     if (isToday) {
+                        const alerts = getFarmAlerts(state);
+                        alerts.forEach(alert => {
+                           let icon = AlertCircle;
+                           let color = "text-red-600 bg-red-50";
+                           let type = 'alert';
+                           
+                           if (alert.type === 'urgent') {
+                              icon = AlertCircle;
+                              color = "text-red-600 bg-red-50";
+                           } else if (alert.type === 'warning') {
+                              icon = AlertCircle;
+                              color = "text-amber-600 bg-amber-50";
+                           } else if (alert.type === 'routine') {
+                              icon = Droplet;
+                              color = "text-blue-500 bg-blue-50";
+                              type = 'routine';
+                           }
+                           
+                           tasks.push({ type, icon, color, text: alert.title, sub: alert.message, trayId: alert.trayId });
+                        });
+                     }
+                     
+                     // 2. Tray stage transitions
+                     activeTrays.forEach(tray => {
+                        const crop = state.crops.find(c => c.id === tray.cropTypeId);
+                        const crop2 = tray.cropTypeId2 ? state.crops.find(c => c.id === tray.cropTypeId2) : null;
+                        if (!crop) return;
+                        
+                        const startDate = new Date(tray.startDate);
+                        const displayName = crop2 ? `${crop.name} + ${crop2.name}` : crop.name;
+                        const estYield = crop2 
+                           ? ((crop.estimatedYieldPerTray || 0) + (crop2.estimatedYieldPerTray || 0)) / 2
+                           : (crop.estimatedYieldPerTray || 0);
+                        
+                        const addDays = (d: Date, days: number) => {
+                           const res = new Date(d);
+                           res.setDate(res.getDate() + days);
+                           return res;
+                        };
+                        
+                        let stageEndDate = new Date(startDate);
+                        
+                        if (tray.stage === Stage.GERMINATION) {
+                           stageEndDate = addDays(startDate, crop.germinationDays);
+                           if (stageEndDate.toDateString() === selectedCalendarDate.toDateString()) {
+                              const timeInfo = getTimeToNextStage(tray, crop);
+                              const targetTime = startDate.getTime() + (crop.germinationDays * 24 * 60 * 60 * 1000);
+                              tasks.push({ 
+                                 type: 'task', 
+                                 text: `Blackout ${displayName} (${tray.location})`,
+                                 icon: Moon, 
+                                 color: 'text-purple-600 bg-purple-50', 
+                                 trayId: tray.id,
+                                 timeRemaining: timeInfo,
+                                 targetTime: targetTime
+                              });
+                           }
+                        } else if (tray.stage === Stage.BLACKOUT) {
+                           stageEndDate = addDays(startDate, crop.blackoutDays);
+                           if (stageEndDate.toDateString() === selectedCalendarDate.toDateString()) {
+                              const timeInfo = getTimeToNextStage(tray, crop);
+                              const targetTime = startDate.getTime() + (crop.blackoutDays * 24 * 60 * 60 * 1000);
+                              tasks.push({ 
+                                 type: 'task', 
+                                 text: `Uncover ${displayName} (${tray.location})`,
+                                 icon: Sun, 
+                                 color: 'text-amber-600 bg-amber-50', 
+                                 trayId: tray.id,
+                                 timeRemaining: timeInfo,
+                                 targetTime: targetTime
+                              });
+                           }
+                        } else if (tray.stage === Stage.LIGHT) {
+                           stageEndDate = addDays(startDate, crop.lightDays);
+                           if (stageEndDate.toDateString() === selectedCalendarDate.toDateString()) {
+                              const timeInfo = getTimeToNextStage(tray, crop);
+                              const targetTime = startDate.getTime() + (crop.lightDays * 24 * 60 * 60 * 1000);
+                              tasks.push({ 
+                                 type: 'harvest', 
+                                 text: `Harvest ${displayName}`,
+                                 sub: tray.location,
+                                 icon: CheckCircle, 
+                                 color: 'text-teal-600 bg-teal-50', 
+                                 trayId: tray.id, 
+                                 estYield: estYield,
+                                 timeRemaining: timeInfo,
+                                 targetTime: targetTime
+                              });
+                           }
+                        }
+                     });
+                     
+                     // 3. Orders due
+                     const ordersDue = recurringOrders.filter(o => o.dueDayOfWeek === dayOfWeek);
+                     ordersDue.forEach(order => {
+                        const crop = state.crops.find(c => c.id === order.cropId);
+                        const cust = state.customers.find(c => c.id === order.customerId);
+                        if (crop) {
+                           tasks.push({ 
+                              type: 'order', 
+                              text: `Deliver ${crop.name}`, 
+                              sub: `${cust?.name || 'Unknown'} (${order.amount}g)`, 
+                              icon: Truck, 
+                              color: 'text-indigo-600 bg-indigo-50' 
+                           });
+                        }
+                     });
+                     
+                     // 4. Planting tasks
+                     recurringOrders.forEach(order => {
+                        const crop = state.crops.find(c => c.id === order.cropId);
+                        if (!crop) return;
+                        const totalDays = crop.germinationDays + crop.blackoutDays + crop.lightDays;
+                        const plantDayIndex = (order.dueDayOfWeek - (totalDays % 7) + 7) % 7;
+                        if (plantDayIndex === dayOfWeek) {
+                           const trays = Math.ceil(order.amount / (crop.estimatedYieldPerTray || 1));
+                           tasks.push({ 
+                              type: 'plant', 
+                              text: `Plant ${trays}x ${crop.name}`, 
+                              sub: `For ${state.customers.find(c => c.id === order.customerId)?.name || 'Order'}`, 
+                              icon: Sprout, 
+                              color: 'text-emerald-600 bg-emerald-50' 
+                           });
+                        }
+                     });
                      
                      return (
                         <motion.div
