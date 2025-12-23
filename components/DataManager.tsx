@@ -426,8 +426,20 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
          </div>
       </div>
 
+      {/* Data Export Section */}
+      <div className="mt-8 pt-8 border-t border-slate-200">
+        <DataExportManager 
+          crops={state.crops}
+          trays={state.trays}
+          transactions={state.transactions}
+          customers={state.customers}
+        />
+      </div>
+
       {/* Actions Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="mt-8 pt-8 border-t border-slate-200">
+        <h2 className="text-lg font-bold text-slate-800 mb-6">Data Management</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
          {/* Sync Crops */}
          <button 
             onClick={handleSyncCrops}
@@ -467,16 +479,7 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
             {importStatus === 'success' && <span className="absolute bottom-2 text-xs text-teal-500 font-bold">Import Successful!</span>}
             {importStatus === 'error' && <span className="absolute bottom-2 text-xs text-red-500 font-bold">Import Failed</span>}
          </label>
-      </div>
-
-      {/* Data Export Section */}
-      <div className="mt-8 pt-8 border-t border-slate-200">
-        <DataExportManager 
-          crops={state.crops}
-          trays={state.trays}
-          transactions={state.transactions}
-          customers={state.customers}
-        />
+        </div>
       </div>
 
       {/* Danger Zone */}
