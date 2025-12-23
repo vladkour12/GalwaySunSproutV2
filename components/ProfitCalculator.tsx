@@ -186,12 +186,12 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-1 mb-6">
-        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Profit Calculator</h2>
-        <p className="text-slate-500 text-sm">Analyze unit economics per 10x20 shallow tray (35cm x 55cm).</p>
+        <h2 className="text-3xl font-bold text-slate-100 tracking-tight">Profit Calculator</h2>
+        <p className="text-slate-400 text-sm">Analyze unit economics per 10x20 shallow tray (35cm x 55cm).</p>
       </div>
 
       {/* 1. Crop Selector */}
-      <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+      <div className="bg-slate-800 p-5 rounded-3xl shadow-sm border border-slate-700">
          <CustomSelect 
             label="Select Variety"
             value={selectedCropId}
@@ -231,7 +231,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                              onChange={(e) => setPricePer100g(parseFloat(e.target.value) || 0)}
                              onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
                              step="0.10"
-                             className="w-full pl-10 p-3 bg-white border border-teal-200 rounded-xl text-lg font-bold text-teal-900 focus:ring-2 focus:ring-teal-500 outline-none"
+                             className="w-full pl-10 p-3 bg-slate-700 border border-emerald-600/50 rounded-xl text-lg font-bold text-emerald-300 focus:ring-2 focus:ring-emerald-500 outline-none"
                              placeholder="6.00"
                           />
                        </div>
