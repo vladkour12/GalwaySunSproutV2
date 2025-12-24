@@ -342,15 +342,15 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
         </div>
       </main>
 
-      {/* Hamburger Menu - Top Left Corner */}
+      {/* Hamburger Menu - Bottom Left Corner */}
       <motion.nav 
         ref={dockRef}
-        className="fixed top-5 left-6 z-50"
+        className="fixed bottom-6 left-6 z-50 flex items-center gap-1 md:gap-1.5 lg:gap-2"
       >
         {/* Hamburger Button */}
         <motion.button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="relative w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all duration-200 active:scale-95 flex items-center justify-center"
+          className="relative w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all duration-200 active:scale-95 flex items-center justify-center flex-shrink-0"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -358,7 +358,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
             animate={{ rotate: isMenuOpen ? 90 : 0 }}
             transition={{ duration: 0.3 }}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </motion.div>
@@ -368,11 +368,11 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, x: -20, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: -20, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="fixed top-5 left-16 h-10 bg-slate-900/95 backdrop-blur-lg border border-white/10 rounded-lg shadow-2xl overflow-hidden z-50 flex items-center"
+              className="h-14 md:h-16 lg:h-20 bg-slate-900/95 backdrop-blur-lg border border-white/10 rounded-lg shadow-2xl overflow-hidden z-50 flex items-center"
             >
               {/* Navigation Items */}
               <div className="flex items-center h-full">
@@ -384,7 +384,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                     <motion.button
                       key={item.id}
                       onClick={() => handleNavigate(item.id as View)}
-                      className={`px-2 py-1 flex items-center justify-center transition-all duration-200 h-full ${
+                      className={`px-3 md:px-4 lg:px-6 py-1 flex items-center justify-center transition-all duration-200 h-full ${
                         isActive
                           ? 'bg-teal-500/20 text-white'
                           : 'text-slate-400 hover:bg-white/10 hover:text-slate-300'
@@ -393,24 +393,24 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                     >
-                      <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                      <Icon className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 flex-shrink-0" />
                     </motion.button>
                   );
                 })}
               </div>
 
               {/* Divider */}
-              <div className="h-6 w-px bg-white/10 mx-1"></div>
+              <div className="h-6 md:h-8 lg:h-10 w-px bg-white/10 mx-1"></div>
 
               {/* Logout Button */}
               <motion.button
                 onClick={onLogout}
-                className="px-2 py-1 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-all duration-200 h-full"
+                className="px-3 md:px-4 lg:px-6 py-1 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-all duration-200 h-full"
                 title="Sign Out"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
               </motion.button>

@@ -84,7 +84,7 @@ export const DataExportManager: React.FC<DataExportManagerProps> = ({
       </div>
 
       {/* Date Range Filter */}
-      <div className="bg-white border border-slate-100 rounded-xl p-6">
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
         <h3 className="font-semibold text-slate-900 mb-4">Financial Report Date Range</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -116,7 +116,7 @@ export const DataExportManager: React.FC<DataExportManagerProps> = ({
             <button
               key={report.id}
               onClick={report.onClick}
-              className="bg-white border border-slate-100 rounded-xl p-6 hover:border-green-200 hover:shadow-md transition-all text-left group"
+              className="bg-slate-800 border border-slate-700 rounded-xl p-6 hover:border-green-600 hover:shadow-md transition-all text-left group"
             >
               <div className="flex items-start justify-between mb-3">
                 <IconComponent className="w-8 h-8 text-green-600 group-hover:scale-110 transition-transform" />

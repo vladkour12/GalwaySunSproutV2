@@ -155,7 +155,7 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
         <>
           <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setShowForm(false)}></div>
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 w-full max-w-2xl shadow-xl">
+            <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 space-y-4 w-full max-w-2xl shadow-xl">
           <h3 className="font-semibold text-slate-900">
             {selectedOrder ? 'Edit Order' : 'Create New Order'}
           </h3>
@@ -344,7 +344,7 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
           </div>
         ) : (
           orders.map((order) => (
-            <div key={order.id} className="bg-white border border-slate-200 rounded-xl p-4">
+            <div key={order.id} className="bg-slate-800 border border-slate-700 rounded-xl p-4">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">

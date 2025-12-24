@@ -849,7 +849,7 @@ const App: React.FC = () => {
   if (fatalError) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950 p-6">
-        <div className="w-full max-w-xl bg-white rounded-3xl border border-slate-100 shadow-2xl overflow-hidden">
+        <div className="w-full max-w-xl bg-slate-800 rounded-3xl border border-slate-700 shadow-2xl overflow-hidden">
           <div className="p-6 border-b border-slate-100">
             <h2 className="text-lg font-extrabold text-slate-900">App crashed</h2>
             <p className="text-sm text-slate-500 mt-1">
@@ -957,26 +957,26 @@ const App: React.FC = () => {
         );
       case 'calculator': return <ProfitCalculator state={appState} />;
       case 'finance': return (
-          <div className="space-y-8">
-            <FinanceTracker 
-              state={appState} 
-              onAddTransaction={handleAddTransaction}
-              onUpdateTransaction={handleUpdateTransaction}
-              onDeleteTransaction={handleDeleteTransaction}
-              onAddCustomer={handleAddCustomer}
-              onUpdateCustomer={handleUpdateCustomer}
-              onDeleteCustomer={handleDeleteCustomer}
-            />
-            <OrderManager
-              orders={appState.orders || []}
-              crops={appState.crops}
-              customers={appState.customers}
-              onAddOrder={handleAddOrder}
-              onUpdateOrder={handleUpdateOrder}
-              onDeleteOrder={handleDeleteOrder}
-              onGenerateInvoice={handleGenerateInvoice}
-            />
-          </div>
+          <FinanceTracker 
+            state={appState} 
+            onAddTransaction={handleAddTransaction}
+            onUpdateTransaction={handleUpdateTransaction}
+            onDeleteTransaction={handleDeleteTransaction}
+            onAddCustomer={handleAddCustomer}
+            onUpdateCustomer={handleUpdateCustomer}
+            onDeleteCustomer={handleDeleteCustomer}
+            orderManagerElement={
+              <OrderManager
+                orders={appState.orders || []}
+                crops={appState.crops}
+                customers={appState.customers}
+                onAddOrder={handleAddOrder}
+                onUpdateOrder={handleUpdateOrder}
+                onDeleteOrder={handleDeleteOrder}
+                onGenerateInvoice={handleGenerateInvoice}
+              />
+            }
+          />
         );
       case 'data': return <DataManager state={appState} onImport={handleImportState} onReset={handleResetState} onStateUpdate={setAppState} />;
       default: return <Dashboard state={appState} onNavigate={setCurrentView} />;

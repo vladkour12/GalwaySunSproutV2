@@ -245,7 +245,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
             </div>
 
             {/* Variable Costs Inputs */}
-            <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+            <div className="bg-slate-800 p-5 rounded-3xl shadow-sm border border-slate-700">
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center space-x-2">
                         <div className="p-2 bg-slate-100 rounded-lg text-slate-600">

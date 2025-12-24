@@ -1072,7 +1072,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                               setTouchStartPos(null);
                            }
                         }}
-                        className={`group bg-white rounded-xl border-2 ${nextStageInfo.isOverdue ? 'border-red-300 bg-gradient-to-br from-red-50 to-white' : isHarvestReady ? 'border-teal-300 bg-gradient-to-br from-teal-50 to-white' : 'border-slate-200 hover:border-teal-200'} shadow-sm hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing relative overflow-hidden ${draggedTray?.id === tray.id ? 'opacity-50 scale-95 shadow-xl' : ''}`}
+                        className={`group bg-slate-800 rounded-xl border-2 ${nextStageInfo.isOverdue ? 'border-red-600 bg-gradient-to-br from-red-900 to-slate-800' : isHarvestReady ? 'border-teal-600 bg-gradient-to-br from-teal-900 to-slate-800' : 'border-slate-700 hover:border-teal-600'} shadow-sm hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing relative overflow-hidden ${draggedTray?.id === tray.id ? 'opacity-50 scale-95 shadow-xl' : ''}`}
                         whileHover={{ scale: draggedTray ? 1 : 1.02 }}
                         whileTap={{ scale: 0.98 }}
                      >
@@ -1287,12 +1287,12 @@ const CropManager: React.FC<CropManagerProps> = ({
          {activeTab === 'calendar' && (
             <div className="space-y-2.5">
                {/* Daily Schedule - Compact Timeline View - At Top */}
-               <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
-                  <h4 className="text-[10px] font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+               <div className="bg-slate-800 p-2.5 rounded-xl border border-slate-700 shadow-sm">
+                  <h4 className="text-[10px] font-bold text-slate-300 mb-2 flex items-center gap-1.5">
                      <Clock className="w-3 h-3" />
                      Upcoming Tasks (Next 4 Days)
                   </h4>
-                  <div className="relative pl-3 space-y-1.5 before:absolute before:left-3 before:top-1 before:bottom-0 before:w-0.5 before:bg-gradient-to-b before:from-teal-200 before:via-slate-200 before:to-slate-200 before:rounded-full">
+                  <div className="relative pl-3 space-y-1.5 before:absolute before:left-3 before:top-1 before:bottom-0 before:w-0.5 before:bg-gradient-to-b before:from-teal-500 before:via-slate-600 before:to-slate-600 before:rounded-full">
                      {calendarDays.map((day, idx) => {
                      const dailyHarvest = day.tasks.reduce((sum, t) => sum + (t.estYield || 0), 0);
                      const isToday = idx === 0;
@@ -1513,8 +1513,8 @@ const CropManager: React.FC<CropManagerProps> = ({
                </div>
 
                {/* Color Legend */}
-               <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
-                  <h4 className="text-[10px] font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+               <div className="bg-slate-800 p-2.5 rounded-xl border border-slate-700 shadow-sm">
+                  <h4 className="text-[10px] font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
                      <Info className="w-3 h-3" />
                      Color Guide
                   </h4>
@@ -1539,12 +1539,12 @@ const CropManager: React.FC<CropManagerProps> = ({
                </div>
                
                {/* Calendar Grid - Full Month View */}
-               <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+               <div className="bg-slate-800 p-2.5 rounded-xl border border-slate-700 shadow-sm">
                   <div className="grid grid-cols-7 gap-1">
                      {/* Day Headers */}
                      {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
                         <div key={idx} className="text-center">
-                           <span className="text-[8px] font-bold text-slate-500 uppercase">{day}</span>
+                           <span className="text-[8px] font-bold text-slate-400 uppercase">{day}</span>
                         </div>
                      ))}
                      
@@ -2010,10 +2010,10 @@ const CropManager: React.FC<CropManagerProps> = ({
          {activeTab === 'varieties' && (
             <div className="space-y-3">
                {/* Search and Filter Bar */}
-               <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+               <div className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm space-y-3">
                   {/* Search */}
                   <div className="relative">
-                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                      <input
                         type="text"
                         value={cropSearchQuery}
@@ -2103,7 +2103,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                         <div 
                            key={crop.id} 
                            onClick={() => openCropDetail(crop)} 
-                           className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden active:scale-[0.98] transition-transform flex items-center gap-4 cursor-pointer"
+                           className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm relative overflow-hidden active:scale-[0.98] transition-transform flex items-center gap-4 cursor-pointer"
                         >
                            {/* Small Picture Left */}
                            <div className={`w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center text-sm font-bold shadow-inner relative overflow-hidden ${crop.color?.split(' ')[0] || 'bg-slate-200'}`}>
@@ -2167,11 +2167,11 @@ const CropManager: React.FC<CropManagerProps> = ({
             <div className="space-y-2.5">
                
                {/* Weekly Orders Section - At Top */}
-               <div className="bg-white rounded-xl p-2.5 border border-slate-200 shadow-sm">
+               <div className="bg-slate-800 rounded-xl p-2.5 border border-slate-700 shadow-sm">
                   <div className="flex justify-between items-center mb-2">
                      <div className="flex items-center gap-1.5">
-                        <ShoppingBag className="w-3.5 h-3.5 text-indigo-600" />
-                        <h3 className="font-bold text-slate-800 text-xs">Weekly Orders</h3>
+                        <ShoppingBag className="w-3.5 h-3.5 text-indigo-400" />
+                        <h3 className="font-bold text-slate-300 text-xs">Weekly Orders</h3>
                      </div>
                      <motion.button 
                         whileHover={{ scale: 1.05 }}
@@ -2321,12 +2321,12 @@ const CropManager: React.FC<CropManagerProps> = ({
 
                {plannerMode === 'event' ? (
                  /* EVENT PLANNER MODE */
-                 <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                    <h3 className="text-sm font-bold text-slate-800 mb-2 flex items-center">
-                       <Calendar className="w-4 h-4 mr-1.5 text-teal-600" />
+                 <div className="bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-sm">
+                    <h3 className="text-sm font-bold text-white mb-2 flex items-center">
+                       <Calendar className="w-4 h-4 mr-1.5 text-teal-400" />
                        Backward Planner
                     </h3>
-                    <p className="text-xs text-slate-500 mb-3">Need crops for a specific date? Calculate exactly when to plant.</p>
+                    <p className="text-xs text-slate-400 mb-3">Need crops for a specific date? Calculate exactly when to plant.</p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                        <div>
@@ -2430,12 +2430,12 @@ const CropManager: React.FC<CropManagerProps> = ({
                  </div>
                ) : (
                  /* WEEKLY ROUTINE MODE */
-                 <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                    <h3 className="text-sm font-bold text-slate-800 mb-2 flex items-center">
-                       <Repeat className="w-4 h-4 mr-1.5 text-indigo-600" />
+                 <div className="bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-sm">
+                    <h3 className="text-sm font-bold text-white mb-2 flex items-center">
+                       <Repeat className="w-4 h-4 mr-1.5 text-indigo-400" />
                        Weekly Production
                     </h3>
-                    <p className="text-xs text-slate-500 mb-3">Establish a regular supply. Calculate trays needed for a weekly target.</p>
+                    <p className="text-xs text-slate-400 mb-3">Establish a regular supply. Calculate trays needed for a weekly target.</p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                        <div>
@@ -3141,13 +3141,13 @@ const CropManager: React.FC<CropManagerProps> = ({
                            <div className="col-span-2 pt-3 border-t border-slate-200 mt-1">
                               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Bulk Seed Prices</span>
                               <div className="grid grid-cols-2 gap-3">
-                                 <div className="bg-white p-2 rounded-lg border border-slate-100 flex justify-between items-center">
-                                    <span className="text-xs text-slate-500 font-medium">{selectedCrop.pkgWeightSmall || 500}g Pack</span>
-                                    <span className="text-xs font-bold text-slate-800">{selectedCrop.price500g ? `€${selectedCrop.price500g.toFixed(2)}` : '--'}</span>
+                                 <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 flex justify-between items-center">
+                                    <span className="text-xs text-slate-400 font-medium">{selectedCrop.pkgWeightSmall || 500}g Pack</span>
+                                    <span className="text-xs font-bold text-white">{selectedCrop.price500g ? `€${selectedCrop.price500g.toFixed(2)}` : '--'}</span>
                                  </div>
-                                 <div className="bg-white p-2 rounded-lg border border-slate-100 flex justify-between items-center">
-                                    <span className="text-xs text-slate-500 font-medium">{selectedCrop.pkgWeightLarge >= 1000 ? (selectedCrop.pkgWeightLarge/1000) + 'kg' : selectedCrop.pkgWeightLarge || 1000 + 'g'} Pack</span>
-                                    <span className="text-xs font-bold text-slate-800">{selectedCrop.price1kg ? `€${selectedCrop.price1kg.toFixed(2)}` : '--'}</span>
+                                 <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 flex justify-between items-center">
+                                    <span className="text-xs text-slate-400 font-medium">{selectedCrop.pkgWeightLarge >= 1000 ? (selectedCrop.pkgWeightLarge/1000) + 'kg' : selectedCrop.pkgWeightLarge || 1000 + 'g'} Pack</span>
+                                    <span className="text-xs font-bold text-white">{selectedCrop.price1kg ? `€${selectedCrop.price1kg.toFixed(2)}` : '--'}</span>
                                  </div>
                               </div>
                            </div>

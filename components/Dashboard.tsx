@@ -254,7 +254,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
         {/* Metric 1: Active Trays */}
         <motion.div 
           variants={item}
-          className="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:border-teal-200 transition-colors"
+          className="bg-slate-800 p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-700 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:border-teal-600 transition-colors"
           onClick={() => onNavigate('crops')}
           whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
           whileTap={{ scale: 0.98 }}
@@ -276,7 +276,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
         {/* Metric 2: Harvest Ready */}
         <motion.div 
           variants={item}
-          className="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between cursor-pointer hover:border-amber-200 transition-colors group relative overflow-hidden"
+          className="bg-slate-800 p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-700 flex flex-col justify-between cursor-pointer hover:border-amber-600 transition-colors group relative overflow-hidden"
           onClick={() => onNavigate('crops')}
           whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
           whileTap={{ scale: 0.98 }}
@@ -344,10 +344,10 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
          
          {/* Smart Alerts */}
-         <motion.div variants={item} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+         <motion.div variants={item} className="bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-700">
             <div className="flex items-center space-x-2 mb-4">
                <Bell className="w-5 h-5 text-slate-400" />
-               <h3 className="font-bold text-slate-800">Action Needed</h3>
+               <h3 className="font-bold text-white">Action Needed</h3>
             </div>
             
             <div className="space-y-3">
@@ -416,13 +416,13 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
          </motion.div>
 
          {/* Recent Activity */}
-         <motion.div variants={item} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+         <motion.div variants={item} className="bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-700">
             <div className="flex items-center justify-between mb-4">
                <div className="flex items-center space-x-2">
                   <Clock className="w-5 h-5 text-slate-400" />
-                  <h3 className="font-bold text-slate-800">Recent Activity</h3>
+                  <h3 className="font-bold text-white">Recent Activity</h3>
                </div>
-               <button onClick={() => onNavigate('data')} className="text-xs font-bold text-teal-600 hover:text-teal-700">View All</button>
+               <button onClick={() => onNavigate('data')} className="text-xs font-bold text-teal-400 hover:text-teal-300">View All</button>
             </div>
 
             <div className="space-y-4">
@@ -459,7 +459,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
       </div>
 
       {/* --- Production Pipeline Chart --- */}
-      <motion.div variants={item} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+      <motion.div variants={item} className="bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-700">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-slate-800 flex items-center">
               <Droplets className="w-5 h-5 mr-2 text-blue-500" />
@@ -542,7 +542,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
               initial={{ scale: 0.95, y: 10 }} 
               animate={{ scale: 1, y: 0 }} 
               exit={{ scale: 0.95, y: 10 }} 
-              className="bg-white w-full max-w-2xl rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
+              className="bg-slate-800 w-full max-w-2xl rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}

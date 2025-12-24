@@ -321,7 +321,7 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
       </div>
 
       {/* Storage Stats Card */}
-      <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
+      <div className="bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-700 relative overflow-hidden">
          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
                <div className="p-3 bg-blue-50 rounded-2xl text-blue-600">
@@ -437,47 +437,47 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
       </div>
 
       {/* Actions Grid */}
-      <div className="mt-8 pt-8 border-t border-slate-200">
-        <h2 className="text-lg font-bold text-slate-800 mb-6">Data Management</h2>
+      <div className="mt-8 pt-8 border-t border-slate-700">
+        <h2 className="text-lg font-bold text-white mb-6">Data Management</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
          {/* Sync Crops */}
          <button 
             onClick={handleSyncCrops}
             disabled={syncStatus === 'syncing'}
-            className="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-md hover:border-purple-200 transition-all group relative disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex flex-col items-center justify-center p-6 bg-slate-800 border border-slate-700 rounded-3xl shadow-sm hover:shadow-md hover:border-purple-600 transition-all group relative disabled:opacity-50 disabled:cursor-not-allowed"
          >
-            <div className="p-4 bg-purple-50 rounded-full text-purple-600 mb-3 group-hover:scale-110 transition-transform">
+            <div className="p-4 bg-purple-900 rounded-full text-purple-400 mb-3 group-hover:scale-110 transition-transform">
                {syncStatus === 'syncing' ? <RefreshCw className="w-8 h-8 animate-spin" /> : syncStatus === 'success' ? <CheckCircle className="w-8 h-8" /> : syncStatus === 'error' ? <AlertTriangle className="w-8 h-8 text-red-500" /> : <RefreshCw className="w-8 h-8" />}
             </div>
-            <h3 className="font-bold text-slate-800">Sync Crops to DB</h3>
+            <h3 className="font-bold text-white">Sync Crops to DB</h3>
             <p className="text-xs text-slate-400 mt-1">Update database with latest crops</p>
-            {syncStatus === 'syncing' && <span className="absolute bottom-2 text-xs text-purple-500 font-bold">Syncing...</span>}
-            {syncStatus === 'success' && <span className="absolute bottom-2 text-xs text-teal-500 font-bold">Sync Successful!</span>}
-            {syncStatus === 'error' && <span className="absolute bottom-2 text-xs text-red-500 font-bold">Sync Failed</span>}
+            {syncStatus === 'syncing' && <span className="absolute bottom-2 text-xs text-purple-400 font-bold">Syncing...</span>}
+            {syncStatus === 'success' && <span className="absolute bottom-2 text-xs text-teal-400 font-bold">Sync Successful!</span>}
+            {syncStatus === 'error' && <span className="absolute bottom-2 text-xs text-red-400 font-bold">Sync Failed</span>}
          </button>
 
          {/* Backup */}
          <button 
             onClick={handleExport}
-            className="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-md hover:border-teal-200 transition-all group"
+            className="flex flex-col items-center justify-center p-6 bg-slate-800 border border-slate-700 rounded-3xl shadow-sm hover:shadow-md hover:border-blue-600 transition-all group"
          >
-            <div className="p-4 bg-teal-50 rounded-full text-teal-600 mb-3 group-hover:scale-110 transition-transform">
+            <div className="p-4 bg-blue-900 rounded-full text-blue-400 mb-3 group-hover:scale-110 transition-transform">
                <Download className="w-8 h-8" />
             </div>
-            <h3 className="font-bold text-slate-800">Backup All Data</h3>
+            <h3 className="font-bold text-white">Backup All Data</h3>
             <p className="text-xs text-slate-400 mt-1">Download consolidated JSON</p>
          </button>
 
          {/* Restore */}
-         <label className="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-md hover:border-blue-200 transition-all group cursor-pointer relative">
+         <label className="flex flex-col items-center justify-center p-6 bg-slate-800 border border-slate-700 rounded-3xl shadow-sm hover:shadow-md hover:border-cyan-600 transition-all group cursor-pointer relative">
             <input type="file" accept=".json" onChange={handleImport} className="hidden" />
-            <div className="p-4 bg-blue-50 rounded-full text-blue-600 mb-3 group-hover:scale-110 transition-transform">
+            <div className="p-4 bg-cyan-900 rounded-full text-cyan-400 mb-3 group-hover:scale-110 transition-transform">
                {importStatus === 'success' ? <CheckCircle className="w-8 h-8" /> : importStatus === 'error' ? <AlertTriangle className="w-8 h-8 text-red-500" /> : <Upload className="w-8 h-8" />}
             </div>
-            <h3 className="font-bold text-slate-800">Restore Data</h3>
+            <h3 className="font-bold text-white">Restore Data</h3>
             <p className="text-xs text-slate-400 mt-1">Upload JSON backup</p>
-            {importStatus === 'success' && <span className="absolute bottom-2 text-xs text-teal-500 font-bold">Import Successful!</span>}
-            {importStatus === 'error' && <span className="absolute bottom-2 text-xs text-red-500 font-bold">Import Failed</span>}
+            {importStatus === 'success' && <span className="absolute bottom-2 text-xs text-teal-400 font-bold">Import Successful!</span>}
+            {importStatus === 'error' && <span className="absolute bottom-2 text-xs text-red-400 font-bold">Import Failed</span>}
          </label>
         </div>
       </div>
@@ -492,24 +492,24 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
          {!resetConfirm ? (
             <button 
                onClick={() => setResetConfirm(true)}
-               className="w-full flex items-center justify-center p-4 bg-red-50 text-red-700 font-bold rounded-2xl border border-red-100 hover:bg-red-100 transition-colors"
+               className="w-full flex items-center justify-center p-4 bg-red-900 text-red-300 font-bold rounded-2xl border border-red-700 hover:bg-red-800 transition-colors"
             >
                <Trash2 className="w-5 h-5 mr-2" />
                Reset Database
             </button>
          ) : (
-            <div className="bg-red-50 p-4 rounded-2xl border border-red-100 animate-fade-in">
-               <p className="text-sm text-red-800 font-bold mb-3 text-center">Are you sure? This deletes growing, selling, and order data.</p>
+            <div className="bg-red-900/30 p-4 rounded-2xl border border-red-700 animate-fade-in">
+               <p className="text-sm text-red-300 font-bold mb-3 text-center">Are you sure? This deletes growing, selling, and order data.</p>
                <div className="flex space-x-3">
                   <button 
                      onClick={() => setResetConfirm(false)}
-                     className="flex-1 py-3 bg-white text-slate-600 font-bold rounded-xl border border-slate-200"
+                     className="flex-1 py-3 bg-white text-slate-800 font-bold rounded-xl border border-white hover:bg-slate-100"
                   >
                      Cancel
                   </button>
                   <button 
                      onClick={handleFactoryReset}
-                     className="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-200"
+                     className="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl shadow-lg hover:bg-red-700"
                   >
                      Confirm Reset
                   </button>
@@ -521,7 +521,7 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
       {/* Data Viewer Modal */}
       {viewingStore && (
          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-fade-in">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[80vh]">
+            <div className="bg-slate-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[80vh]">
                <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center sticky top-0 z-10">
                   <h3 className="text-lg font-bold text-slate-800">{getStoreTitle(viewingStore)}</h3>
                   <button onClick={() => setViewingStore(null)} className="p-1 rounded-full hover:bg-slate-200 transition-colors text-slate-500">

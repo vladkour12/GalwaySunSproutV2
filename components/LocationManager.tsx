@@ -82,7 +82,7 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
       </div>
 
       {showForm && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 space-y-4">
           <h3 className="font-semibold text-slate-900">
             {editingId ? 'Edit Location' : 'New Location'}
           </h3>
@@ -190,7 +190,7 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
           </div>
         ) : (
           locations.map((location) => (
-            <div key={location.id} className="bg-white border border-slate-200 rounded-xl p-6">
+            <div key={location.id} className="bg-slate-800 border border-slate-700 rounded-xl p-6">
               <div className="flex items-start justify-between mb-3">
                 <h3 className="font-semibold text-slate-900">{location.name}</h3>
                 <div className="flex space-x-2">
