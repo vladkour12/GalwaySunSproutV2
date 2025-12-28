@@ -2,31 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --mint: #00d9a3;
+  --mint-dark: #00a878;
+  --lavender: #c4b5fd;
+  --lavender-dark: #8b7cc8;
+  --peach: #ffb997;
+  --peach-dark: #ff9970;
+  --dark-bg: #0a0a0f;
+  --dark-secondary: #1a1a2e;
+  --dark-tertiary: #16213e;
+  --text-strong: #ffffff;
+  --text-subtle: #9ca3af;
+  --border-glow: rgba(0, 217, 163, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
 html {
   height: 100%;
-  height: -webkit-fill-available; /* iOS Safari */
-  /* Prevent overscroll that triggers browser UI */
+  height: -webkit-fill-available;
   overscroll-behavior: none;
   overscroll-behavior-y: none;
 }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #0a0a14 0%, #1a1a2e 100%);
+  background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
   background-attachment: fixed;
   color: #ffffff;
   -webkit-tap-highlight-color: transparent;
   min-height: 100vh;
-  min-height: -webkit-fill-available; /* iOS Safari */
-  /* Prevent overscroll bounce on iOS - this is key for fullscreen */
+  min-height: -webkit-fill-available;
   overscroll-behavior: none;
   overscroll-behavior-y: none;
-  /* Prevent pull-to-refresh */
   overscroll-behavior-block: none;
-  /* Prevent browser UI from appearing on scroll */
   position: relative;
   overflow-x: hidden;
-  /* Performance optimizations */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -35,14 +47,97 @@ body {
 
 #root {
   min-height: 100vh;
-  min-height: -webkit-fill-available; /* iOS Safari */
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-  /* Prevent scroll chaining */
+  min-height: -webkit-fill-available;
+  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+}
+
+/* Glassmorphism Design System */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 50px rgba(0, 217, 163, 0.08);
+}
+
+.glass-card-elevated {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px) saturate(130%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.glass-card-sm {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Single-slab 3D card */
+.card-3d-stack {
+  position: relative;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.card-3d-stack::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.08), transparent 38%), radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.35), transparent 50%);
+  z-index: -1;
+}
+
+.card-3d-stack::after {
+  content: none;
+}
+
+/* Soft Glow Effects */
+.glow-mint {
+  box-shadow: 0 0 20px rgba(0, 217, 163, 0.15);
+}
+
+.glow-lavender {
+  box-shadow: 0 0 20px rgba(196, 181, 253, 0.15);
+}
+
+.glow-peach {
+  box-shadow: 0 0 20px rgba(255, 185, 151, 0.15);
+}
+
+/* Accent Colors */
+.text-mint { color: var(--mint); }
+.text-lavender { color: var(--lavender); }
+.text-peach { color: var(--peach); }
+
+.bg-mint-subtle { background-color: rgba(0, 217, 163, 0.1); }
+.bg-lavender-subtle { background-color: rgba(196, 181, 253, 0.1); }
+.bg-peach-subtle { background-color: rgba(255, 185, 151, 0.1); }
+
+.border-mint { border-color: rgba(0, 217, 163, 0.3); }
+.border-lavender { border-color: rgba(196, 181, 253, 0.3); }
+.border-peach { border-color: rgba(255, 185, 151, 0.3); }
+
+/* Icon Styles - Thin & Elegant */
+.icon-thin {
+  stroke-width: 1.5;
 }
 
 /* Hide scrollbar for clean UI on mobile */
@@ -72,6 +167,20 @@ h1, h2, h3, h4, h5, h6 {
   animation: gradient 3s ease infinite;
 }
 
+/* Animated glow pulse */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 217, 163, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(0, 217, 163, 0.25);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
 /* Performance optimizations */
 * {
   -webkit-tap-highlight-color: transparent;
@@ -86,6 +195,11 @@ html {
 .gpu-accelerated {
   transform: translateZ(0);
   will-change: transform;
+}
+
+/* Smooth transitions */
+.transition-all-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Reduce motion for users who prefer it */

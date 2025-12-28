@@ -62,8 +62,8 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
   const [isNavigating, setIsNavigating] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [hasOverlay, setHasOverlay] = useState(false);
   
   // Update time every minute for live timers
   useEffect(() => {
@@ -73,6 +73,24 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
     setCurrentTime(new Date());
     return () => clearInterval(interval);
   }, []);
+
+  // Detect global overlays (modals, dialogs) and hide dock when present
+  useEffect(() => {
+    const selectors = '[data-overlay-active],[data-modal],[data-dialog],[role="dialog"],.modal,.drawer,.fixed.inset-0';
+    const check = () => setHasOverlay(showNotifications || Boolean(document.querySelector(selectors)));
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+    const interval = window.setInterval(check, 400);
+    window.addEventListener('keyup', check);
+    window.addEventListener('click', check, true);
+    return () => {
+      observer.disconnect();
+      window.clearInterval(interval);
+      window.removeEventListener('keyup', check);
+      window.removeEventListener('click', check, true);
+    };
+  }, [showNotifications]);
   
   // Calculate upcoming notifications
   const upcomingNotifications = useMemo(() => {
@@ -146,8 +164,6 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
     if (!el) return;
     // Reset scroll immediately
     el.scrollTop = 0;
-    // Close menu when navigating
-    setIsMenuOpen(false);
     // Force a layout recalculation after a brief delay to clear any lingering height issues
     const id = window.setTimeout(() => {
     el.scrollTop = 0;
@@ -158,21 +174,6 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
     }, 100);
     return () => window.clearTimeout(id);
   }, [currentView]);
-
-  // Handle clicking outside menu to close it
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const menu = dockRef.current;
-      if (menu && !menu.contains(e.target as Node)) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    if (isMenuOpen) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [isMenuOpen]);
 
   // Make bottom padding match the fixed dock height (prevents excessive blank scroll space).
   useEffect(() => {
@@ -214,30 +215,23 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
   }, [currentView]); // Recalculate when view changes to fix bottom spacing issues
 
   const navItems = useMemo(() => [
-    { id: 'dashboard', label: 'Overview', icon: Home, color: 'from-emerald-500 to-teal-500' },
-    { id: 'crops', label: 'My Crops', icon: Leaf, color: 'from-green-500 to-emerald-500' },
-    { id: 'calculator', label: 'Profit', icon: TrendingUp, color: 'from-blue-500 to-cyan-500' },
-    { id: 'finance', label: 'Finance', icon: CreditCard, color: 'from-amber-500 to-orange-500' },
-    { id: 'data', label: 'Data', icon: BarChart3, color: 'from-purple-500 to-pink-500' },
+    { id: 'dashboard', label: 'Overview', icon: Home, color: 'bg-[var(--mint)]/20 text-[var(--mint)]' },
+    { id: 'crops', label: 'My Crops', icon: Leaf, color: 'bg-[var(--lavender)]/20 text-[var(--lavender)]' },
+    { id: 'calculator', label: 'Profit', icon: TrendingUp, color: 'bg-[var(--aqua)]/20 text-[var(--aqua)]' },
+    { id: 'finance', label: 'Finance', icon: CreditCard, color: 'bg-[var(--peach)]/20 text-[var(--peach)]' },
+    { id: 'data', label: 'Data', icon: BarChart3, color: 'bg-[var(--text-subtle)]/20 text-[var(--text-subtle)]' },
   ] as const, []);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans text-slate-900 selection:bg-teal-200 selection:text-teal-900 relative" style={{ minHeight: '100vh' }}>
-      {/* Logo Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <img 
-          src="/logo.png" 
-          alt="Galway Sun Sprouts Logo" 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] opacity-[0.4] object-contain"
-          style={{ maxWidth: '95vw', maxHeight: '95vh' }}
-        />
-      </div>
-      
-      {/* Header - Enhanced */}
+    <div
+      className="min-h-screen flex flex-col font-sans text-white selection:bg-[var(--mint)] selection:text-[var(--ultra-bg)] relative"
+      style={{ minHeight: '100vh', paddingBottom: `max(${bottomPadPx}px, calc(env(safe-area-inset-bottom, 0px) + 120px))` }}
+    >
+      {/* Header - Enhanced Ultra Dark Glass */}
       <motion.header 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="sticky top-0 z-40 px-6 py-4 bg-white/95 backdrop-blur-xl border-b border-slate-200/60 supports-[backdrop-filter]:bg-white/80 shadow-sm"
+        className="sticky top-0 z-40 px-6 py-4 glass-card border-b supports-[backdrop-filter]:bg-[rgba(5,6,8,0.8)] shadow-sm"
       >
         <div className="max-w-4xl mx-auto flex justify-between items-center">
             {/* Spacer for balance */}
@@ -250,7 +244,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1 }}
             >
-                <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                <h1 className="text-lg font-bold tracking-tight text-[var(--text-strong)]">
                   Galway Sun Sprouts
                 </h1>
             </motion.div>
@@ -258,9 +252,9 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
             {/* Right side buttons */}
             <div className="flex items-center gap-2">
               {/* Notification Button */}
-              <motion.button 
-                 onClick={() => setShowNotifications(true)}
-                 className="relative w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all duration-200 active:scale-95 flex items-center justify-center"
+                <motion.button 
+                  onClick={() => setShowNotifications(true)}
+                  className="relative w-10 h-10 rounded-xl bg-[var(--mint)]/20 hover:bg-[var(--mint)]/30 text-[var(--mint)] transition-all duration-200 active:scale-95 flex items-center justify-center"
                  title={alertCount > 0 ? `${alertCount} notifications` : 'Notifications'}
                  whileHover={{ scale: 1.05 }}
                  whileTap={{ scale: 0.95 }}
@@ -268,7 +262,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                  <Bell className="w-4 h-4" />
                  {alertCount > 0 && (
                    <motion.span 
-                     className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white"
+                     className="absolute -top-1 -right-1 w-5 h-5 bg-red-500/80 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-[var(--ultra-bg)]"
                      initial={{ scale: 0 }}
                      animate={{ scale: 1 }}
                      transition={{ type: "spring", stiffness: 500, damping: 15 }}
@@ -279,9 +273,9 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               </motion.button>
 
               {/* Logout Button */}
-              <motion.button 
-                 onClick={onLogout}
-                 className="p-2.5 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
+                <motion.button 
+                  onClick={onLogout}
+                  className="p-2 rounded-xl text-[var(--text-subtle)] hover:bg-red-500/20 hover:text-red-300 transition-all duration-200 active:scale-95"
                  title="Sign Out / Back to Website"
                  whileHover={{ scale: 1.05 }}
                  whileTap={{ scale: 0.95 }}
@@ -342,81 +336,73 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
         </div>
       </main>
 
-      {/* Hamburger Menu - Bottom Left Corner */}
+      {/* Bottom Navigation - pill dock */}
       <motion.nav 
         ref={dockRef}
-        className="fixed bottom-6 left-6 z-50 flex items-center gap-1 md:gap-1.5 lg:gap-2"
+        className="fixed bottom-5 inset-x-0 z-50 flex justify-center"
+        animate={{ opacity: hasOverlay ? 0 : 1, y: hasOverlay ? 12 : 0 }}
+        style={{ pointerEvents: hasOverlay ? 'none' : 'auto' }}
       >
-        {/* Hamburger Button */}
-        <motion.button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="relative w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all duration-200 active:scale-95 flex items-center justify-center flex-shrink-0"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+        <div
+          className="relative w-full px-2 sm:px-3"
+          style={{ maxWidth: '760px' }}
         >
-          <motion.div
-            animate={{ rotate: isMenuOpen ? 90 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <svg className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </motion.div>
-        </motion.button>
-
-        {/* Dropdown Menu */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="h-14 md:h-16 lg:h-20 bg-slate-900/95 backdrop-blur-lg border border-white/10 rounded-lg shadow-2xl overflow-hidden z-50 flex items-center"
-            >
-              {/* Navigation Items */}
-              <div className="flex items-center h-full">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = currentView === item.id;
-                  
-                  return (
-                    <motion.button
-                      key={item.id}
-                      onClick={() => handleNavigate(item.id as View)}
-                      className={`px-3 md:px-4 lg:px-6 py-1 flex items-center justify-center transition-all duration-200 h-full ${
-                        isActive
-                          ? 'bg-teal-500/20 text-white'
-                          : 'text-slate-400 hover:bg-white/10 hover:text-slate-300'
-                      }`}
-                      title={item.label}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+          <div className="absolute inset-0 rounded-[18px] bg-gradient-to-r from-[#1f2a3d] via-[#1a1f2a] to-[#1f2a3d] opacity-70 blur-md pointer-events-none" />
+          <div className="relative bg-[rgba(12,13,18,0.88)] border border-[rgba(255,255,255,0.05)] rounded-[18px] px-1.5 py-1.5 backdrop-blur-xl shadow-[0_12px_26px_rgba(0,0,0,0.3)]">
+            <div className="flex items-center gap-0.5">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentView === item.id;
+                return (
+                  <motion.button
+                    key={item.id}
+                    onClick={() => handleNavigate(item.id as View)}
+                    className={`relative flex-1 min-w-[48px] rounded-lg py-1.5 px-1 flex flex-col items-center justify-center overflow-hidden transition-all duration-200 ${
+                      isActive ? 'text-[#9ac2ff]' : 'text-[var(--text-subtle)] hover:text-white'
+                    }`}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-pill"
+                        className="absolute inset-0 rounded-lg bg-[rgba(101,140,255,0.12)] border border-[rgba(101,140,255,0.26)] shadow-[0_6px_18px_rgba(101,140,255,0.2)]"
+                        transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                      />
+                    )}
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-dot"
+                        className="absolute -top-2 w-2 h-2 rounded-full bg-[#91b5ff] shadow-[0_0_0_4px_rgba(145,181,255,0.2)]"
+                        transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+                      />
+                    )}
+                    <div className={`relative w-9 h-9 rounded-md flex items-center justify-center text-sm ${item.color} ${isActive ? 'bg-[#91b5ff]/15 text-[#91b5ff]' : ''}`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <motion.span
+                      className="relative text-[8.5px] font-semibold mt-0.5 tracking-wide"
+                      animate={{ opacity: isActive ? 1 : 0, y: isActive ? 0 : 6 }}
+                      transition={{ duration: 0.18, ease: 'easeOut' }}
                     >
-                      <Icon className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 flex-shrink-0" />
-                    </motion.button>
-                  );
-                })}
-              </div>
+                      {item.label}
+                    </motion.span>
+                  </motion.button>
+                );
+              })}
 
-              {/* Divider */}
-              <div className="h-6 md:h-8 lg:h-10 w-px bg-white/10 mx-1"></div>
+              <div className="w-px h-8 bg-[rgba(255,255,255,0.05)] mx-1" />
 
-              {/* Logout Button */}
               <motion.button
                 onClick={onLogout}
-                className="px-3 md:px-4 lg:px-6 py-1 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-all duration-200 h-full"
+                className="flex-shrink-0 w-9 h-9 rounded-full bg-[rgba(255,79,79,0.14)] border border-[rgba(255,79,79,0.3)] text-red-200 hover:text-white hover:bg-[rgba(255,79,79,0.2)] transition-all duration-200 flex items-center justify-center"
+                whileTap={{ scale: 0.95 }}
                 title="Sign Out"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
               >
-                <svg className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
+                <LogOut className="w-4 h-4" />
               </motion.button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
+        </div>
       </motion.nav>
 
       {/* Notifications Modal */}
@@ -426,25 +412,25 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-40 bg-ocean-dark/60 backdrop-blur-sm flex items-center justify-center p-4"
             onClick={() => setShowNotifications(false)}
           >
             <motion.div 
               initial={{ scale: 0.95, y: 10 }} 
               animate={{ scale: 1, y: 0 }} 
               exit={{ scale: 0.95, y: 10 }} 
-              className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
+              className="bg-ocean-primary w-full max-w-md rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-800">Notifications</h3>
-                  <p className="text-sm text-slate-500 mt-1">Current alerts and upcoming tasks</p>
+                  <h3 className="text-xl font-bold text-white">Notifications</h3>
+                  <p className="text-sm text-ocean-light mt-1">Current alerts and upcoming tasks</p>
                 </div>
                 <button 
                   onClick={() => setShowNotifications(false)} 
-                  className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"
+                  className="p-3 bg-ocean-secondary rounded-full hover:bg-ocean-accent active:bg-ocean-accent transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -453,8 +439,8 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               {/* Current Alerts */}
               {currentAlerts.length > 0 && (
                 <div className="mb-6">
-                  <h4 className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-3 flex items-center">
-                    <AlertCircle className="w-4 h-4 mr-2 text-red-500" />
+                  <h4 className="text-sm font-bold text-ocean-light uppercase tracking-wider mb-3 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-2 text-red-400" />
                     Action Needed
                   </h4>
                   <div className="space-y-2">
@@ -468,13 +454,13 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                           onNavigate('crops');
                         }}
                         className={`p-4 rounded-xl border cursor-pointer hover:shadow-md transition-all ${
-                          alert.type === 'urgent' ? 'bg-red-50 border-red-100' :
-                          alert.type === 'warning' ? 'bg-amber-50 border-amber-100' :
-                          'bg-blue-50 border-blue-100'
+                          alert.type === 'urgent' ? 'bg-red-500/10 border-red-500/30 text-white' :
+                          alert.type === 'warning' ? 'bg-amber-500/10 border-amber-500/30 text-white' :
+                          'bg-ocean-secondary/20 border-ocean-accent/30 text-white'
                         }`}
                       >
-                        <p className="font-bold text-slate-800 text-sm">{alert.title}</p>
-                        <p className="text-xs text-slate-600 mt-1">{alert.message}</p>
+                        <p className="font-bold text-white text-sm">{alert.title}</p>
+                        <p className="text-xs text-ocean-light mt-1">{alert.message}</p>
                       </div>
                     ))}
                   </div>
@@ -484,8 +470,8 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
               {/* Upcoming Notifications */}
               {upcomingNotifications.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-3 flex items-center">
-                    <Clock className="w-4 h-4 mr-2 text-blue-500" />
+                  <h4 className="text-sm font-bold text-ocean-light uppercase tracking-wider mb-3 flex items-center">
+                    <Clock className="w-4 h-4 mr-2 text-ocean-accent" />
                     Coming Soon
                   </h4>
                   <div className="space-y-2">
@@ -500,16 +486,16 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                             localStorage.setItem('galway_show_calendar', 'true');
                             onNavigate('crops');
                           }}
-                          className="p-4 rounded-xl border bg-blue-50 border-blue-100 flex items-start justify-between cursor-pointer hover:shadow-md transition-all"
+                          className="p-4 rounded-xl border bg-ocean-secondary/20 border-ocean-accent/30 text-white flex items-start justify-between cursor-pointer hover:shadow-md transition-all"
                         >
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <Icon className="w-4 h-4 text-blue-600" />
-                              <p className="font-bold text-slate-800 text-sm">{notif.action}</p>
+                              <Icon className="w-4 h-4 text-ocean-accent" />
+                              <p className="font-bold text-white text-sm">{notif.action}</p>
                             </div>
-                            <p className="text-xs text-slate-600 mt-1">{notif.tray.location}</p>
+                            <p className="text-xs text-ocean-light mt-1">{notif.tray.location}</p>
                           </div>
-                          <span className="text-xs font-bold text-blue-600 bg-white px-2 py-1 rounded-full border border-blue-200 ml-2 whitespace-nowrap">
+                          <span className="text-xs font-bold text-ocean-accent bg-ocean-primary px-2 py-1 rounded-full border border-ocean-accent/30 ml-2 whitespace-nowrap">
                             {notif.timeInfo.text}
                           </span>
                         </div>
@@ -521,16 +507,16 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
 
               {/* Empty State */}
               {currentAlerts.length === 0 && upcomingNotifications.length === 0 && (
-                <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                  <Bell className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-                  <p className="text-slate-500 font-bold text-sm mb-1">No notifications</p>
-                  <p className="text-slate-400 text-xs">All tasks are on schedule</p>
+                <div className="text-center py-12 bg-ocean-secondary/10 rounded-2xl border border-dashed border-ocean-secondary/40">
+                  <Bell className="w-12 h-12 mx-auto mb-3 text-ocean-secondary" />
+                  <p className="text-ocean-light font-bold text-sm mb-1">No notifications</p>
+                  <p className="text-ocean-contrast text-xs">All tasks are on schedule</p>
                 </div>
               )}
 
               {/* Footer Action */}
               {(currentAlerts.length > 0 || upcomingNotifications.length > 0) && (
-                <div className="mt-6 pt-4 border-t border-slate-200">
+                <div className="mt-6 pt-4 border-t border-ocean-secondary/40">
                   <button
                     onClick={() => {
                       setShowNotifications(false);
@@ -538,7 +524,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children, currentView, onNavig
                       localStorage.setItem('galway_show_calendar', 'true');
                       onNavigate('crops');
                     }}
-                    className="w-full py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 transition-colors"
+                    className="w-full py-3 bg-ocean-accent text-white font-bold rounded-xl hover:bg-ocean-accent/90 transition-colors"
                   >
                     View All in Calendar
                   </button>

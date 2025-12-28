@@ -43,7 +43,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
   const varieties = INITIAL_CROPS.map(crop => crop.name);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden font-sans text-white bg-[radial-gradient(circle_at_20%_20%,rgba(0,217,163,0.08),transparent_35%),radial-gradient(circle_at_80%_10%,rgba(196,181,253,0.08),transparent_32%),linear-gradient(135deg,#0b0f17_0%,#0f1624_50%,#0b101a_100%)]">
       
       {/* Background Elements */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
@@ -70,7 +70,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-4 bg-white/95 backdrop-blur-md border-b border-slate-100"
+        className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-4 bg-[rgba(10,12,18,0.9)] backdrop-blur-xl border-b border-[rgba(255,255,255,0.08)]"
       >
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <motion.div 
@@ -78,17 +78,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-lg flex items-center justify-center text-white">
+            <div className="w-8 h-8 bg-gradient-to-br from-[var(--mint)] to-[#00b894] rounded-lg flex items-center justify-center text-white">
               <Sprout className="w-5 h-5" />
             </div>
-            <span className="font-bold text-lg text-slate-900 hidden sm:inline">Sun Sprouts</span>
+            <span className="font-bold text-lg text-white hidden sm:inline">Sun Sprouts</span>
           </motion.div>
           
           <motion.button
             onClick={onLoginClick}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-6 py-2 bg-slate-900 text-white rounded-lg font-semibold text-sm hover:bg-slate-800 transition-all duration-200"
+            className="px-6 py-2 bg-[var(--mint)] text-[#03130f] rounded-lg font-semibold text-sm shadow-[0_10px_30px_rgba(0,217,163,0.35)] hover:shadow-[0_14px_34px_rgba(0,217,163,0.45)] transition-all duration-200"
           >
             Login
           </motion.button>
@@ -103,7 +103,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.1, duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full mb-6 text-sm font-medium text-emerald-700"
+            className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(0,217,163,0.1)] border border-[rgba(0,217,163,0.2)] text-[var(--mint)] rounded-full mb-6 text-sm font-semibold tracking-wide"
           >
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-pulse"></span>
@@ -117,15 +117,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 leading-tight"
+            className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 leading-tight text-white drop-shadow-[0_12px_35px_rgba(0,0,0,0.35)]"
           >
-            <span className="text-slate-900">Premium Microgreens</span>
+            <span className="text-white">Premium Microgreens</span>
             <br />
             <motion.span 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.6 }}
-              className="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent"
+              className="bg-gradient-to-r from-[var(--mint)] via-[#6dd3ff] to-[var(--lavender)] bg-clip-text text-transparent"
             >
               Grown Right Here
             </motion.span>
@@ -136,7 +136,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-12"
+            className="text-lg sm:text-xl text-[var(--text-subtle)] max-w-2xl mx-auto leading-relaxed mb-12"
           >
             Precision-grown microgreens delivered fresh to your restaurant or home. Ultra-nutritious, packed with flavor, and grown sustainably in Galway.
           </motion.p>
@@ -152,7 +152,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
               href="mailto:hello@galwaysunsprouts.com"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 bg-slate-900 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:bg-slate-800 transition-all duration-200 flex items-center justify-center gap-2"
+              className="px-8 py-4 bg-[var(--mint)] text-[#03130f] rounded-xl font-semibold shadow-[0_14px_40px_rgba(0,217,163,0.35)] hover:shadow-[0_18px_46px_rgba(0,217,163,0.45)] transition-all duration-200 flex items-center justify-center gap-2"
             >
               <Mail className="w-5 h-5" />
               Contact Us
@@ -164,7 +164,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 bg-slate-100 text-slate-900 rounded-xl font-semibold border border-slate-200 hover:bg-slate-50 transition-all duration-200 flex items-center justify-center gap-2"
+              className="px-8 py-4 bg-[rgba(255,255,255,0.08)] text-white rounded-xl font-semibold border border-[rgba(255,255,255,0.14)] hover:border-[rgba(255,255,255,0.25)] transition-all duration-200 flex items-center justify-center gap-2"
             >
               <Instagram className="w-5 h-5" />
               Follow Us
@@ -176,7 +176,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.5 }}
-            className="grid grid-cols-3 gap-8 max-w-xl mx-auto pt-12 border-t border-slate-200"
+            className="grid grid-cols-3 gap-8 max-w-xl mx-auto pt-12 border-t border-[rgba(255,255,255,0.08)]"
           >
             {[
               { label: "Varieties", value: "20+" },
@@ -190,8 +190,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                 transition={{ delay: 0.6 + i * 0.1, duration: 0.4 }}
                 className="text-center"
               >
-                <div className="text-3xl font-bold text-slate-900 mb-1">{stat.value}</div>
-                <div className="text-sm text-slate-500 font-medium">{stat.label}</div>
+                <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
+                <div className="text-sm text-[var(--text-subtle)] font-medium">{stat.label}</div>
               </motion.div>
             ))}
           </motion.div>
@@ -199,7 +199,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       </section>
 
       {/* Features Grid Section */}
-      <section id="features" className="relative z-10 py-24 px-4 sm:px-6 bg-slate-50">
+      <section id="features" className="relative z-10 py-24 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -208,10 +208,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4">
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
               Why Choose Us
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-lg text-[var(--text-subtle)] max-w-2xl mx-auto">
               Sustainable farming meets premium quality. Every tray is monitored with precision.
             </p>
           </motion.div>
@@ -225,7 +225,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: idx * 0.1, duration: 0.5 }}
                 whileHover={{ y: -8 }}
-                className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300"
+                className="glass-card-elevated p-8 rounded-2xl border border-[rgba(255,255,255,0.12)] shadow-lg hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)] transition-all duration-300"
               >
                 <motion.div 
                   className={`w-12 h-12 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center mb-6`}
@@ -233,8 +233,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                 >
                   <feature.icon className="w-6 h-6 text-white" />
                 </motion.div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">{feature.title}</h3>
-                <p className="text-slate-600 leading-relaxed">{feature.desc}</p>
+                <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
+                <p className="text-[var(--text-subtle)] leading-relaxed">{feature.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -242,14 +242,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       </section>
 
       {/* Varieties Section */}
-      <section className="relative z-10 py-16 px-4 sm:px-6 bg-white border-y border-slate-100">
+      <section className="relative z-10 py-16 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="text-center text-2xl sm:text-3xl font-bold text-slate-900 mb-10"
+            className="text-center text-2xl sm:text-3xl font-bold text-white mb-10"
           >
             Our Varieties
           </motion.h2>
@@ -260,7 +260,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
               onClick={() => setVarietiesExpanded(!varietiesExpanded)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-lg font-semibold"
+              className="flex items-center gap-2 px-6 py-3 bg-[var(--mint)] text-[#03130f] rounded-lg font-semibold shadow-[0_12px_32px_rgba(0,217,163,0.35)]"
             >
               {varietiesExpanded ? 'Hide' : 'Show'} All Varieties
               <motion.div
@@ -288,7 +288,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.05, duration: 0.3 }}
                   whileHover={{ scale: 1.05, y: -2 }}
-                  className="px-3 py-2 bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-lg text-center font-medium text-slate-700 text-xs cursor-default"
+                  className="px-3 py-2 rounded-lg text-center font-medium text-white text-xs cursor-default bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)]"
                 >
                   {variety}
                 </motion.div>
@@ -306,7 +306,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05, duration: 0.3 }}
                 whileHover={{ scale: 1.05, y: -2 }}
-                className="px-3 py-2 bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-lg text-center font-medium text-slate-700 text-xs cursor-default"
+                className="px-3 py-2 rounded-lg text-center font-medium text-white text-xs cursor-default bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)]"
               >
                 {variety}
               </motion.div>
@@ -316,7 +316,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       </section>
 
       {/* CTA Section */}
-      <section className="relative z-10 py-24 px-4 sm:px-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+      <section className="relative z-10 py-24 px-4 sm:px-6 bg-gradient-to-br from-[#0c121d] via-[#0f1a2a] to-[#0c111a] text-white border-t border-[rgba(255,255,255,0.06)]">
         <div className="max-w-3xl mx-auto text-center">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
@@ -333,7 +333,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1, duration: 0.5 }}
-            className="text-lg text-slate-300 mb-10"
+            className="text-lg text-[var(--text-subtle)] mb-10"
           >
             Join restaurants across Galway that trust us for premium, fresh microgreens delivered weekly.
           </motion.p>
@@ -346,7 +346,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             href="mailto:hello@galwaysunsprouts.com"
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-2 px-10 py-4 bg-teal-500 text-white rounded-xl font-semibold hover:bg-teal-600 transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="inline-flex items-center gap-2 px-10 py-4 bg-[var(--mint)] text-[#03130f] rounded-xl font-semibold transition-all duration-200 shadow-[0_14px_38px_rgba(0,217,163,0.35)] hover:shadow-[0_18px_44px_rgba(0,217,163,0.45)]"
           >
             <Mail className="w-5 h-5" />
             Get In Touch
@@ -361,32 +361,32 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className="relative z-10 bg-white border-t border-slate-100 py-12 px-4 sm:px-6"
+        className="relative z-10 bg-[rgba(10,12,18,0.95)] border-t border-[rgba(255,255,255,0.08)] py-12 px-4 sm:px-6"
       >
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-12 pb-12 border-b border-slate-100">
+          <div className="grid md:grid-cols-4 gap-8 mb-12 pb-12 border-b border-[rgba(255,255,255,0.08)]">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-lg flex items-center justify-center text-white">
+                <div className="w-8 h-8 bg-gradient-to-br from-[var(--mint)] to-[#00b894] rounded-lg flex items-center justify-center text-white">
                   <Sprout className="w-5 h-5" />
                 </div>
-                <span className="font-bold text-slate-900">Sun Sprouts</span>
+                <span className="font-bold text-white">Sun Sprouts</span>
               </div>
-              <p className="text-sm text-slate-600">Fresh, local, premium microgreens for Galway's finest restaurants.</p>
+              <p className="text-sm text-[var(--text-subtle)]">Fresh, local, premium microgreens for Galway's finest restaurants.</p>
             </div>
             
             <div>
-              <h4 className="font-semibold text-slate-900 mb-4">Contact</h4>
-              <p className="text-sm text-slate-600 mb-2">Email: hello@galwaysunsprouts.com</p>
-              <p className="text-sm text-slate-600">Galway, Ireland</p>
+              <h4 className="font-semibold text-white mb-4">Contact</h4>
+              <p className="text-sm text-[var(--text-subtle)] mb-2">Email: hello@galwaysunsprouts.com</p>
+              <p className="text-sm text-[var(--text-subtle)]">Galway, Ireland</p>
             </div>
             
             <div>
-              <h4 className="font-semibold text-slate-900 mb-4">Follow</h4>
+              <h4 className="font-semibold text-white mb-4">Follow</h4>
               <motion.a
                 whileHover={{ scale: 1.05 }}
                 href="#"
-                className="text-sm text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-2"
+                className="text-sm text-[var(--text-subtle)] hover:text-white transition-colors flex items-center gap-2"
               >
                 <Instagram className="w-4 h-4" />
                 Instagram
@@ -394,17 +394,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             </div>
             
             <div>
-              <h4 className="font-semibold text-slate-900 mb-4">Hours</h4>
-              <p className="text-sm text-slate-600">Mon - Fri: 8am - 6pm</p>
-              <p className="text-sm text-slate-600">Harvest: Wed & Fri</p>
+              <h4 className="font-semibold text-white mb-4">Hours</h4>
+              <p className="text-sm text-[var(--text-subtle)]">Mon - Fri: 8am - 6pm</p>
+              <p className="text-sm text-[var(--text-subtle)]">Harvest: Wed & Fri</p>
             </div>
           </div>
           
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-slate-500">© {new Date().getFullYear()} Galway Sun Sprouts. All rights reserved.</p>
-            <div className="flex gap-6 text-sm text-slate-500">
-              <a href="#" className="hover:text-slate-900 transition-colors">Privacy</a>
-              <a href="#" className="hover:text-slate-900 transition-colors">Terms</a>
+            <p className="text-sm text-[var(--text-subtle)]">© {new Date().getFullYear()} Galway Sun Sprouts. All rights reserved.</p>
+            <div className="flex gap-6 text-sm text-[var(--text-subtle)]">
+              <a href="#" className="hover:text-white transition-colors">Privacy</a>
+              <a href="#" className="hover:text-white transition-colors">Terms</a>
             </div>
           </div>
         </div>

@@ -185,13 +185,13 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col space-y-1 mb-6">
-        <h2 className="text-3xl font-bold text-slate-100 tracking-tight">Profit Calculator</h2>
-        <p className="text-slate-400 text-sm">Analyze unit economics per 10x20 shallow tray (35cm x 55cm).</p>
+      <div className="flex flex-col space-y-2 mb-6">
+        <h2 className="text-4xl font-bold text-white tracking-tight">Profit Calculator</h2>
+        <p className="text-[var(--text-subtle)] text-sm font-medium">Analyze unit economics per 10x20 shallow tray (35cm x 55cm).</p>
       </div>
 
       {/* 1. Crop Selector */}
-      <div className="bg-slate-800 p-5 rounded-3xl shadow-sm border border-slate-700">
+      <div className="glass-card-elevated p-6 rounded-3xl shadow-sm border border-[rgba(255,255,255,0.12)]">
          <CustomSelect 
             label="Select Variety"
             value={selectedCropId}
@@ -314,7 +314,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                       
                       {/* Soil Calculator */}
                       {showSoilCalc && soilCalc && (
-                         <div className="bg-violet-50 border border-violet-200 rounded-xl p-4 space-y-3 text-xs">
+                         <div className="bg-violet-50 border border-violet-700 rounded-xl p-4 space-y-3 text-xs">
                             <div className="flex justify-between items-center">
                                <h4 className="font-bold text-violet-900">Soil Cost Calculator</h4>
                                <button onClick={() => setShowSoilCalc(false)} className="text-violet-600 hover:text-violet-800">×</button>
@@ -322,18 +322,18 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                             <div className="grid grid-cols-3 gap-2">
                                <div>
                                   <label className="text-[10px] font-bold text-violet-700 uppercase">€ per Bag</label>
-                                  <input type="number" value={soilCostPerBag} step="0.01" onChange={e => setSoilCostPerBag(parseFloat(e.target.value) || 12)} className="w-full p-1.5 bg-white border border-violet-200 rounded text-xs font-bold" />
+                                  <input type="number" value={soilCostPerBag} step="0.01" onChange={e => setSoilCostPerBag(parseFloat(e.target.value) || 12)} className="w-full p-1.5 bg-slate-700 border border-violet-700 rounded text-xs font-bold" />
                                </div>
                                <div>
                                   <label className="text-[10px] font-bold text-violet-700 uppercase">L per Bag</label>
-                                  <input type="number" value={soilVolumePerBag} onChange={e => setSoilVolumePerBag(parseFloat(e.target.value) || 50)} className="w-full p-1.5 bg-white border border-violet-200 rounded text-xs font-bold" />
+                                  <input type="number" value={soilVolumePerBag} onChange={e => setSoilVolumePerBag(parseFloat(e.target.value) || 50)} className="w-full p-1.5 bg-slate-700 border border-violet-700 rounded text-xs font-bold" />
                                </div>
                                <div>
                                   <label className="text-[10px] font-bold text-violet-700 uppercase">L per Tray</label>
-                                  <input type="number" value={soilVolumePerTray} step="0.1" onChange={e => setSoilVolumePerTray(parseFloat(e.target.value) || 3)} className="w-full p-1.5 bg-white border border-violet-200 rounded text-xs font-bold" />
+                                  <input type="number" value={soilVolumePerTray} step="0.1" onChange={e => setSoilVolumePerTray(parseFloat(e.target.value) || 3)} className="w-full p-1.5 bg-slate-700 border border-violet-700 rounded text-xs font-bold" />
                                </div>
                             </div>
-                            <div className="pt-2 border-t border-violet-200 space-y-1">
+                            <div className="pt-2 border-t border-violet-700 space-y-1">
                                <div className="flex justify-between text-violet-800">
                                   <span className="font-medium">Cost per Tray:</span>
                                   <span className="font-bold">€{soilCalc.costPerTray.toFixed(2)}</span>
@@ -388,7 +388,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                       
                       {/* Electricity Calculator */}
                       {showElecCalc && elecCalc && (
-                         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3 text-xs">
+                         <div className="bg-amber-50 border border-amber-700 rounded-xl p-4 space-y-3 text-xs">
                             <div className="flex justify-between items-center">
                                <h4 className="font-bold text-amber-900">Electricity Cost Calculator</h4>
                                <button onClick={() => setShowElecCalc(false)} className="text-amber-600 hover:text-amber-800">×</button>
@@ -396,22 +396,22 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                             <div className="grid grid-cols-2 gap-2">
                                <div>
                                   <label className="text-[10px] font-bold text-amber-700 uppercase">W per Shelf</label>
-                                  <input type="number" value={elecWattagePerShelf} onChange={e => setElecWattagePerShelf(parseInt(e.target.value) || 100)} className="w-full p-1.5 bg-white border border-amber-200 rounded text-xs font-bold" />
+                                  <input type="number" value={elecWattagePerShelf} onChange={e => setElecWattagePerShelf(parseInt(e.target.value) || 100)} className="w-full p-1.5 bg-slate-700 border border-amber-700 rounded text-xs font-bold" />
                                </div>
                                <div>
                                   <label className="text-[10px] font-bold text-amber-700 uppercase">Trays/Shelf</label>
-                                  <input type="number" value={elecTraysPerShelf} onChange={e => setElecTraysPerShelf(parseInt(e.target.value) || 4)} className="w-full p-1.5 bg-white border border-amber-200 rounded text-xs font-bold" />
+                                  <input type="number" value={elecTraysPerShelf} onChange={e => setElecTraysPerShelf(parseInt(e.target.value) || 4)} className="w-full p-1.5 bg-slate-700 border border-amber-700 rounded text-xs font-bold" />
                                </div>
                                <div>
                                   <label className="text-[10px] font-bold text-amber-700 uppercase">Hours/Day</label>
-                                  <input type="number" value={elecHoursPerDay} onChange={e => setElecHoursPerDay(parseInt(e.target.value) || 16)} className="w-full p-1.5 bg-white border border-amber-200 rounded text-xs font-bold" />
+                                  <input type="number" value={elecHoursPerDay} onChange={e => setElecHoursPerDay(parseInt(e.target.value) || 16)} className="w-full p-1.5 bg-slate-700 border border-amber-700 rounded text-xs font-bold" />
                                </div>
                                <div>
                                   <label className="text-[10px] font-bold text-amber-700 uppercase">€/kWh</label>
-                                  <input type="number" value={elecRatePerKwh} step="0.01" onChange={e => setElecRatePerKwh(parseFloat(e.target.value) || 0.32)} className="w-full p-1.5 bg-white border border-amber-200 rounded text-xs font-bold" />
+                                  <input type="number" value={elecRatePerKwh} step="0.01" onChange={e => setElecRatePerKwh(parseFloat(e.target.value) || 0.32)} className="w-full p-1.5 bg-slate-700 border border-amber-700 rounded text-xs font-bold" />
                                </div>
                             </div>
-                            <div className="pt-2 border-t border-amber-200 space-y-1">
+                            <div className="pt-2 border-t border-amber-700 space-y-1">
                                <div className="flex justify-between text-amber-800">
                                   <span className="font-medium">Per Tray (Light Stage):</span>
                                   <span className="font-bold">€{elecCalc.costPerCyclePerTray.toFixed(2)}</span>
@@ -466,7 +466,7 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                       
                       {/* Packaging Calculator */}
                       {showPackagingCalc && packagingCalc && (
-                         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-3 text-xs">
+                         <div className="bg-blue-50 border border-blue-700 rounded-xl p-4 space-y-3 text-xs">
                             <div className="flex justify-between items-center">
                                <h4 className="font-bold text-blue-900">Packaging Cost Calculator</h4>
                                <button onClick={() => setShowPackagingCalc(false)} className="text-blue-600 hover:text-blue-800">×</button>
@@ -474,14 +474,14 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
                             <div className="grid grid-cols-2 gap-2">
                                <div>
                                   <label className="text-[10px] font-bold text-blue-700 uppercase">€ per Bag</label>
-                                  <input type="number" value={packagingCostPerBag} step="0.01" onChange={e => setPackagingCostPerBag(parseFloat(e.target.value) || 0.40)} className="w-full p-1.5 bg-white border border-blue-200 rounded text-xs font-bold" />
+                                  <input type="number" value={packagingCostPerBag} step="0.01" onChange={e => setPackagingCostPerBag(parseFloat(e.target.value) || 0.40)} className="w-full p-1.5 bg-slate-700 border border-blue-700 rounded text-xs font-bold" />
                                </div>
                                <div>
                                   <label className="text-[10px] font-bold text-blue-700 uppercase">g per Bag</label>
-                                  <input type="number" value={packagingWeightPerBag} onChange={e => setPackagingWeightPerBag(parseInt(e.target.value) || 100)} className="w-full p-1.5 bg-white border border-blue-200 rounded text-xs font-bold" />
+                                  <input type="number" value={packagingWeightPerBag} onChange={e => setPackagingWeightPerBag(parseInt(e.target.value) || 100)} className="w-full p-1.5 bg-slate-700 border border-blue-700 rounded text-xs font-bold" />
                                </div>
                             </div>
-                            <div className="pt-2 border-t border-blue-200 space-y-1">
+                            <div className="pt-2 border-t border-blue-700 space-y-1">
                                <div className="flex justify-between text-blue-800">
                                   <span className="font-medium">Bags per Tray:</span>
                                   <span className="font-bold">{packagingCalc.bagsPerTray}</span>
@@ -539,40 +539,40 @@ const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ state }) => {
         {/* 3. Results Section */}
         <div className="space-y-6 order-1 lg:order-2">
             {/* Net Profit Card */}
-            <div className="bg-slate-900 text-white p-6 rounded-3xl shadow-xl shadow-slate-200 relative overflow-hidden flex flex-col justify-between min-h-[160px]">
-               <div className="absolute top-0 right-0 p-6 opacity-10">
-                  <Euro className="w-32 h-32 text-white" />
+            <div className="glass-card-elevated card-3d-stack text-white p-6 rounded-3xl shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[160px] border border-[rgba(0,217,163,0.3)]">
+               <div className="absolute -top-20 -right-20 opacity-10 pointer-events-none">
+                  <Euro className="w-48 h-48 text-[var(--mint)]" />
                </div>
                
                <div className="relative z-10 flex justify-between">
                   <div>
-                      <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Net Profit per Tray</h3>
-                      <div className={`text-4xl font-bold tracking-tight ${netProfit < 0 ? 'text-red-400' : 'text-white'}`}>
+                      <h3 className="text-xs font-bold text-[var(--text-subtle)] uppercase tracking-widest mb-3">Net Profit per Tray</h3>
+                      <div className={`text-5xl font-bold tracking-tight ${netProfit < 0 ? 'text-[rgb(255,107,107)]' : 'text-[var(--mint)]'}`}>
                           {netProfit < 0 ? '-' : ''}€{Math.abs(netProfit).toFixed(2)}
                       </div>
                   </div>
                   <div className="text-right">
-                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Margin</h3>
-                      <div className={`text-xl font-bold ${margin < 30 ? 'text-red-400' : margin < 50 ? 'text-amber-400' : 'text-teal-400'}`}>
+                      <h3 className="text-xs font-bold text-[var(--text-subtle)] uppercase tracking-widest mb-2">Margin</h3>
+                      <div className={`text-3xl font-bold ${margin < 30 ? 'text-[rgb(255,107,107)]' : margin < 50 ? 'text-[var(--peach)]' : 'text-[var(--mint)]'}`}>
                           {margin.toFixed(1)}%
                       </div>
                   </div>
                </div>
 
-               <div className="relative z-10 mt-4">
+               <div className="relative z-10 mt-6">
                   {margin < 0 ? (
-                      <div className="flex items-center text-red-300 text-xs font-medium">
-                          <AlertCircle className="w-4 h-4 mr-1.5" />
+                      <div className="flex items-center text-[rgb(255,107,107)] text-xs font-semibold">
+                          <AlertCircle className="w-4 h-4 mr-2 icon-thin" />
                           Selling below cost. Adjust price or reduce expenses.
                       </div>
                   ) : margin < 40 ? (
-                      <div className="flex items-center text-amber-300 text-xs font-medium">
-                          <AlertCircle className="w-4 h-4 mr-1.5" />
+                      <div className="flex items-center text-[var(--peach)] text-xs font-semibold">
+                          <AlertCircle className="w-4 h-4 mr-2 icon-thin" />
                           Tight margin. Industry standard is often &gt;50%.
                       </div>
                   ) : (
-                      <div className="flex items-center text-teal-300 text-xs font-medium">
-                          <TrendingUp className="w-4 h-4 mr-1.5" />
+                      <div className="flex items-center text-[var(--mint)] text-xs font-semibold">
+                          <TrendingUp className="w-4 h-4 mr-2 icon-thin" />
                           Healthy profit margin!
                       </div>
                   )}

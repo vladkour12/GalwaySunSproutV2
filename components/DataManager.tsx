@@ -189,22 +189,22 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
         case 'trays':
            return (
               <div className="space-y-2">
-                 {state.trays.length === 0 && <p className="text-slate-400 text-center py-4">No records found.</p>}
+                 {state.trays.length === 0 && <p className="text-[var(--text-subtle)] text-center py-4">No records found.</p>}
                  {state.trays.slice().reverse().map((tray: Tray) => {
                     const crop = state.crops.find(c => c.id === tray.cropTypeId);
                     const crop2 = tray.cropTypeId2 ? state.crops.find(c => c.id === tray.cropTypeId2) : null;
                     const displayName = crop2 ? `${crop?.name || 'Unknown'} + ${crop2.name}` : (crop?.name || 'Unknown Crop');
                     return (
-                       <div key={tray.id} className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex justify-between items-center">
+                       <div key={tray.id} className="bg-[rgba(255,255,255,0.06)] p-3 rounded-xl border border-[rgba(255,255,255,0.12)] flex justify-between items-center">
                           <div>
                              <div className="flex items-center gap-2">
-                                <p className="font-bold text-slate-800 text-sm">{displayName}</p>
+                                <p className="font-bold text-white text-sm">{displayName}</p>
                                 {crop2 && (
                                    <span className="text-[9px] font-bold text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded">Half-Half</span>
                                 )}
                              </div>
-                             <div className="flex items-center space-x-2 text-[10px] text-slate-500 mt-1">
-                                <span className={`px-1.5 py-0.5 rounded border ${tray.stage === 'Harvested' ? 'bg-teal-50 border-teal-100 text-teal-700' : 'bg-white border-slate-200'}`}>{tray.stage}</span>
+                             <div className="flex items-center space-x-2 text-[10px] text-[var(--text-subtle)] mt-1">
+                                <span className={`px-1.5 py-0.5 rounded border ${tray.stage === 'Harvested' ? 'bg-teal-900 border-teal-700 text-teal-400' : 'bg-slate-800 border-slate-700'}`}>{tray.stage}</span>
                                 <span>{new Date(tray.startDate).toLocaleDateString()}</span>
                                 <span>{tray.location}</span>
                              </div>
@@ -216,7 +216,7 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
                                    {tray.yield}g
                                 </span>
                              )}
-                             <span className="text-[10px] text-slate-400 block">ID: {tray.id.substr(0,4)}</span>
+                             <span className="text-[10px] text-[var(--text-subtle)] block">ID: {tray.id.substr(0,4)}</span>
                           </div>
                        </div>
                     );
@@ -226,19 +226,19 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
          case 'transactions':
             return (
                <div className="space-y-2">
-                  {state.transactions.length === 0 && <p className="text-slate-400 text-center py-4">No records found.</p>}
+                  {state.transactions.length === 0 && <p className="text-[var(--text-subtle)] text-center py-4">No records found.</p>}
                   {state.transactions.slice().reverse().map((tx: Transaction) => (
-                     <div key={tx.id} className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex justify-between items-center">
+                     <div key={tx.id} className="bg-[rgba(255,255,255,0.06)] p-3 rounded-xl border border-[rgba(255,255,255,0.12)] flex justify-between items-center">
                         <div className="flex items-center space-x-3">
-                           <div className={`p-2 rounded-lg ${tx.type === 'income' ? 'bg-teal-100 text-teal-600' : 'bg-red-100 text-red-600'}`}>
+                           <div className={`p-2 rounded-lg ${tx.type === 'income' ? 'bg-teal-900/40 text-teal-400' : 'bg-red-900/40 text-red-400'}`}>
                               <DollarSign className="w-4 h-4" />
                            </div>
                            <div>
-                              <p className="font-bold text-slate-800 text-sm">{tx.category}</p>
-                              <p className="text-[10px] text-slate-500">{tx.description} • {new Date(tx.date).toLocaleDateString()}</p>
+                              <p className="font-bold text-white text-sm">{tx.category}</p>
+                              <p className="text-[10px] text-[var(--text-subtle)]">{tx.description} • {new Date(tx.date).toLocaleDateString()}</p>
                            </div>
                         </div>
-                        <span className={`font-bold text-sm ${tx.type === 'income' ? 'text-teal-600' : 'text-slate-700'}`}>
+                        <span className={`font-bold text-sm ${tx.type === 'income' ? 'text-teal-400' : 'text-red-400'}`}>
                            {tx.type === 'income' ? '+' : '-'}€{tx.amount}
                         </span>
                      </div>
@@ -248,14 +248,14 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
          case 'customers':
             return (
                <div className="space-y-2">
-                  {state.customers.length === 0 && <p className="text-slate-400 text-center py-4">No records found.</p>}
+                  {state.customers.length === 0 && <p className="text-[var(--text-subtle)] text-center py-4">No records found.</p>}
                   {state.customers.map((cust: Customer) => (
-                     <div key={cust.id} className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                     <div key={cust.id} className="bg-[rgba(255,255,255,0.06)] p-3 rounded-xl border border-[rgba(255,255,255,0.12)]">
                         <div className="flex justify-between items-start mb-1">
-                           <p className="font-bold text-slate-800 text-sm">{cust.name}</p>
-                           <span className="text-[10px] bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-500">{cust.type}</span>
+                           <p className="font-bold text-white text-sm">{cust.name}</p>
+                           <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded border border-[rgba(255,255,255,0.12)] text-[var(--text-subtle)]">{cust.type}</span>
                         </div>
-                        <p className="text-[11px] text-slate-500">{cust.contact} • {cust.email}</p>
+                        <p className="text-[11px] text-[var(--text-subtle)]">{cust.contact} • {cust.email}</p>
                      </div>
                   ))}
                </div>
@@ -264,13 +264,13 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
             return (
                <div className="space-y-2">
                   {state.crops.map((crop: CropType) => (
-                     <div key={crop.id} className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center space-x-3">
+                     <div key={crop.id} className="bg-[rgba(255,255,255,0.06)] p-3 rounded-xl border border-[rgba(255,255,255,0.12)] flex items-center space-x-3">
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs shadow-sm ${crop.color.split(' ')[0]} ${crop.color.split(' ')[1]}`}>
                            {crop.name.charAt(0)}
                         </div>
                         <div className="flex-1">
-                           <p className="font-bold text-slate-800 text-sm">{crop.name}</p>
-                           <p className="text-[10px] text-slate-500">{crop.seedingRate}g seed • {crop.estimatedYieldPerTray}g yield</p>
+                           <p className="font-bold text-slate-100 text-sm">{crop.name}</p>
+                           <p className="text-[10px] text-slate-400">{crop.seedingRate}g seed • {crop.estimatedYieldPerTray}g yield</p>
                         </div>
                      </div>
                   ))}
@@ -282,7 +282,7 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
                <div className="grid grid-cols-3 gap-2">
                   {cropsWithImages.length === 0 && <p className="col-span-3 text-slate-400 text-center py-4">No images saved.</p>}
                   {cropsWithImages.map(crop => (
-                     <div key={crop.id} className="aspect-square bg-slate-100 rounded-lg overflow-hidden relative border border-slate-200">
+                     <div key={crop.id} className="aspect-square bg-slate-100 rounded-lg overflow-hidden relative border border-slate-700">
                         {crop.imageUrl ? (
                            <img src={crop.imageUrl} alt={crop.name} className="w-full h-full object-cover" />
                         ) : (
@@ -315,111 +315,114 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
 
   return (
     <div className="space-y-6">
-       <div className="flex flex-col space-y-1 mb-6">
-        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Data Management</h2>
-        <p className="text-slate-500 text-sm">Monitor storage usage and inspect records.</p>
+       <div className="flex flex-col space-y-2 mb-6">
+        <h2 className="text-4xl font-bold text-white tracking-tight">Data Management</h2>
+        <p className="text-[var(--text-subtle)] text-sm font-medium">Monitor storage usage and inspect records.</p>
       </div>
 
       {/* Storage Stats Card */}
-      <div className="bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-700 relative overflow-hidden">
-         <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-3">
-               <div className="p-3 bg-blue-50 rounded-2xl text-blue-600">
-                  <HardDrive className="w-6 h-6" />
+      <div className="glass-card-elevated p-6 rounded-3xl shadow-sm border border-[rgba(255,255,255,0.12)] relative overflow-hidden">
+         <div className="absolute -top-20 -right-20 opacity-5 pointer-events-none">
+           <Database className="w-48 h-48 text-[var(--mint)]" />
+         </div>
+         <div className="flex items-center justify-between mb-6 relative z-10">
+            <div className="flex items-center space-x-4">
+               <div className="p-3 bg-[var(--mint)]/20 rounded-2xl text-[var(--mint)] border border-[var(--mint)]/30">
+                  <HardDrive className="w-6 h-6 icon-thin" />
                </div>
                <div>
-                  <h3 className="font-bold text-slate-800">Storage Usage</h3>
-                  <p className="text-xs text-slate-400 font-medium">IndexedDB System</p>
+                  <h3 className="font-bold text-white text-lg">Storage Usage</h3>
+                  <p className="text-xs text-[var(--text-subtle)] font-semibold">IndexedDB System</p>
                </div>
             </div>
             {storageStats && (
                <div className="text-right">
-                  <span className="block text-xl font-bold text-blue-600">{formatBytes(storageStats.usage)}</span>
-                  <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Used</span>
+                  <span className="block text-3xl font-bold text-[var(--mint)]">{formatBytes(storageStats.usage)}</span>
+                  <span className="text-[10px] text-[var(--text-subtle)] uppercase font-bold tracking-wider">Used</span>
                </div>
             )}
          </div>
 
          {/* Detailed Breakdown Table */}
-         <div className="bg-slate-50 rounded-2xl p-1 overflow-hidden">
-            <div className="grid grid-cols-1 divide-y divide-slate-100">
-               <button onClick={() => setViewingStore('trays')} className="p-3 flex items-center justify-between hover:bg-white transition-colors rounded-xl w-full text-left group">
+         <div className="glass-card rounded-2xl p-1 overflow-hidden border border-[rgba(255,255,255,0.08)] relative z-10">
+            <div className="grid grid-cols-1 divide-y divide-[rgba(255,255,255,0.1)]">
+               <button onClick={() => setViewingStore('trays')} className="p-4 flex items-center justify-between hover:bg-[rgba(255,255,255,0.05)] transition-colors rounded-xl w-full text-left group">
                   <div className="flex items-center space-x-3">
-                     <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center text-teal-600 group-hover:scale-110 transition-transform">
-                        <Sprout className="w-4 h-4" />
+                     <div className="w-10 h-10 rounded-lg bg-[var(--mint)]/20 flex items-center justify-center text-[var(--mint)] border border-[var(--mint)]/30 group-hover:scale-110 transition-transform">
+                        <Sprout className="w-5 h-5 icon-thin" />
                      </div>
                      <div>
-                        <span className="block text-sm font-bold text-slate-700">Growing Data</span>
-                        <span className="text-[10px] text-slate-400">Active & Harvested Trays</span>
+                        <span className="block text-sm font-bold text-slate-200">Growing Data</span>
+                        <span className="text-[10px] text-slate-500">Active & Harvested Trays</span>
                      </div>
                   </div>
-                  <span className="text-sm font-bold text-slate-800 flex items-center">
+                  <span className="text-sm font-bold text-slate-300 flex items-center">
                      {getCount('trays')} Records
-                     <span className="ml-2 text-slate-300 group-hover:text-teal-500">→</span>
+                     <span className="ml-2 text-slate-400 group-hover:text-teal-400">→</span>
                   </span>
                </button>
 
-               <button onClick={() => setViewingStore('transactions')} className="p-3 flex items-center justify-between hover:bg-white transition-colors rounded-xl w-full text-left group">
+               <button onClick={() => setViewingStore('transactions')} className="p-3 flex items-center justify-between hover:bg-slate-700 transition-colors rounded-xl w-full text-left group">
                   <div className="flex items-center space-x-3">
-                     <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
+                     <div className="w-8 h-8 rounded-lg bg-indigo-900 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
                         <ShoppingBag className="w-4 h-4" />
                      </div>
                      <div>
-                        <span className="block text-sm font-bold text-slate-700">Selling Data</span>
-                        <span className="text-[10px] text-slate-400">Transactions & Finances</span>
+                        <span className="block text-sm font-bold text-slate-200">Selling Data</span>
+                        <span className="text-[10px] text-slate-500">Transactions & Finances</span>
                      </div>
                   </div>
-                  <span className="text-sm font-bold text-slate-800 flex items-center">
+                  <span className="text-sm font-bold text-slate-300 flex items-center">
                      {getCount('transactions')} Records
-                     <span className="ml-2 text-slate-300 group-hover:text-indigo-500">→</span>
+                     <span className="ml-2 text-slate-400 group-hover:text-indigo-400">→</span>
                   </span>
                </button>
 
-               <button onClick={() => setViewingStore('customers')} className="p-3 flex items-center justify-between hover:bg-white transition-colors rounded-xl w-full text-left group">
+               <button onClick={() => setViewingStore('customers')} className="p-3 flex items-center justify-between hover:bg-slate-700 transition-colors rounded-xl w-full text-left group">
                   <div className="flex items-center space-x-3">
-                     <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600 group-hover:scale-110 transition-transform">
+                     <div className="w-8 h-8 rounded-lg bg-orange-900 flex items-center justify-center text-orange-400 group-hover:scale-110 transition-transform">
                         <Users className="w-4 h-4" />
                      </div>
                      <div>
-                        <span className="block text-sm font-bold text-slate-700">Orders Data</span>
-                        <span className="text-[10px] text-slate-400">Customer Profiles</span>
+                        <span className="block text-sm font-bold text-slate-200">Orders Data</span>
+                        <span className="text-[10px] text-slate-500">Customer Profiles</span>
                      </div>
                   </div>
-                  <span className="text-sm font-bold text-slate-800 flex items-center">
+                  <span className="text-sm font-bold text-slate-300 flex items-center">
                      {getCount('customers')} Records
-                     <span className="ml-2 text-slate-300 group-hover:text-orange-500">→</span>
+                     <span className="ml-2 text-slate-400 group-hover:text-orange-400">→</span>
                   </span>
                </button>
 
-               <button onClick={() => setViewingStore('images')} className="p-3 flex items-center justify-between hover:bg-white transition-colors rounded-xl w-full text-left group">
+               <button onClick={() => setViewingStore('images')} className="p-3 flex items-center justify-between hover:bg-slate-700 transition-colors rounded-xl w-full text-left group">
                   <div className="flex items-center space-x-3">
-                     <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center text-pink-600 group-hover:scale-110 transition-transform">
+                     <div className="w-8 h-8 rounded-lg bg-pink-900 flex items-center justify-center text-pink-400 group-hover:scale-110 transition-transform">
                         <ImageIcon className="w-4 h-4" />
                      </div>
                      <div>
-                        <span className="block text-sm font-bold text-slate-700">Images</span>
-                        <span className="text-[10px] text-slate-400">Custom Crop Photos</span>
+                        <span className="block text-sm font-bold text-slate-200">Images</span>
+                        <span className="text-[10px] text-slate-500">Custom Crop Photos</span>
                      </div>
                   </div>
-                  <span className="text-sm font-bold text-slate-800 flex items-center">
+                  <span className="text-sm font-bold text-slate-300 flex items-center">
                      {getCount('images')} Saved
-                     <span className="ml-2 text-slate-300 group-hover:text-pink-500">→</span>
+                     <span className="ml-2 text-slate-400 group-hover:text-pink-400">→</span>
                   </span>
                </button>
 
-               <button onClick={() => setViewingStore('crops')} className="p-3 flex items-center justify-between hover:bg-white transition-colors rounded-xl w-full text-left group">
+               <button onClick={() => setViewingStore('crops')} className="p-3 flex items-center justify-between hover:bg-slate-700 transition-colors rounded-xl w-full text-left group">
                   <div className="flex items-center space-x-3">
-                     <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center text-slate-600 group-hover:scale-110 transition-transform">
+                     <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center text-slate-300 group-hover:scale-110 transition-transform">
                         <Database className="w-4 h-4" />
                      </div>
                      <div>
-                        <span className="block text-sm font-bold text-slate-700">Crop Definitions</span>
-                        <span className="text-[10px] text-slate-400">Metadata (No Images)</span>
+                        <span className="block text-sm font-bold text-slate-200">Crop Definitions</span>
+                        <span className="text-[10px] text-slate-500">Metadata (No Images)</span>
                      </div>
                   </div>
-                  <span className="text-sm font-bold text-slate-800 flex items-center">
+                  <span className="text-sm font-bold text-slate-300 flex items-center">
                      {getCount('crops')} Varieties
-                     <span className="ml-2 text-slate-300 group-hover:text-slate-500">→</span>
+                     <span className="ml-2 text-slate-300 group-hover:text-slate-400">→</span>
                   </span>
                </button>
             </div>
@@ -427,7 +430,7 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
       </div>
 
       {/* Data Export Section */}
-      <div className="mt-8 pt-8 border-t border-slate-200">
+      <div className="mt-8 pt-8 border-t border-slate-700">
         <DataExportManager 
           crops={state.crops}
           trays={state.trays}
@@ -483,7 +486,7 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
       </div>
 
       {/* Danger Zone */}
-      <div className="mt-8 pt-8 border-t border-slate-200">
+      <div className="mt-8 pt-8 border-t border-slate-700">
          <div className="flex items-center space-x-2 mb-4">
             <AlertTriangle className="w-5 h-5 text-red-500" />
             <h3 className="font-bold text-red-900">Danger Zone</h3>
@@ -503,7 +506,7 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
                <div className="flex space-x-3">
                   <button 
                      onClick={() => setResetConfirm(false)}
-                     className="flex-1 py-3 bg-white text-slate-800 font-bold rounded-xl border border-white hover:bg-slate-100"
+                     className="flex-1 py-3 bg-slate-800 text-slate-100 font-bold rounded-xl border border-white hover:bg-slate-100"
                   >
                      Cancel
                   </button>
@@ -522,17 +525,17 @@ const DataManager: React.FC<DataManagerProps> = ({ state, onImport, onReset, onS
       {viewingStore && (
          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-fade-in">
             <div className="bg-slate-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[80vh]">
-               <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center sticky top-0 z-10">
-                  <h3 className="text-lg font-bold text-slate-800">{getStoreTitle(viewingStore)}</h3>
-                  <button onClick={() => setViewingStore(null)} className="p-1 rounded-full hover:bg-slate-200 transition-colors text-slate-500">
+               <div className="bg-[rgba(255,255,255,0.06)] px-6 py-4 border-b border-[rgba(255,255,255,0.12)] flex justify-between items-center sticky top-0 z-10">
+                  <h3 className="text-lg font-bold text-white">{getStoreTitle(viewingStore)}</h3>
+                  <button onClick={() => setViewingStore(null)} className="p-1 rounded-full hover:bg-[rgba(255,255,255,0.12)] transition-colors text-mint">
                      <X className="w-5 h-5" />
                   </button>
                </div>
                <div className="p-4 overflow-y-auto">
                   {renderDataContent()}
                </div>
-               <div className="p-4 bg-slate-50 border-t border-slate-100 text-center">
-                  <button onClick={() => setViewingStore(null)} className="text-sm font-bold text-slate-500 hover:text-slate-800">
+               <div className="p-4 bg-[rgba(255,255,255,0.06)] border-t border-[rgba(255,255,255,0.12)] text-center">
+                  <button onClick={() => setViewingStore(null)} className="text-sm font-bold text-mint hover:text-white">
                      Close Viewer
                   </button>
                </div>

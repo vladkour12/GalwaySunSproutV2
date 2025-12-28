@@ -51,13 +51,13 @@ const abbrDay = (dayName: string) => (typeof dayName === 'string' && dayName.len
 
 const getStageColor = (stage: Stage) => {
   switch (stage) {
-    case Stage.SEED: return 'bg-slate-100 text-slate-600';
-    case Stage.SOAK: return 'bg-blue-100 text-blue-700';
-    case Stage.GERMINATION: return 'bg-purple-100 text-purple-700';
+    case Stage.SEED: return 'bg-slate-700 text-white';
+    case Stage.SOAK: return 'bg-blue-900/40 text-blue-200';
+    case Stage.GERMINATION: return 'bg-purple-900/40 text-purple-200';
     case Stage.BLACKOUT: return 'bg-gray-800 text-white';
-    case Stage.LIGHT: return 'bg-amber-100 text-amber-700';
-    case Stage.HARVEST_READY: return 'bg-teal-100 text-teal-700';
-    default: return 'bg-slate-50 text-slate-400';
+    case Stage.LIGHT: return 'bg-amber-900/40 text-amber-200';
+    case Stage.HARVEST_READY: return 'bg-teal-900/40 text-teal-200';
+    default: return 'bg-slate-700/40 text-[var(--text-subtle)]';
   }
 };
 
@@ -823,22 +823,22 @@ const CropManager: React.FC<CropManagerProps> = ({
   return (
     <div>
       {/* 1. Simple Header & Tabs */}
-      <div className="bg-white sticky top-0 z-20 pt-4 pb-2 px-1 border-b border-slate-100 shadow-sm">
+      <div className="glass-card-elevated backdrop-blur-md sticky top-0 z-20 pt-4 pb-2 px-2 border-b border-[rgba(255,255,255,0.12)] shadow-lg">
          <div className="flex justify-between items-center mb-4 px-2">
-            <h2 className="text-2xl font-bold text-slate-800">
+            <h2 className="text-3xl font-bold text-white">
                {activeTab === 'production' ? 'My Shed' : activeTab === 'varieties' ? 'Seeds' : activeTab === 'calendar' ? 'Calendar' : 'Plan'}
             </h2>
-            <div className="text-xs font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">
+            <div className="text-xs font-bold text-[var(--text-subtle)] bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)] px-3 py-1.5 rounded-lg shadow-sm">
                {activeTab === 'production' && `${activeTrays.length} Active`}
                {activeTab === 'varieties' && `${varieties.length} Types`}
                {activeTab === 'calendar' && new Date().toLocaleDateString(undefined, {weekday: 'long'})}
             </div>
          </div>
-         <div className="flex p-1 bg-slate-100 rounded-xl mx-2 overflow-x-auto no-scrollbar">
-            <button onClick={() => setActiveTab('production')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'production' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}>Shed</button>
-            <button onClick={() => setActiveTab('calendar')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'calendar' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}>Calendar</button>
-            <button onClick={() => setActiveTab('plan')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'plan' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}>Planner</button>
-            <button onClick={() => setActiveTab('varieties')} className={`flex-1 min-w-[80px] py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'varieties' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}>Seeds</button>
+         <div className="flex p-1.5 glass-card rounded-2xl mx-2 overflow-x-auto no-scrollbar border border-[rgba(255,255,255,0.12)] shadow-inner">
+            <button onClick={() => setActiveTab('production')} className={`flex-1 min-w-[80px] py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'production' ? 'bg-[var(--mint)] text-[var(--ultra-dark)] shadow-md' : 'text-[var(--text-subtle)] hover:text-[var(--text-strong)]'}`}>Shed</button>
+            <button onClick={() => setActiveTab('calendar')} className={`flex-1 min-w-[80px] py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'calendar' ? 'bg-[var(--mint)] text-[var(--ultra-dark)] shadow-md' : 'text-[var(--text-subtle)] hover:text-[var(--text-strong)]'}`}>Calendar</button>
+            <button onClick={() => setActiveTab('plan')} className={`flex-1 min-w-[80px] py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'plan' ? 'bg-[var(--mint)] text-[var(--ultra-dark)] shadow-md' : 'text-[var(--text-subtle)] hover:text-[var(--text-strong)]'}`}>Planner</button>
+            <button onClick={() => setActiveTab('varieties')} className={`flex-1 min-w-[80px] py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'varieties' ? 'bg-[var(--mint)] text-[var(--ultra-dark)] shadow-md' : 'text-[var(--text-subtle)] hover:text-[var(--text-strong)]'}`}>Seeds</button>
          </div>
       </div>
 
@@ -852,13 +852,13 @@ const CropManager: React.FC<CropManagerProps> = ({
                   <motion.div 
                      initial={{ opacity: 0, y: 10 }}
                      animate={{ opacity: 1, y: 0 }}
-                     className="text-center py-20 bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl border-2 border-dashed border-slate-200"
+                     className="text-center py-20 bg-gradient-to-br from-ocean-primary/70 via-ocean-primary/50 to-ocean-secondary/40 rounded-3xl border-2 border-dashed border-ocean-light/50 shadow-lg"
                   >
-                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-200 mb-4">
-                        <Sprout className="w-8 h-8 text-slate-400" />
+                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-ocean-contrast/50 text-ocean-light mb-4">
+                        <Sprout className="w-8 h-8" />
                   </div>
-                     <p className="text-slate-500 font-bold text-sm mb-1">No active trays</p>
-                     <p className="text-slate-400 text-xs">Start by planting your first crop</p>
+                     <p className="text-ocean-light font-bold text-sm mb-1">No active trays</p>
+                     <p className="text-ocean-light/80 text-xs">Start by planting your first crop</p>
                   </motion.div>
                )}
                
@@ -1330,14 +1330,14 @@ const CropManager: React.FC<CropManagerProps> = ({
                            <div className="flex items-center justify-between mb-1">
                               <div className="flex items-center gap-1.5">
                                  <div className="flex items-baseline gap-1">
-                                    <span className={`text-base font-black leading-none ${isToday ? 'text-slate-900' : 'text-slate-500'}`}>
+                                    <span className={`text-base font-black leading-none ${isToday ? 'text-mint' : 'text-[var(--text-subtle)]'}`}>
                                        {day.date.getDate()}
                                     </span>
-                                    <span className={`text-[8px] font-bold uppercase tracking-wide ${isToday ? 'text-teal-600' : 'text-slate-400'}`}>
+                                    <span className={`text-[8px] font-bold uppercase tracking-wide ${isToday ? 'text-mint' : 'text-[var(--text-subtle)]'}`}>
                                        {monthName}
                                     </span>
                                  </div>
-                                 <span className={`text-[10px] font-bold ${isToday ? 'text-slate-800' : 'text-slate-500'}`}>
+                                 <span className={`text-[10px] font-bold ${isToday ? 'text-mint' : 'text-white'}`}>
                                     {dayName}
                                  </span>
                               </div>
@@ -1368,10 +1368,10 @@ const CropManager: React.FC<CropManagerProps> = ({
                            <motion.div 
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
-                              className="p-2 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-dashed border-slate-200 text-center"
+                              className="p-2 rounded-lg bg-[rgba(255,255,255,0.06)] border border-dashed border-[rgba(255,255,255,0.12)] text-center"
                            >
-                              <Calendar className="w-4 h-4 text-slate-300 mx-auto mb-0.5" />
-                              <p className="text-[10px] text-slate-400 font-medium">No tasks</p>
+                              <Calendar className="w-4 h-4 text-[var(--text-subtle)] mx-auto mb-0.5" />
+                              <p className="text-[10px] text-[var(--text-subtle)] font-medium">No tasks</p>
                            </motion.div>
                         ) : (
                            <div className="space-y-1.5">
@@ -1521,19 +1521,19 @@ const CropManager: React.FC<CropManagerProps> = ({
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5">
                      <div className="flex items-center gap-1.5">
                         <div className="w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow-sm"></div>
-                        <span className="text-[9px] font-medium text-slate-600">Urgent/Alert</span>
+                        <span className="text-[9px] font-medium text-white">Urgent/Alert</span>
                      </div>
                      <div className="flex items-center gap-1.5">
                         <div className="w-3 h-3 rounded-full bg-teal-500 border-2 border-white shadow-sm"></div>
-                        <span className="text-[9px] font-medium text-slate-600">Harvest</span>
+                        <span className="text-[9px] font-medium text-white">Harvest</span>
                      </div>
                      <div className="flex items-center gap-1.5">
                         <div className="w-3 h-3 rounded-full bg-emerald-500 border-2 border-white shadow-sm"></div>
-                        <span className="text-[9px] font-medium text-slate-600">Plant</span>
+                        <span className="text-[9px] font-medium text-white">Plant</span>
                      </div>
                      <div className="flex items-center gap-1.5">
                         <div className="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow-sm"></div>
-                        <span className="text-[9px] font-medium text-slate-600">Task</span>
+                        <span className="text-[9px] font-medium text-white">Task</span>
                      </div>
                   </div>
                </div>
@@ -1544,7 +1544,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                      {/* Day Headers */}
                      {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
                         <div key={idx} className="text-center">
-                           <span className="text-[8px] font-bold text-slate-400 uppercase">{day}</span>
+                           <span className="text-[8px] font-bold text-mint uppercase">{day}</span>
                         </div>
                      ))}
                      
@@ -1651,9 +1651,9 @@ const CropManager: React.FC<CropManagerProps> = ({
                            const tasks = getTasksForDate(date);
                            
                            // Determine color based on task types (priority: urgent > harvest > plant > task)
-                           let circleColor = isCurrentMonth ? 'bg-slate-100' : 'bg-slate-50'; // Default (no tasks)
-                           let borderColor = 'border-slate-200';
-                           let textColor = isCurrentMonth ? 'text-slate-600' : 'text-slate-400';
+                           let circleColor = isCurrentMonth ? 'bg-[rgba(255,255,255,0.12)]' : 'bg-[rgba(255,255,255,0.06)]'; // Default (no tasks)
+                           let borderColor = 'border-[rgba(255,255,255,0.2)]';
+                           let textColor = isCurrentMonth ? 'text-white' : 'text-[var(--text-subtle)]';
                            let hasUrgent = tasks.some(t => t.type === 'alert');
                            let hasHarvest = tasks.some(t => t.type === 'harvest');
                            let hasPlant = tasks.some(t => t.type === 'plant');
@@ -1689,8 +1689,8 @@ const CropManager: React.FC<CropManagerProps> = ({
                                     {date.getDate()}
                                  </span>
                                  {tasks.length > 0 && (
-                                    <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-white rounded-full border border-slate-300 flex items-center justify-center">
-                                       <span className="text-[7px] font-bold text-slate-700">{tasks.length}</span>
+                                    <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-white rounded-full border border-mint flex items-center justify-center">
+                                       <span className="text-[7px] font-bold text-mint">{tasks.length}</span>
                                     </span>
                                  )}
                               </button>
@@ -1851,10 +1851,10 @@ const CropManager: React.FC<CropManagerProps> = ({
                               animate={{ scale: 1, y: 0 }}
                               exit={{ scale: 0.95, y: 10 }}
                               onClick={(e) => e.stopPropagation()}
-                              className="bg-white w-full max-w-md rounded-2xl shadow-2xl max-h-[85vh] overflow-hidden flex flex-col"
+                              className="glass-card-elevated w-full max-w-md rounded-2xl shadow-2xl max-h-[85vh] overflow-hidden flex flex-col border border-[rgba(255,255,255,0.12)]"
                            >
                               {/* Header */}
-                              <div className="bg-gradient-to-r from-teal-500 to-teal-600 p-4 text-white">
+                              <div className="bg-gradient-to-r from-mint to-mint/80 p-4 text-white">
                                  <div className="flex justify-between items-start">
                                     <div>
                                        <h3 className="text-lg font-bold">
@@ -1870,7 +1870,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                                     </div>
                                     <button
                                        onClick={() => setSelectedCalendarDate(null)}
-                                       className="p-1.5 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
+                                       className="p-1.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
                                     >
                                        <X className="w-5 h-5" />
                                     </button>
@@ -1881,8 +1881,8 @@ const CropManager: React.FC<CropManagerProps> = ({
                               <div className="flex-1 overflow-y-auto p-4 space-y-2">
                                  {tasks.length === 0 ? (
                                     <div className="text-center py-8">
-                                       <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-2" />
-                                       <p className="text-sm text-slate-400 font-medium">No tasks scheduled</p>
+                                       <Calendar className="w-12 h-12 text-[var(--text-subtle)] mx-auto mb-2" />
+                                       <p className="text-sm text-[var(--text-subtle)] font-medium">No tasks scheduled</p>
                                     </div>
                                  ) : (
                                     tasks.map((task, idx) => {
@@ -1920,12 +1920,12 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                 task.trayId ? 'cursor-pointer hover:shadow-md active:scale-[0.98]' : ''
                                              } ${
                                                 isUrgent 
-                                                   ? 'bg-red-50 border-red-200' 
+                                                   ? 'bg-red-500/10 border-red-500/30 text-red-200' 
                                                    : isHarvest
-                                                   ? 'bg-teal-50 border-teal-200'
+                                                   ? 'bg-teal-500/10 border-teal-500/30 text-teal-200'
                                                    : task.type === 'plant'
-                                                   ? 'bg-emerald-50 border-emerald-200'
-                                                   : 'bg-white border-slate-200'
+                                                   ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
+                                                   : 'bg-[rgba(255,255,255,0.06)] border-[rgba(255,255,255,0.12)]'
                                              }`}
                                           >
                                              <div className="flex items-start gap-3">
@@ -1942,12 +1942,12 @@ const CropManager: React.FC<CropManagerProps> = ({
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                    <p className={`text-sm font-bold ${
-                                                      isUrgent ? 'text-red-900' : isHarvest ? 'text-teal-900' : 'text-slate-800'
+                                                      isUrgent ? 'text-red-300' : isHarvest ? 'text-teal-300' : 'text-white'
                                                    }`}>
                                                       {task.text}
                                                    </p>
                                                    {task.sub && (
-                                                      <p className="text-xs text-slate-600 mt-0.5">{task.sub}</p>
+                                                      <p className="text-xs text-[var(--text-subtle)] mt-0.5">{task.sub}</p>
                                                    )}
                                                    <div className="flex items-center gap-2 mt-2 flex-wrap">
                                                       {task.timeRemaining && task.targetTime && (() => {
@@ -2013,18 +2013,18 @@ const CropManager: React.FC<CropManagerProps> = ({
                <div className="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-sm space-y-3">
                   {/* Search */}
                   <div className="relative">
-                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-mint" />
                      <input
                         type="text"
                         value={cropSearchQuery}
                         onChange={(e) => setCropSearchQuery(e.target.value)}
                         placeholder="Search crops by name, scientific name, or category..."
-                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                        className="w-full pl-10 pr-4 py-2.5 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-sm font-medium text-white placeholder:text-[var(--text-subtle)] focus:ring-2 focus:ring-mint focus:border-mint outline-none"
                      />
                      {cropSearchQuery && (
                         <button
                            onClick={() => setCropSearchQuery('')}
-                           className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                           className="absolute right-3 top-1/2 -translate-y-1/2 text-mint hover:text-[var(--text-strong)]"
                         >
                            <X className="w-4 h-4" />
                         </button>
@@ -2035,11 +2035,11 @@ const CropManager: React.FC<CropManagerProps> = ({
                   <div className="flex flex-wrap gap-2">
                      {/* Difficulty Filter */}
                      <div className="flex items-center gap-2">
-                        <Filter className="w-4 h-4 text-slate-400" />
+                        <Filter className="w-4 h-4 text-mint" />
                         <select
                            value={cropFilterDifficulty}
                            onChange={(e) => setCropFilterDifficulty(e.target.value)}
-                           className="text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-teal-500 outline-none"
+                           className="text-xs font-bold text-white bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-mint outline-none"
                         >
                            <option value="all">All Difficulties</option>
                            <option value="easy">Easy</option>
@@ -2053,11 +2053,11 @@ const CropManager: React.FC<CropManagerProps> = ({
 
                      {/* Sort By */}
                      <div className="flex items-center gap-2">
-                        <ArrowUpDown className="w-4 h-4 text-slate-400" />
+                        <ArrowUpDown className="w-4 h-4 text-mint" />
                         <select
                            value={cropSortBy}
                            onChange={(e) => setCropSortBy(e.target.value as any)}
-                           className="text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-teal-500 outline-none"
+                           className="text-xs font-bold text-white bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-mint outline-none"
                         >
                            <option value="name">Name</option>
                            <option value="difficulty">Difficulty</option>
@@ -2066,7 +2066,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                         </select>
                         <button
                            onClick={() => setCropSortOrder(cropSortOrder === 'asc' ? 'desc' : 'asc')}
-                           className="text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 px-2 py-1.5 rounded-lg transition-colors"
+                           className="text-xs font-bold text-white bg-[rgba(255,255,255,0.06)] hover:bg-[rgba(255,255,255,0.08)] px-2 py-1.5 rounded-lg transition-colors"
                            title={cropSortOrder === 'asc' ? 'Ascending' : 'Descending'}
                         >
                            {cropSortOrder === 'asc' ? '↑' : '↓'}
@@ -2074,7 +2074,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                      </div>
 
                      {/* Results Count */}
-                     <div className="ml-auto flex items-center text-xs text-slate-500 font-medium">
+                     <div className="ml-auto flex items-center text-xs text-[var(--text-subtle)] font-medium">
                         {varieties.length} {varieties.length === 1 ? 'crop' : 'crops'}
                         {cropSearchQuery || cropFilterDifficulty !== 'all' ? ' found' : ''}
                      </div>
@@ -2082,17 +2082,17 @@ const CropManager: React.FC<CropManagerProps> = ({
                </div>
 
                {/* New Button */}
-               <button onClick={openNewCrop} className="w-full p-4 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 hover:border-teal-400 hover:text-teal-500 transition-colors">
+               <button onClick={openNewCrop} className="w-full p-4 rounded-2xl border-2 border-dashed border-[rgba(255,255,255,0.12)] flex items-center justify-center text-[var(--text-subtle)] hover:border-mint hover:text-mint transition-colors">
                   <Plus className="w-5 h-5 mr-2" />
                   <span className="font-bold">Add New Variety</span>
                </button>
 
                {/* Varieties List */}
                {varieties.length === 0 ? (
-                  <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                     <Sprout className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-                     <p className="text-slate-500 font-bold text-sm mb-1">No crops found</p>
-                     <p className="text-slate-400 text-xs">Try adjusting your search or filters</p>
+                  <div className="text-center py-12 glass-card rounded-2xl border border-dashed border-[rgba(255,255,255,0.12)]">
+                     <Sprout className="w-12 h-12 mx-auto mb-3 text-[var(--text-subtle)]" />
+                     <p className="text-white font-bold text-sm mb-1">No crops found</p>
+                     <p className="text-[var(--text-subtle)] text-xs">Try adjusting your search or filters</p>
                   </div>
                ) : (
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2123,35 +2123,35 @@ const CropManager: React.FC<CropManagerProps> = ({
                            
                            {/* Info Middle/Right */}
                            <div className="flex-1 min-w-0">
-                              <h3 className="text-lg font-bold text-slate-800 truncate mb-1">{crop.name}</h3>
+                              <h3 className="text-lg font-bold text-white truncate mb-1">{crop.name}</h3>
                               
                               <div className="flex flex-wrap gap-3 mb-1.5">
                                  {/* Seed Cost */}
-                                 <div className="flex items-center text-xs text-slate-700 font-bold bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
-                                    <Euro className="w-3 h-3 mr-1 text-slate-400" />
+                                 <div className="flex items-center text-xs text-white font-bold bg-[rgba(255,255,255,0.08)] px-2 py-0.5 rounded-md border border-[rgba(255,255,255,0.12)]">
+                                    <Euro className="w-3 h-3 mr-1 text-mint" />
                                     <span>{seedCost > 0 ? `€${seedCost.toFixed(2)}` : '-'} / tray</span>
                                  </div>
                                  
                                  {/* Yield */}
-                                 <div className="flex items-center text-xs text-slate-500 font-medium py-0.5">
-                                    <Scale className="w-3 h-3 mr-1 text-slate-400" />
+                                 <div className="flex items-center text-xs text-[var(--text-subtle)] font-medium py-0.5">
+                                    <Scale className="w-3 h-3 mr-1 text-[var(--text-subtle)]" />
                                     <span>{crop.estimatedYieldPerTray}g</span>
                                  </div>
                               </div>
 
                               {/* Row 2: Bulk Prices */}
-                              <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
+                              <div className="flex items-center gap-2 text-[10px] text-[var(--text-subtle)] font-medium">
                                  <div className="flex items-center">
                                     <Package className="w-3 h-3 mr-1 opacity-50" />
-                                    <span className={crop.price500g ? "text-slate-600" : ""}>{crop.pkgWeightSmall || 500}g: {crop.price500g ? `€${crop.price500g.toFixed(2)}` : '--'}</span>
+                                    <span className={crop.price500g ? "text-white" : ""}>{crop.pkgWeightSmall || 500}g: {crop.price500g ? `€${crop.price500g.toFixed(2)}` : '--'}</span>
                                  </div>
-                                 <span className="text-slate-300">•</span>
-                                 <span className={crop.price1kg ? "text-slate-600" : ""}>{crop.pkgWeightLarge ? (crop.pkgWeightLarge >= 1000 ? (crop.pkgWeightLarge/1000) + 'kg' : crop.pkgWeightLarge + 'g') : '1kg'}: {crop.price1kg ? `€${crop.price1kg.toFixed(2)}` : '--'}</span>
+                                 <span className="text-[rgba(255,255,255,0.2)]">•</span>
+                                 <span className={crop.price1kg ? "text-white" : ""}>{crop.pkgWeightLarge ? (crop.pkgWeightLarge >= 1000 ? (crop.pkgWeightLarge/1000) + 'kg' : crop.pkgWeightLarge + 'g') : '1kg'}: {crop.price1kg ? `€${crop.price1kg.toFixed(2)}` : '--'}</span>
                               </div>
                            </div>
                            
                            {/* Arrow Hint */}
-                           <div className="text-slate-300">
+                           <div className="text-[var(--text-subtle)]">
                               <ChevronRight className="w-5 h-5" />
                            </div>
                         </div>
@@ -2195,9 +2195,9 @@ const CropManager: React.FC<CropManagerProps> = ({
                         exit={{ height: 0, opacity: 0 }} 
                         className="mb-3 overflow-hidden"
                      >
-                        <div className="bg-slate-50 p-2 rounded-lg border border-indigo-200 space-y-2">
+                        <div className="glass-card p-2 rounded-lg border border-indigo-500/20 space-y-2">
                            <div>
-                              <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5">Customer</label>
+                              <label className="text-[9px] font-bold text-[var(--text-subtle)] uppercase tracking-wider block mb-0.5">Customer</label>
                               <CustomSelect 
                                  value={newOrderCustId}
                                  onChange={(val) => setNewOrderCustId(val)}
@@ -2210,7 +2210,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                            </div>
                            <div className="grid grid-cols-2 gap-2">
                               <div>
-                                 <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5">Crop</label>
+                                 <label className="text-[9px] font-bold text-[var(--text-subtle)] uppercase tracking-wider block mb-0.5">Crop</label>
                                  <CustomSelect 
                                     value={newOrderCropId}
                                     onChange={(val) => setNewOrderCropId(val)}
@@ -2221,18 +2221,18 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  />
                               </div>
                               <div>
-                                 <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5">Amount (g)</label>
+                                 <label className="text-[9px] font-bold text-[var(--text-subtle)] uppercase tracking-wider block mb-0.5">Amount (g)</label>
                                  <input 
                                     type="number" 
                                     placeholder="0" 
                                     value={newOrderAmount} 
                                     onChange={e => setNewOrderAmount(e.target.value)} 
-                                    className="w-full p-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 focus:ring-1 focus:ring-indigo-200 focus:border-indigo-400 outline-none" 
+                                    className="w-full p-1.5 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-lg text-xs font-bold text-white focus:ring-1 focus:ring-indigo-400/50 focus:border-indigo-400 outline-none" 
                                  />
                               </div>
                            </div>
                            <div>
-                              <label className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5">Delivery Day</label>
+                              <label className="text-[9px] font-bold text-[var(--text-subtle)] uppercase tracking-wider block mb-0.5">Delivery Day</label>
                               <CustomSelect 
                                  value={newOrderDay}
                                  onChange={(val) => setNewOrderDay(parseInt(val))}
@@ -2255,8 +2255,8 @@ const CropManager: React.FC<CropManagerProps> = ({
                   <div className="space-y-1.5">
                      {recurringOrders.length === 0 && !isAddingOrder && (
                         <div className="text-center py-2.5">
-                           <ShoppingBag className="w-5 h-5 text-slate-300 mx-auto mb-0.5 opacity-50" />
-                           <p className="text-[10px] text-slate-400 font-medium">No weekly orders</p>
+                           <ShoppingBag className="w-5 h-5 text-[var(--text-subtle)] mx-auto mb-0.5 opacity-50" />
+                           <p className="text-[10px] text-[var(--text-subtle)] font-medium">No weekly orders</p>
                         </div>
                      )}
                      {recurringOrders.map(order => {
@@ -2267,22 +2267,22 @@ const CropManager: React.FC<CropManagerProps> = ({
                               key={order.id}
                               initial={{ opacity: 0, y: 3 }}
                               animate={{ opacity: 1, y: 0 }}
-                              className="group bg-slate-50 p-1.5 rounded-lg border border-slate-200 flex justify-between items-center hover:bg-white transition-all"
+                              className="group glass-card p-1.5 rounded-lg border border-[rgba(255,255,255,0.12)] flex justify-between items-center hover:bg-[rgba(255,255,255,0.08)] transition-all"
                            >
                               <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                                 <div className="p-1 rounded-md bg-indigo-50 text-indigo-600 flex-shrink-0">
+                                 <div className="p-1 rounded-md bg-indigo-500/20 text-indigo-400 flex-shrink-0">
                                     <Truck className="w-2.5 h-2.5" />
                                  </div>
                                  <div className="flex-1 min-w-0">
-                                    <p className="text-[10px] font-bold text-slate-800 truncate">{cust?.name || 'Unknown'}</p>
+                                    <p className="text-[10px] font-bold text-white truncate">{cust?.name || 'Unknown'}</p>
                                     <div className="flex items-center gap-1.5 flex-wrap">
-                                       <span className="text-[10px] font-medium text-slate-600">
+                                       <span className="text-[10px] font-medium text-[var(--text-subtle)]">
                                           {order.amount >= 1000 ? `${(order.amount/1000).toFixed(1)}kg` : `${order.amount}g`}
                                        </span>
-                                       <span className="text-slate-300">•</span>
-                                       <span className="text-[10px] font-bold text-emerald-600 truncate">{crop?.name || 'Unknown'}</span>
-                                       <span className="text-slate-300">•</span>
-                                       <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-md">
+                                       <span className="text-[rgba(255,255,255,0.2)]">•</span>
+                                       <span className="text-[10px] font-bold text-mint truncate">{crop?.name || 'Unknown'}</span>
+                                       <span className="text-[rgba(255,255,255,0.2)]">•</span>
+                                       <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-indigo-400 bg-indigo-500/20 px-1.5 py-0.5 rounded-md">
                                           <Calendar className="w-2.5 h-2.5" />
                                           {DAYS_OF_WEEK[order.dueDayOfWeek]}
                                        </span>
@@ -2293,7 +2293,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  whileHover={{ scale: 1.1 }}
                                  whileTap={{ scale: 0.9 }}
                                  onClick={() => deleteOrder(order.id)} 
-                                 className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors flex-shrink-0"
+                                 className="p-1 text-[var(--text-subtle)] hover:text-red-400 hover:bg-red-500/10 rounded-md transition-colors flex-shrink-0"
                               >
                                  <X className="w-3 h-3" />
                               </motion.button>
@@ -2304,16 +2304,16 @@ const CropManager: React.FC<CropManagerProps> = ({
                </div>
                
                {/* Mode Switcher */}
-               <div className="bg-slate-100 p-0.5 rounded-lg flex">
+               <div className="bg-[rgba(255,255,255,0.06)] p-0.5 rounded-lg flex border border-[rgba(255,255,255,0.12)]">
                   <button 
                     onClick={() => setPlannerMode('event')} 
-                    className={`flex-1 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center justify-center ${plannerMode === 'event' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}
+                    className={`flex-1 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center justify-center ${plannerMode === 'event' ? 'bg-[rgba(255,255,255,0.12)] text-white shadow-sm' : 'text-[var(--text-subtle)]'}`}
                   >
                     <Calendar className="w-3 h-3 mr-1" /> Event Date
                   </button>
                   <button 
                     onClick={() => setPlannerMode('recurring')} 
-                    className={`flex-1 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center justify-center ${plannerMode === 'recurring' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}
+                    className={`flex-1 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center justify-center ${plannerMode === 'recurring' ? 'bg-[rgba(255,255,255,0.12)] text-white shadow-sm' : 'text-[var(--text-subtle)]'}`}
                   >
                     <Repeat className="w-3 h-3 mr-1" /> Weekly Routine
                   </button>
@@ -2326,7 +2326,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                        <Calendar className="w-4 h-4 mr-1.5 text-teal-400" />
                        Backward Planner
                     </h3>
-                    <p className="text-xs text-slate-400 mb-3">Need crops for a specific date? Calculate exactly when to plant.</p>
+                    <p className="text-xs text-[var(--text-subtle)] mb-3">Need crops for a specific date? Calculate exactly when to plant.</p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                        <div>
@@ -2341,31 +2341,31 @@ const CropManager: React.FC<CropManagerProps> = ({
                           />
                        </div>
                        <div>
-                          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 block">Target Harvest Date</label>
+                          <label className="text-xs font-bold text-[var(--text-subtle)] uppercase tracking-wider mb-1 block">Target Harvest Date</label>
                           <input 
                              type="date" 
                              value={plannerDate} 
                              onChange={(e) => setPlannerDate(e.target.value)}
-                             className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl font-bold text-slate-700 outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+                             className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl font-bold text-white outline-none focus:border-mint focus:ring-2 focus:ring-mint/20"
                           />
                        </div>
                     </div>
 
                     {eventSchedule && (
-                       <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 animate-in fade-in slide-in-from-bottom-2">
+                       <div className="glass-card rounded-xl p-3 border border-[rgba(255,255,255,0.12)] animate-in fade-in slide-in-from-bottom-2">
                           <div className="flex justify-between items-center mb-3">
                              <div className="text-center">
-                                <span className="text-xs font-bold text-slate-400 uppercase block mb-1">Start Planting</span>
-                                <span className="text-xl font-bold text-teal-600">
+                                <span className="text-xs font-bold text-[var(--text-subtle)] uppercase block mb-1">Start Planting</span>
+                                <span className="text-xl font-bold text-mint">
                                    {eventSchedule.plantDate.toLocaleDateString(undefined, {month:'short', day:'numeric'})}
                                 </span>
                              </div>
-                             <div className="h-0.5 flex-1 bg-slate-200 mx-4 relative">
-                                <ArrowRight className="absolute -right-1 -top-2.5 w-5 h-5 text-slate-300" />
+                             <div className="h-0.5 flex-1 bg-[rgba(255,255,255,0.12)] mx-4 relative">
+                                <ArrowRight className="absolute -right-1 -top-2.5 w-5 h-5 text-[var(--text-subtle)]" />
                              </div>
                              <div className="text-center">
-                                <span className="text-xs font-bold text-slate-400 uppercase block mb-1">Harvest Day</span>
-                                <span className="text-xl font-bold text-slate-800">
+                                <span className="text-xs font-bold text-[var(--text-subtle)] uppercase block mb-1">Harvest Day</span>
+                                <span className="text-xl font-bold text-white">
                                    {eventSchedule.harvestDate.toLocaleDateString(undefined, {month:'short', day:'numeric'})}
                                 </span>
                              </div>
@@ -2376,12 +2376,12 @@ const CropManager: React.FC<CropManagerProps> = ({
                              {/* Step 1: Soak/Plant */}
                              <div className="flex items-start relative z-10 pb-3">
                                 <div className="flex flex-col items-center mr-3">
-                                   <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[10px] shadow-sm border-2 border-white">1</div>
-                                   <div className="w-0.5 h-full bg-slate-200 absolute top-6"></div>
+                                   <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-[10px] shadow-sm border-2 border-blue-500/30">1</div>
+                                   <div className="w-0.5 h-full bg-[rgba(255,255,255,0.12)] absolute top-6"></div>
                                 </div>
                                 <div className="flex-1 pt-0.5">
-                                   <p className="text-xs font-bold text-slate-800">Soak & Plant</p>
-                                   <p className="text-[10px] text-slate-500">{eventSchedule.plantDate.toDateString()}</p>
+                                   <p className="text-xs font-bold text-white">Soak & Plant</p>
+                                   <p className="text-[10px] text-[var(--text-subtle)]">{eventSchedule.plantDate.toDateString()}</p>
                                    {eventSchedule.crop.soakHours > 0 && (
                                       <span className="inline-block mt-0.5 text-[9px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md">
                                          Soak for {eventSchedule.crop.soakHours} hours
@@ -2393,13 +2393,13 @@ const CropManager: React.FC<CropManagerProps> = ({
                              {/* Step 2: Blackout */}
                              <div className="flex items-start relative z-10 pb-3">
                                 <div className="flex flex-col items-center mr-3">
-                                   <div className="w-6 h-6 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-[10px] shadow-sm border-2 border-white">2</div>
-                                   <div className="w-0.5 h-full bg-slate-200 absolute top-6"></div>
+                                   <div className="w-6 h-6 rounded-full bg-[rgba(255,255,255,0.12)] text-white flex items-center justify-center font-bold text-[10px] shadow-sm border-2 border-[rgba(255,255,255,0.2)]">2</div>
+                                   <div className="w-0.5 h-full bg-[rgba(255,255,255,0.12)] absolute top-6"></div>
                                 </div>
                                 <div className="flex-1 pt-0.5">
-                                   <p className="text-xs font-bold text-slate-800">Enter Blackout</p>
-                                   <p className="text-[10px] text-slate-500">{eventSchedule.germEnd.toDateString()}</p>
-                                   <span className="inline-block mt-0.5 text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md">
+                                   <p className="text-xs font-bold text-white">Enter Blackout</p>
+                                   <p className="text-[10px] text-[var(--text-subtle)]">{eventSchedule.germEnd.toDateString()}</p>
+                                   <span className="inline-block mt-0.5 text-[9px] font-bold text-[var(--text-subtle)] bg-[rgba(255,255,255,0.06)] px-1.5 py-0.5 rounded-md">
                                       Duration: {eventSchedule.crop.blackoutDays} days
                                    </span>
                                 </div>
@@ -2408,12 +2408,12 @@ const CropManager: React.FC<CropManagerProps> = ({
                              {/* Step 3: Lights */}
                              <div className="flex items-start relative z-10">
                                 <div className="flex flex-col items-center mr-3">
-                                   <div className="w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-[10px] shadow-sm border-2 border-white">3</div>
+                                   <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-[10px] shadow-sm border-2 border-amber-500/30">3</div>
                                 </div>
                                 <div className="flex-1 pt-0.5">
-                                   <p className="text-xs font-bold text-slate-800">Expose to Light</p>
-                                   <p className="text-[10px] text-slate-500">{eventSchedule.blackoutEnd.toDateString()}</p>
-                                   <span className="inline-block mt-0.5 text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md">
+                                   <p className="text-xs font-bold text-white">Expose to Light</p>
+                                   <p className="text-[10px] text-[var(--text-subtle)]">{eventSchedule.blackoutEnd.toDateString()}</p>
+                                   <span className="inline-block mt-0.5 text-[9px] font-bold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded-md">
                                       Duration: {eventSchedule.crop.lightDays} days
                                    </span>
                                 </div>
@@ -2422,9 +2422,9 @@ const CropManager: React.FC<CropManagerProps> = ({
                        </div>
                     )}
                     {!eventSchedule && (
-                       <div className="bg-slate-50/50 p-4 rounded-xl border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
-                          <Calendar className="w-6 h-6 text-slate-300 mb-1" />
-                          <p className="text-slate-400 text-xs">Select a crop and date above to see your schedule.</p>
+                       <div className="glass-card p-4 rounded-xl border border-dashed border-[rgba(255,255,255,0.12)] flex flex-col items-center justify-center text-center">
+                          <Calendar className="w-6 h-6 text-[var(--text-subtle)] mb-1" />
+                          <p className="text-[var(--text-subtle)] text-xs">Select a crop and date above to see your schedule.</p>
                        </div>
                     )}
                  </div>
@@ -2435,7 +2435,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                        <Repeat className="w-4 h-4 mr-1.5 text-indigo-400" />
                        Weekly Production
                     </h3>
-                    <p className="text-xs text-slate-400 mb-3">Establish a regular supply. Calculate trays needed for a weekly target.</p>
+                    <p className="text-xs text-[var(--text-subtle)] mb-3">Establish a regular supply. Calculate trays needed for a weekly target.</p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                        <div>
@@ -2451,13 +2451,13 @@ const CropManager: React.FC<CropManagerProps> = ({
                        </div>
                        <div className="flex gap-2">
                            <div className="flex-1">
-                             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 block">Weekly Target (g)</label>
+                             <label className="text-xs font-bold text-[var(--text-subtle)] uppercase tracking-wider mb-1 block">Weekly Target (g)</label>
                              <input 
                                 type="number" 
                                 value={recurringTargetAmount} 
                                 onChange={(e) => setRecurringTargetAmount(e.target.value)}
                                 placeholder="e.g. 1000"
-                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-slate-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                                className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-white outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20"
                              />
                            </div>
                            <div className="flex-1">
@@ -2472,30 +2472,30 @@ const CropManager: React.FC<CropManagerProps> = ({
                     </div>
 
                     {recurringSchedule && (
-                       <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 animate-in fade-in slide-in-from-bottom-2">
-                          <div className="flex flex-col items-center justify-center py-2 border-b border-slate-200 border-dashed mb-2">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">To Harvest {recurringTargetAmount}g Weekly</span>
+                       <div className="glass-card rounded-xl p-3 border border-[rgba(255,255,255,0.12)] animate-in fade-in slide-in-from-bottom-2">
+                          <div className="flex flex-col items-center justify-center py-2 border-b border-[rgba(255,255,255,0.12)] border-dashed mb-2">
+                              <span className="text-[10px] font-bold text-[var(--text-subtle)] uppercase tracking-wider mb-0.5">To Harvest {recurringTargetAmount}g Weekly</span>
                               <div className="flex items-baseline space-x-1.5">
-                                 <span className="text-2xl font-bold text-indigo-600">{recurringSchedule.traysNeeded}</span>
-                                 <span className="text-sm font-bold text-slate-500">Trays Needed</span>
+                                 <span className="text-2xl font-bold text-mint">{recurringSchedule.traysNeeded}</span>
+                                 <span className="text-sm font-bold text-[var(--text-subtle)]">Trays Needed</span>
                               </div>
-                              <p className="text-[10px] text-slate-400 mt-1">
+                              <p className="text-[10px] text-[var(--text-subtle)] mt-1">
                                  Est. Yield: {recurringSchedule.yieldPerTray}g per tray
                               </p>
                           </div>
 
-                          <div className="bg-white p-3 rounded-lg border border-indigo-100 shadow-sm space-y-3">
+                          <div className="glass-card p-3 rounded-lg border border-indigo-500/20 shadow-sm space-y-3">
                               {/* 1. Header & Primary Instruction */}
-                              <div className="flex items-start space-x-2.5 pb-2 border-b border-indigo-50">
-                                 <div className="bg-indigo-50 p-1.5 rounded-lg text-indigo-600 mt-0.5">
+                              <div className="flex items-start space-x-2.5 pb-2 border-b border-[rgba(255,255,255,0.12)]">
+                                 <div className="bg-indigo-500/20 p-1.5 rounded-lg text-indigo-400 mt-0.5">
                                     <Calendar className="w-4 h-4" />
                                  </div>
                                  <div className="flex-1">
-                                    <h4 className="font-bold text-slate-800 text-xs mb-0.5">Weekly Cycle</h4>
-                                    <div className="inline-block bg-indigo-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm shadow-indigo-200">
+                                    <h4 className="font-bold text-white text-xs mb-0.5">Weekly Cycle</h4>
+                                    <div className="inline-block bg-indigo-600/80 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm shadow-indigo-500/20">
                                        Plant {recurringSchedule.traysNeeded} trays every {recurringSchedule.plantDayName}
                                     </div>
-                                    <p className="text-[10px] text-slate-500 mt-1">
+                                    <p className="text-[10px] text-[var(--text-subtle)] mt-1">
                                        To harvest fresh <strong>{recurringSchedule.crop.name}</strong> every <strong>{recurringSchedule.harvestDayName}</strong>.
                                     </p>
                                  </div>
@@ -2503,23 +2503,23 @@ const CropManager: React.FC<CropManagerProps> = ({
 
                               {/* 2. Detailed Timeline Flow */}
                               <div>
-                                 <h5 className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Routine Schedule</h5>
+                                 <h5 className="text-[9px] font-bold text-[var(--text-subtle)] uppercase tracking-wider mb-2">Routine Schedule</h5>
                                  <div className="grid grid-cols-4 gap-1.5 text-center">
-                                    <div className="bg-slate-50 rounded-lg p-1.5 border border-slate-100">
-                                       <span className="block text-[9px] text-slate-400 uppercase font-bold">Plant</span>
-                                       <span className="text-[10px] font-bold text-indigo-600">{abbrDay(recurringSchedule.timeline.plant)}</span>
+                                    <div className="bg-[rgba(255,255,255,0.06)] rounded-lg p-1.5 border border-indigo-500/20">
+                                       <span className="block text-[9px] text-[var(--text-subtle)] uppercase font-bold">Plant</span>
+                                       <span className="text-[10px] font-bold text-indigo-400">{abbrDay(recurringSchedule.timeline.plant)}</span>
                                     </div>
-                                    <div className="bg-slate-50 rounded-lg p-1.5 border border-slate-100">
-                                       <span className="block text-[9px] text-slate-400 uppercase font-bold">Dark</span>
-                                       <span className="text-[10px] font-bold text-slate-700">{abbrDay(recurringSchedule.timeline.blackout)}</span>
+                                    <div className="bg-[rgba(255,255,255,0.06)] rounded-lg p-1.5 border border-slate-500/20">
+                                       <span className="block text-[9px] text-[var(--text-subtle)] uppercase font-bold">Dark</span>
+                                       <span className="text-[10px] font-bold text-white">{abbrDay(recurringSchedule.timeline.blackout)}</span>
                                     </div>
-                                    <div className="bg-slate-50 rounded-lg p-1.5 border border-slate-100">
-                                       <span className="block text-[9px] text-slate-400 uppercase font-bold">Light</span>
-                                       <span className="text-[10px] font-bold text-amber-500">{abbrDay(recurringSchedule.timeline.light)}</span>
+                                    <div className="bg-[rgba(255,255,255,0.06)] rounded-lg p-1.5 border border-amber-500/20">
+                                       <span className="block text-[9px] text-[var(--text-subtle)] uppercase font-bold">Light</span>
+                                       <span className="text-[10px] font-bold text-amber-400">{abbrDay(recurringSchedule.timeline.light)}</span>
                                     </div>
-                                    <div className="bg-slate-50 rounded-lg p-1.5 border border-slate-100">
-                                       <span className="block text-[9px] text-slate-400 uppercase font-bold">Cut</span>
-                                       <span className="text-[10px] font-bold text-teal-600">{abbrDay(recurringSchedule.timeline.harvest)}</span>
+                                    <div className="bg-[rgba(255,255,255,0.06)] rounded-lg p-1.5 border border-teal-500/20">
+                                       <span className="block text-[9px] text-[var(--text-subtle)] uppercase font-bold">Cut</span>
+                                       <span className="text-[10px] font-bold text-teal-400">{abbrDay(recurringSchedule.timeline.harvest)}</span>
                                     </div>
                                  </div>
                               </div>
@@ -2527,23 +2527,23 @@ const CropManager: React.FC<CropManagerProps> = ({
                               {/* 3. Business Stats Grid */}
                               <div className="grid grid-cols-2 gap-2 pt-1">
                                  {/* Revenue */}
-                                 <div className="bg-emerald-50 p-2 rounded-lg border border-emerald-100">
-                                    <span className="text-[9px] font-bold text-emerald-600/70 uppercase block mb-0.5">Wk Revenue</span>
-                                    <div className="text-sm font-bold text-emerald-700">€{recurringSchedule.weeklyRevenue.toFixed(2)}</div>
+                                 <div className="bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20">
+                                    <span className="text-[9px] font-bold text-emerald-400 uppercase block mb-0.5">Wk Revenue</span>
+                                    <div className="text-sm font-bold text-emerald-300">€{recurringSchedule.weeklyRevenue.toFixed(2)}</div>
                                  </div>
                                  
                                  {/* Seed Cost */}
-                                 <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                    <span className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">Seed Cost</span>
-                                    <div className="text-sm font-bold text-slate-700">€{recurringSchedule.seedCost.toFixed(2)}</div>
-                                    <span className="text-[9px] text-slate-400 font-medium">{recurringSchedule.weeklySeedGrams}g / week</span>
+                                 <div className="bg-[rgba(255,255,255,0.06)] p-2 rounded-lg border border-[rgba(255,255,255,0.12)]">
+                                    <span className="text-[9px] font-bold text-[var(--text-subtle)] uppercase block mb-0.5">Seed Cost</span>
+                                    <div className="text-sm font-bold text-white">€{recurringSchedule.seedCost.toFixed(2)}</div>
+                                    <span className="text-[9px] text-[var(--text-subtle)] font-medium">{recurringSchedule.weeklySeedGrams}g / week</span>
                                  </div>
 
                                  {/* Shelf Capacity */}
-                                 <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                    <span className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">Shelf Space</span>
-                                    <div className="text-sm font-bold text-slate-700">{recurringSchedule.shelfSpace} <span className="text-[10px] font-medium text-slate-400">trays</span></div>
-                                    <span className="text-[9px] text-slate-400 font-medium">Max ({recurringSchedule.lightBatches} wk cycle)</span>
+                                 <div className="bg-[rgba(255,255,255,0.06)] p-2 rounded-lg border border-[rgba(255,255,255,0.12)]">
+                                    <span className="text-[9px] font-bold text-[var(--text-subtle)] uppercase block mb-0.5">Shelf Space</span>
+                                    <div className="text-sm font-bold text-white">{recurringSchedule.shelfSpace} <span className="text-[10px] font-medium text-[var(--text-subtle)]">trays</span></div>
+                                    <span className="text-[9px] text-[var(--text-subtle)] font-medium">Max ({recurringSchedule.lightBatches} wk cycle)</span>
                                  </div>
 
                                  {/* Profit Margin (Simple) */}
@@ -2554,19 +2554,19 @@ const CropManager: React.FC<CropManagerProps> = ({
                               </div>
 
                               {/* 4. Upcoming Schedule */}
-                              <div className="pt-1.5 border-t border-slate-100">
-                                 <h5 className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Upcoming Plantings</h5>
-                                 <div className="bg-slate-50 rounded-lg border border-slate-100 divide-y divide-slate-100">
+                              <div className="pt-1.5 border-t border-[rgba(255,255,255,0.12)]">
+                                 <h5 className="text-[9px] font-bold text-[var(--text-subtle)] uppercase tracking-wider mb-1.5">Upcoming Plantings</h5>
+                                 <div className="bg-[rgba(255,255,255,0.06)] rounded-lg border border-[rgba(255,255,255,0.12)] divide-y divide-[rgba(255,255,255,0.12)]">
                                     {recurringSchedule.upcomingDates.map((date, idx) => (
                                        <div key={idx} className="flex justify-between items-center p-2">
                                           <div className="flex items-center">
                                              <div className="w-6 text-center mr-2">
-                                                <span className="block text-[8px] font-bold text-slate-400 uppercase">{date.toLocaleDateString(undefined, {month:'short'})}</span>
-                                                <span className="block text-xs font-bold text-slate-700">{date.getDate()}</span>
+                                                <span className="block text-[8px] font-bold text-[var(--text-subtle)] uppercase">{date.toLocaleDateString(undefined, {month:'short'})}</span>
+                                                <span className="block text-xs font-bold text-white">{date.getDate()}</span>
                                              </div>
                                              <div>
-                                                <p className="text-[10px] font-bold text-slate-700">Plant {recurringSchedule.traysNeeded}x Trays</p>
-                                                <p className="text-[9px] text-slate-400">Target harvest: {new Date(date.getTime() + (recurringSchedule.totalGrowingDays * 24 * 60 * 60 * 1000)).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</p>
+                                                <p className="text-[10px] font-bold text-white">Plant {recurringSchedule.traysNeeded}x Trays</p>
+                                                <p className="text-[9px] text-[var(--text-subtle)]">Target harvest: {new Date(date.getTime() + (recurringSchedule.totalGrowingDays * 24 * 60 * 60 * 1000)).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</p>
                                              </div>
                                           </div>
                                           <button 
@@ -2589,9 +2589,9 @@ const CropManager: React.FC<CropManagerProps> = ({
                     )}
 
                     {!recurringSchedule && (
-                       <div className="bg-slate-50/50 p-8 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
-                          <Repeat className="w-10 h-10 text-slate-300 mb-2" />
-                          <p className="text-slate-400 text-sm">Fill in details to generate your recurring schedule.</p>
+                       <div className="bg-[rgba(255,255,255,0.06)] p-8 rounded-2xl border border-dashed border-[rgba(255,255,255,0.12)] flex flex-col items-center justify-center text-center">
+                          <Repeat className="w-10 h-10 text-[var(--text-subtle)] mb-2" />
+                          <p className="text-[var(--text-subtle)] text-sm">Fill in details to generate your recurring schedule.</p>
                        </div>
                     )}
                  </div>
@@ -2622,14 +2622,14 @@ const CropManager: React.FC<CropManagerProps> = ({
       <AnimatePresence>
          {isAdding && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto">
+               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="glass-card-elevated w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto border border-[rgba(255,255,255,0.12)]">
                   <div className="flex justify-between items-center">
-                     <h3 className="text-lg font-bold text-slate-800">Plant New</h3>
+                     <h3 className="text-lg font-bold text-white">Plant New</h3>
                      <button onClick={() => {
                         setIsAdding(false);
                         setIsHalfHalf(false);
                         setPlantCropId2('');
-                     }} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5" /></button>
+                     }} className="p-3 bg-[rgba(255,255,255,0.06)] rounded-full hover:bg-[rgba(255,255,255,0.08)] active:bg-[rgba(255,255,255,0.12)] transition-colors"><X className="w-5 h-5 text-white" /></button>
                   </div>
                   <div>
                      <CustomSelect 
@@ -2678,12 +2678,12 @@ const CropManager: React.FC<CropManagerProps> = ({
                   
                   <div className="flex gap-4">
                      <div className="flex-1">
-                        <label className="text-xs font-bold text-slate-400 uppercase">Location</label>
-                        <input type="text" value={plantLocation} onChange={e => setPlantLocation(e.target.value)} placeholder="Shelf 1" className="w-full mt-1 p-3 bg-slate-50 rounded-xl text-base font-bold outline-none border border-slate-100" />
+                        <label className="text-xs font-bold text-[var(--text-subtle)] uppercase">Location</label>
+                        <input type="text" value={plantLocation} onChange={e => setPlantLocation(e.target.value)} placeholder="Shelf 1" className="w-full mt-1 p-3 bg-[rgba(255,255,255,0.06)] rounded-xl text-base font-bold outline-none border border-[rgba(255,255,255,0.12)] text-white placeholder:text-[var(--text-subtle)]" />
                      </div>
                      <div className="w-24">
-                        <label className="text-xs font-bold text-slate-400 uppercase">Count</label>
-                        <input type="number" value={plantCount} onChange={e => setPlantCount(parseInt(e.target.value)||1)} className="w-full mt-1 p-3 bg-slate-50 rounded-xl text-base font-bold outline-none border border-slate-100 text-center" />
+                        <label className="text-xs font-bold text-[var(--text-subtle)] uppercase">Count</label>
+                        <input type="number" value={plantCount} onChange={e => setPlantCount(parseInt(e.target.value)||1)} className="w-full mt-1 p-3 bg-[rgba(255,255,255,0.06)] rounded-xl text-base font-bold outline-none border border-[rgba(255,255,255,0.12)] text-white text-center" />
                      </div>
                   </div>
                   
@@ -2698,29 +2698,29 @@ const CropManager: React.FC<CropManagerProps> = ({
                      const totalSeedNeeded = seedNeeded1 + seedNeeded2;
                      
                      return (
-                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3">
+                        <div className="bg-[rgba(255,255,255,0.06)] p-4 rounded-2xl border border-[rgba(255,255,255,0.12)] space-y-3">
                            {isHalfHalf && crop2 ? (
                               <>
                                  <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Seed Needed ({crop.name})</span>
-                                       <div className="flex items-center text-slate-700 font-bold">
-                                          <Scale className="w-4 h-4 mr-2 text-teal-500" />
+                                       <span className="text-[10px] font-bold text-[var(--text-subtle)] uppercase tracking-wider block mb-1">Seed Needed ({crop.name})</span>
+                                       <div className="flex items-center text-white font-bold">
+                                          <Scale className="w-4 h-4 mr-2 text-teal-400" />
                                           <span>{seedNeeded1.toFixed(0)}g</span>
                                        </div>
                                     </div>
                                     <div>
-                                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Seed Needed ({crop2.name})</span>
-                                       <div className="flex items-center text-slate-700 font-bold">
-                                          <Scale className="w-4 h-4 mr-2 text-teal-500" />
+                                       <span className="text-[10px] font-bold text-[var(--text-subtle)] uppercase tracking-wider block mb-1">Seed Needed ({crop2.name})</span>
+                                       <div className="flex items-center text-white font-bold">
+                                          <Scale className="w-4 h-4 mr-2 text-teal-400" />
                                           <span>{seedNeeded2.toFixed(0)}g</span>
                                        </div>
                                     </div>
                                  </div>
-                                 <div className="pt-2 border-t border-slate-200">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Seed Needed</span>
-                                    <div className="flex items-center text-slate-800 font-bold text-lg">
-                                       <Scale className="w-5 h-5 mr-2 text-teal-600" />
+                                 <div className="pt-2 border-t border-[rgba(255,255,255,0.12)]">
+                                    <span className="text-[10px] font-bold text-[var(--text-subtle)] uppercase tracking-wider block mb-1">Total Seed Needed</span>
+                                    <div className="flex items-center text-white font-bold text-lg">
+                                       <Scale className="w-5 h-5 mr-2 text-teal-400" />
                                        <span>{totalSeedNeeded.toFixed(0)}g</span>
                                     </div>
                                  </div>
@@ -2728,16 +2728,16 @@ const CropManager: React.FC<CropManagerProps> = ({
                            ) : (
                               <div className="grid grid-cols-2 gap-4">
                                  <div>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Seed Needed</span>
-                                    <div className="flex items-center text-slate-700 font-bold">
-                                       <Scale className="w-4 h-4 mr-2 text-teal-500" />
+                                    <span className="text-[10px] font-bold text-[var(--text-subtle)] uppercase tracking-wider block mb-1">Seed Needed</span>
+                                    <div className="flex items-center text-white font-bold">
+                                       <Scale className="w-4 h-4 mr-2 text-teal-400" />
                                        <span>{totalSeedNeeded.toFixed(0)}g</span>
                                     </div>
                                  </div>
                                  <div>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Soak Duration</span>
-                                    <div className="flex items-center text-slate-700 font-bold">
-                                       <Droplet className="w-4 h-4 mr-2 text-blue-500" />
+                                    <span className="text-[10px] font-bold text-[var(--text-subtle)] uppercase tracking-wider block mb-1">Soak Duration</span>
+                                    <div className="flex items-center text-white font-bold">
+                                       <Droplet className="w-4 h-4 mr-2 text-blue-400" />
                                        <span>{crop.soakHours > 0 ? `${crop.soakHours} hours` : 'No Soak'}</span>
                                     </div>
                                  </div>
@@ -2757,15 +2757,15 @@ const CropManager: React.FC<CropManagerProps> = ({
       <AnimatePresence>
          {selectedTray && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto">
+               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="glass-card-elevated w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto border border-[rgba(255,255,255,0.12)]">
                   {/* Header */}
                   <div className="flex justify-between items-start">
                      <div>
                         {selectedTray.cropTypeId2 ? (
                            <div>
-                              <h3 className="text-xl font-bold text-slate-800">
+                              <h3 className="text-xl font-bold text-white">
                                  {state.crops.find(c => c.id === selectedTray.cropTypeId)?.name}
-                                 <span className="text-base text-slate-500"> + </span>
+                                 <span className="text-base text-[var(--text-subtle)]"> + </span>
                                  {state.crops.find(c => c.id === selectedTray.cropTypeId2)?.name}
                               </h3>
                               <div className="flex items-center gap-2 mt-1">
@@ -2785,25 +2785,25 @@ const CropManager: React.FC<CropManagerProps> = ({
                         setEditingTrayLocation('');
                         setEditingTrayStartDate('');
                         setEditingTrayPlantedDate('');
-                     }} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5" /></button>
+                     }} className="p-3 bg-[rgba(255,255,255,0.12)] rounded-full hover:bg-[rgba(255,255,255,0.18)] active:bg-[rgba(255,255,255,0.24)] transition-colors"><X className="w-5 h-5" /></button>
                   </div>
 
                   {/* Status Card */}
-                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <div className="bg-[rgba(255,255,255,0.06)] p-4 rounded-2xl border border-[rgba(255,255,255,0.12)]">
                      <div className="flex justify-between items-center mb-3">
                         <div>
-                           <span className="text-xs font-bold text-slate-400 uppercase">Current Stage</span>
+                           <span className="text-xs font-bold text-[var(--text-subtle)] uppercase">Current Stage</span>
                            <div className={`mt-1 inline-flex px-2 py-1 rounded-lg text-xs font-bold uppercase ${getStageColor(selectedTray.stage)}`}>{selectedTray.stage}</div>
                         </div>
                         <div className="text-right">
-                           <span className="text-xs font-bold text-slate-400 uppercase">Planted</span>
-                           <div className="font-bold text-slate-700">{formatShortDate(new Date(selectedTray.plantedAt || selectedTray.startDate))}</div>
+                           <span className="text-xs font-bold text-[var(--text-subtle)] uppercase">Planted</span>
+                           <div className="font-bold text-white">{formatShortDate(new Date(selectedTray.plantedAt || selectedTray.startDate))}</div>
                         </div>
                      </div>
-                     <div className="pt-3 border-t border-slate-200">
-                        <span className="text-xs font-bold text-slate-400 uppercase">Stage Started</span>
-                        <div className="font-bold text-slate-700 mt-1">{formatShortDate(new Date(selectedTray.startDate))}</div>
-                        <p className="text-[10px] text-slate-400 mt-1">This date determines timing for current stage</p>
+                     <div className="pt-3 border-t border-[rgba(255,255,255,0.12)]">
+                        <span className="text-xs font-bold text-[var(--text-subtle)] uppercase">Stage Started</span>
+                        <div className="font-bold text-white mt-1">{formatShortDate(new Date(selectedTray.startDate))}</div>
+                        <p className="text-[10px] text-[var(--text-subtle)] mt-1">This date determines timing for current stage</p>
                      </div>
                   </div>
 
@@ -2876,7 +2876,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                   {/* Primary Action */}
                   {selectedTray.stage === Stage.HARVEST_READY ? (
                      <div className="space-y-2">
-                        <input type="number" value={yieldInput} onChange={e => setYieldInput(e.target.value)} placeholder="Yield Weight (g)" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold text-center outline-none focus:ring-2 focus:ring-teal-500" />
+                        <input type="number" value={yieldInput} onChange={e => setYieldInput(e.target.value)} placeholder="Yield Weight (g)" className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-center outline-none focus:ring-2 focus:ring-mint/20 text-white placeholder:text-[var(--text-subtle)]" />
                         <button onClick={harvestTray} className="w-full py-4 bg-teal-600 text-white font-bold rounded-xl shadow-lg shadow-teal-200 flex items-center justify-center">
                            <Archive className="w-5 h-5 mr-2" /> Complete Harvest
                         </button>
@@ -2889,15 +2889,15 @@ const CropManager: React.FC<CropManagerProps> = ({
 
                   {/* Tray Info Section */}
                   {isEditingTray ? (
-                     <div className="space-y-4 pt-2 border-t border-slate-200">
+                     <div className="space-y-4 pt-2 border-t border-[rgba(255,255,255,0.12)]">
                         <div>
-                           <label className="text-[10px] font-bold uppercase text-slate-400 block mb-2">Location</label>
+                           <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)] block mb-2">Location</label>
                            <input 
                               type="text" 
                               value={editingTrayLocation} 
                               onChange={e => setEditingTrayLocation(e.target.value)}
                               placeholder="e.g. Shelf 1, Shelf 2-A"
-                              className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold focus:ring-2 focus:ring-teal-500 outline-none"
+                              className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold focus:ring-2 focus:ring-mint/20 outline-none text-white placeholder:text-[var(--text-subtle)]"
                            />
                         </div>
                         
@@ -2939,7 +2939,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                         </div>
                         
                         <div>
-                           <label className="text-[10px] font-bold uppercase text-slate-400 block mb-2 flex items-center">
+                           <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)] block mb-2 flex items-center">
                               <Info className="w-3 h-3 mr-1" />
                               Notes / Information
                            </label>
@@ -2947,7 +2947,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                               value={editingTrayNotes} 
                               onChange={e => setEditingTrayNotes(e.target.value)}
                               placeholder="Add notes about this tray (e.g. special conditions, observations, etc.)"
-                              className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600 h-24 resize-none focus:ring-2 focus:ring-teal-500 outline-none"
+                              className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-sm font-medium text-white placeholder:text-[var(--text-subtle)] h-24 resize-none focus:ring-2 focus:ring-mint/20 outline-none"
                            />
                         </div>
                         <div className="flex gap-3">
@@ -3038,18 +3038,18 @@ const CropManager: React.FC<CropManagerProps> = ({
       <AnimatePresence>
          {selectedCrop && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-5 max-h-[85vh] overflow-y-auto">
+               <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="glass-card-elevated w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-5 max-h-[85vh] overflow-y-auto border border-[rgba(255,255,255,0.12)]">
                   
                   {/* Header Actions */}
                   <div className="flex justify-between items-center mb-2">
                      <div className="flex items-center space-x-2">
                        {!isEditingCrop && selectedCrop.id && (
-                          <button onClick={() => setIsEditingCrop(true)} className="flex items-center text-xs font-bold text-teal-600 bg-teal-50 px-3 py-1.5 rounded-full hover:bg-teal-100 transition-colors">
+                          <button onClick={() => setIsEditingCrop(true)} className="flex items-center text-xs font-bold text-mint bg-mint/20 px-3 py-1.5 rounded-full hover:bg-mint/30 transition-colors">
                              <Edit2 className="w-3 h-3 mr-1" /> Edit
                           </button>
                        )}
                        {isEditingCrop && selectedCrop.id && (
-                          <button onClick={() => setIsEditingCrop(false)} className="text-xs font-bold text-slate-500 hover:text-slate-800">
+                          <button onClick={() => setIsEditingCrop(false)} className="text-xs font-bold text-[var(--text-subtle)] hover:text-white">
                              Cancel Edit
                           </button>
                        )}
@@ -3058,14 +3058,14 @@ const CropManager: React.FC<CropManagerProps> = ({
                         setSelectedCrop(null); 
                         setAddToShelf(false); 
                         setSelectedShelfLocation(''); 
-                     }} className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"><X className="w-5 h-5" /></button>
+                     }} className="p-3 bg-[rgba(255,255,255,0.06)] rounded-full hover:bg-[rgba(255,255,255,0.08)] active:bg-[rgba(255,255,255,0.12)] transition-colors"><X className="w-5 h-5 text-white" /></button>
                   </div>
 
                   {/* VIEW MODE */}
                   {!isEditingCrop ? (
                      <div className="space-y-6">
                         {/* 1. Big Picture Hero */}
-                        <div className="w-full aspect-video rounded-2xl bg-slate-100 overflow-hidden relative shadow-inner">
+                        <div className="w-full aspect-video rounded-2xl bg-slate-700 overflow-hidden relative shadow-inner">
                            {selectedCrop.imageUrl ? (
                               <img 
                                  src={selectedCrop.imageUrl} 
@@ -3088,158 +3088,158 @@ const CropManager: React.FC<CropManagerProps> = ({
 
                         {/* 2. Growing Schedule (Timeline) */}
                         <div>
-                           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Growing Cycle</h4>
+                           <h4 className="text-xs font-bold text-[var(--text-subtle)] uppercase tracking-wider mb-3">Growing Cycle</h4>
                            <div className="flex items-center justify-between text-center relative">
                               {/* Line connector */}
-                              <div className="absolute top-4 left-0 right-0 h-0.5 bg-slate-100 -z-10" />
+                              <div className="absolute top-4 left-0 right-0 h-0.5 bg-[rgba(255,255,255,0.12)] -z-10" />
                               
-                              <div className="flex flex-col items-center bg-white px-1">
-                                 <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-1 text-xs font-bold border-2 border-white">
+                              <div className="flex flex-col items-center bg-[rgba(255,255,255,0.06)] px-1 rounded-lg">
+                                 <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center mb-1 text-xs font-bold border-2 border-blue-500/30">
                                     {selectedCrop.soakHours > 0 ? `${selectedCrop.soakHours}h` : '-'}
                                  </div>
-                                 <span className="text-[10px] font-bold text-slate-600 uppercase">Soak</span>
+                                 <span className="text-[10px] font-bold text-[var(--text-subtle)] uppercase">Soak</span>
                               </div>
-                              <div className="flex flex-col items-center bg-white px-1">
-                                 <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mb-1 text-xs font-bold border-2 border-white">
+                              <div className="flex flex-col items-center bg-[rgba(255,255,255,0.06)] px-1 rounded-lg">
+                                 <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center mb-1 text-xs font-bold border-2 border-purple-500/30">
                                     {selectedCrop.germinationDays}d
                                  </div>
-                                 <span className="text-[10px] font-bold text-slate-600 uppercase">Germ</span>
+                                 <span className="text-[10px] font-bold text-[var(--text-subtle)] uppercase">Germ</span>
                               </div>
-                              <div className="flex flex-col items-center bg-white px-1">
-                                 <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center mb-1 text-xs font-bold border-2 border-white">
+                              <div className="flex flex-col items-center bg-[rgba(255,255,255,0.06)] px-1 rounded-lg">
+                                 <div className="w-8 h-8 rounded-full bg-slate-600 text-white flex items-center justify-center mb-1 text-xs font-bold border-2 border-slate-500/30">
                                     {selectedCrop.blackoutDays}d
                                  </div>
-                                 <span className="text-[10px] font-bold text-slate-600 uppercase">Dark</span>
+                                 <span className="text-[10px] font-bold text-[var(--text-subtle)] uppercase">Dark</span>
                               </div>
-                              <div className="flex flex-col items-center bg-white px-1">
-                                 <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-1 text-xs font-bold border-2 border-white">
+                              <div className="flex flex-col items-center bg-[rgba(255,255,255,0.06)] px-1 rounded-lg">
+                                 <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1 text-xs font-bold border-2 border-amber-500/30">
                                     {selectedCrop.lightDays}d
                                  </div>
-                                 <span className="text-[10px] font-bold text-slate-600 uppercase">Light</span>
+                                 <span className="text-[10px] font-bold text-[var(--text-subtle)] uppercase">Light</span>
                               </div>
                            </div>
                         </div>
 
                         {/* 3. Financials & Yield */}
-                        <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 grid grid-cols-2 gap-4">
+                        <div className="glass-card rounded-2xl p-4 border border-[rgba(255,255,255,0.12)] grid grid-cols-2 gap-4">
                            <div>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Seed Cost</span>
-                              <div className="flex items-center text-slate-800 font-bold">
-                                 <Euro className="w-4 h-4 mr-1 text-slate-400" />
+                              <span className="text-[10px] font-bold text-[var(--text-subtle)] uppercase tracking-wider block mb-1">Seed Cost</span>
+                              <div className="flex items-center text-white font-bold">
+                                 <Euro className="w-4 h-4 mr-1 text-mint" />
                                  {getEstimatedSeedCost(selectedCrop) > 0 ? getEstimatedSeedCost(selectedCrop).toFixed(2) : '--'}
-                                 <span className="text-[10px] font-medium text-slate-400 ml-1">/ tray</span>
+                                 <span className="text-[10px] font-medium text-[var(--text-subtle)] ml-1">/ tray</span>
                               </div>
                            </div>
                            <div>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Est. Revenue</span>
-                              <div className="flex items-center text-teal-600 font-bold">
+                              <span className="text-[10px] font-bold text-[var(--text-subtle)] uppercase tracking-wider block mb-1">Est. Revenue</span>
+                              <div className="flex items-center text-mint font-bold">
                                  <Euro className="w-4 h-4 mr-1" />
                                  {((selectedCrop.estimatedYieldPerTray/100) * (selectedCrop.revenuePer100g || 6)).toFixed(2)}
-                                 <span className="text-[10px] font-medium text-teal-600/60 ml-1">/ tray</span>
+                                 <span className="text-[10px] font-medium text-mint/60 ml-1">/ tray</span>
                               </div>
                            </div>
-                           <div className="col-span-2 pt-3 border-t border-slate-200 mt-1">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Bulk Seed Prices</span>
+                           <div className="col-span-2 pt-3 border-t border-[rgba(255,255,255,0.12)] mt-1">
+                              <span className="text-[10px] font-bold text-[var(--text-subtle)] uppercase tracking-wider block mb-2">Bulk Seed Prices</span>
                               <div className="grid grid-cols-2 gap-3">
                                  <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 flex justify-between items-center">
-                                    <span className="text-xs text-slate-400 font-medium">{selectedCrop.pkgWeightSmall || 500}g Pack</span>
+                                    <span className="text-xs text-[var(--text-subtle)] font-medium">{selectedCrop.pkgWeightSmall || 500}g Pack</span>
                                     <span className="text-xs font-bold text-white">{selectedCrop.price500g ? `€${selectedCrop.price500g.toFixed(2)}` : '--'}</span>
                                  </div>
                                  <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 flex justify-between items-center">
-                                    <span className="text-xs text-slate-400 font-medium">{selectedCrop.pkgWeightLarge >= 1000 ? (selectedCrop.pkgWeightLarge/1000) + 'kg' : selectedCrop.pkgWeightLarge || 1000 + 'g'} Pack</span>
+                                    <span className="text-xs text-[var(--text-subtle)] font-medium">{selectedCrop.pkgWeightLarge >= 1000 ? (selectedCrop.pkgWeightLarge/1000) + 'kg' : selectedCrop.pkgWeightLarge || 1000 + 'g'} Pack</span>
                                     <span className="text-xs font-bold text-white">{selectedCrop.price1kg ? `€${selectedCrop.price1kg.toFixed(2)}` : '--'}</span>
                                  </div>
                               </div>
                            </div>
-                           <div className="col-span-2 pt-2 border-t border-slate-200 mt-1">
+                           <div className="col-span-2 pt-2 border-t border-[rgba(255,255,255,0.12)] mt-1">
                               <div className="flex justify-between items-center text-xs">
-                                 <span className="text-slate-500 font-medium">Seeding Rate: <strong>{selectedCrop.seedingRate}g</strong></span>
-                                 <span className="text-slate-500 font-medium">Exp. Yield: <strong>{selectedCrop.estimatedYieldPerTray}g</strong></span>
+                                 <span className="text-[var(--text-subtle)] font-medium">Seeding Rate: <strong className="text-white">{selectedCrop.seedingRate}g</strong></span>
+                                 <span className="text-[var(--text-subtle)] font-medium">Exp. Yield: <strong className="text-white">{selectedCrop.estimatedYieldPerTray}g</strong></span>
                               </div>
                            </div>
                         </div>
 
                         {/* 4. Notes */}
                         {selectedCrop.summary && (
-                           <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
-                              <h4 className="flex items-center text-xs font-bold text-blue-800 uppercase tracking-wider mb-2">
+                           <div className="glass-card p-4 rounded-2xl border border-blue-500/20">
+                              <h4 className="flex items-center text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
                                  <Info className="w-3.5 h-3.5 mr-1.5" /> Notes
                               </h4>
-                              <p className="text-sm text-blue-900 leading-relaxed">{selectedCrop.summary}</p>
+                              <p className="text-sm text-blue-200 leading-relaxed">{selectedCrop.summary}</p>
                            </div>
                         )}
                      </div>
                   ) : (
                      /* EDIT FORM MODE */
                      <div className="space-y-5">
-                         <h3 className="text-lg font-bold text-slate-800">{selectedCrop.id ? 'Edit Crop Details' : 'New Variety'}</h3>
+                         <h3 className="text-lg font-bold text-white">{selectedCrop.id ? 'Edit Crop Details' : 'New Variety'}</h3>
                         
                         {/* Basic Info */}
                         <div className="space-y-3">
-                           <h4 className="text-xs font-bold uppercase text-slate-400 flex items-center">
-                              <Sprout className="w-3 h-3 mr-1.5" />
+                           <h4 className="text-xs font-bold uppercase text-[var(--text-subtle)] flex items-center">
+                              <Sprout className="w-3 h-3 mr-1.5 text-mint" />
                               Basic Information
                            </h4>
                            <div>
-                              <label className="text-[10px] font-bold uppercase text-slate-400">Name</label>
-                              <input type="text" value={selectedCrop.name} onChange={e => setSelectedCrop({...selectedCrop, name: e.target.value})} placeholder="Crop Name" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                              <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)]">Name</label>
+                              <input type="text" value={selectedCrop.name} onChange={e => setSelectedCrop({...selectedCrop, name: e.target.value})} placeholder="Crop Name" className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-white placeholder:text-[var(--text-subtle)]" />
                            </div>
                            
                            <div className="grid grid-cols-2 gap-3">
                               <div>
-                                 <label className="text-[10px] font-bold uppercase text-slate-400">Seed Rate (g)</label>
+                                 <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)]">Seed Rate (g)</label>
                                  <div className="relative">
-                                    <Scale className="w-3 h-3 absolute left-3 top-3.5 text-slate-400" />
-                                    <input type="number" value={selectedCrop.seedingRate || ''} onChange={e => setSelectedCrop({...selectedCrop, seedingRate: parseInt(e.target.value) || 0})} placeholder="0" className="w-full pl-8 p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                    <Scale className="w-3 h-3 absolute left-3 top-3.5 text-mint" />
+                                    <input type="number" value={selectedCrop.seedingRate || ''} onChange={e => setSelectedCrop({...selectedCrop, seedingRate: parseInt(e.target.value) || 0})} placeholder="0" className="w-full pl-8 p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-white placeholder:text-[var(--text-subtle)]" />
                                  </div>
                               </div>
                               <div>
-                                 <label className="text-[10px] font-bold uppercase text-slate-400">Est Yield (g)</label>
-                                 <input type="number" value={selectedCrop.estimatedYieldPerTray || ''} onChange={e => setSelectedCrop({...selectedCrop, estimatedYieldPerTray: parseInt(e.target.value) || 0})} placeholder="0" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                 <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)]">Est Yield (g)</label>
+                                 <input type="number" value={selectedCrop.estimatedYieldPerTray || ''} onChange={e => setSelectedCrop({...selectedCrop, estimatedYieldPerTray: parseInt(e.target.value) || 0})} placeholder="0" className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-white placeholder:text-[var(--text-subtle)]" />
                               </div>
                            </div>
                         </div>
 
                         {/* Growing Schedule */}
-                        <div className="pt-3 border-t border-slate-200 space-y-3">
-                           <h4 className="text-xs font-bold uppercase text-slate-400 flex items-center">
+                        <div className="pt-3 border-t border-[rgba(255,255,255,0.12)] space-y-3">
+                           <h4 className="text-xs font-bold uppercase text-[var(--text-subtle)] flex items-center">
                               <Clock className="w-3 h-3 mr-1.5" />
                               Growing Schedule
                            </h4>
                            <div className="grid grid-cols-2 gap-3">
                               <div>
-                                 <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center">
+                                 <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)] flex items-center">
                                     <Droplet className="w-3 h-3 mr-1" />
                                     Soak (hours)
                                  </label>
-                                 <input type="number" value={selectedCrop.soakHours || 0} onChange={e => setSelectedCrop({...selectedCrop, soakHours: parseInt(e.target.value) || 0})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                 <input type="number" value={selectedCrop.soakHours || 0} onChange={e => setSelectedCrop({...selectedCrop, soakHours: parseInt(e.target.value) || 0})} className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-white placeholder:text-[var(--text-subtle)]" />
                               </div>
                               <div>
-                                 <label className="text-[10px] font-bold uppercase text-slate-400">Germination (days)</label>
-                                 <input type="number" value={selectedCrop.germinationDays || 0} onChange={e => setSelectedCrop({...selectedCrop, germinationDays: parseInt(e.target.value) || 0})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                 <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)]">Germination (days)</label>
+                                 <input type="number" value={selectedCrop.germinationDays || 0} onChange={e => setSelectedCrop({...selectedCrop, germinationDays: parseInt(e.target.value) || 0})} className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-white placeholder:text-[var(--text-subtle)]" />
                               </div>
                               <div>
-                                 <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center">
+                                 <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)] flex items-center">
                                     <Moon className="w-3 h-3 mr-1" />
                                     Blackout (days)
                                  </label>
-                                 <input type="number" value={selectedCrop.blackoutDays || 0} onChange={e => setSelectedCrop({...selectedCrop, blackoutDays: parseInt(e.target.value) || 0})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                 <input type="number" value={selectedCrop.blackoutDays || 0} onChange={e => setSelectedCrop({...selectedCrop, blackoutDays: parseInt(e.target.value) || 0})} className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-white placeholder:text-[var(--text-subtle)]" />
                               </div>
                               <div>
-                                 <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center">
+                                 <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)] flex items-center">
                                     <Sun className="w-3 h-3 mr-1" />
                                     Light (days)
                                  </label>
-                                 <input type="number" value={selectedCrop.lightDays || 0} onChange={e => setSelectedCrop({...selectedCrop, lightDays: parseInt(e.target.value) || 0})} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                 <input type="number" value={selectedCrop.lightDays || 0} onChange={e => setSelectedCrop({...selectedCrop, lightDays: parseInt(e.target.value) || 0})} className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-white placeholder:text-[var(--text-subtle)]" />
                               </div>
                            </div>
                         </div>
 
 
                         {/* Image Upload */}
-                        <div className="pt-3 border-t border-slate-200 space-y-3">
-                           <h4 className="text-xs font-bold uppercase text-slate-400 flex items-center">
-                              <ImageIcon className="w-3 h-3 mr-1.5" />
+                        <div className="pt-3 border-t border-[rgba(255,255,255,0.12)] space-y-3">
+                           <h4 className="text-xs font-bold uppercase text-[var(--text-subtle)] flex items-center">
+                              <ImageIcon className="w-3 h-3 mr-1.5 text-mint" />
                               Image
                            </h4>
                            <div className="space-y-2">
@@ -3262,9 +3262,9 @@ const CropManager: React.FC<CropManagerProps> = ({
                                           }
                                        }}
                                     />
-                                    <div className="flex flex-col items-center justify-center p-3 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer hover:border-teal-400 hover:bg-teal-50/50 transition-colors">
-                                       <ImageIcon className="w-5 h-5 mb-1.5 text-slate-400" />
-                                       <span className="text-[10px] font-bold text-slate-600">Take Photo</span>
+                                    <div className="flex flex-col items-center justify-center p-3 border-2 border-dashed border-[rgba(255,255,255,0.12)] rounded-xl cursor-pointer hover:border-mint hover:bg-mint/5 transition-colors">
+                                       <ImageIcon className="w-5 h-5 mb-1.5 text-mint" />
+                                       <span className="text-[10px] font-bold text-white">Take Photo</span>
                                     </div>
                                  </label>
                                  <label className="block">
@@ -3284,9 +3284,9 @@ const CropManager: React.FC<CropManagerProps> = ({
                                           }
                                        }}
                                     />
-                                    <div className="flex flex-col items-center justify-center p-3 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer hover:border-teal-400 hover:bg-teal-50/50 transition-colors">
-                                       <Upload className="w-5 h-5 mb-1.5 text-slate-400" />
-                                       <span className="text-[10px] font-bold text-slate-600">Choose File</span>
+                                    <div className="flex flex-col items-center justify-center p-3 border-2 border-dashed border-[rgba(255,255,255,0.12)] rounded-xl cursor-pointer hover:border-mint hover:bg-mint/5 transition-colors">
+                                       <Upload className="w-5 h-5 mb-1.5 text-mint" />
+                                       <span className="text-[10px] font-bold text-white">Choose File</span>
                                     </div>
                                  </label>
                               </div>
@@ -3302,86 +3302,86 @@ const CropManager: React.FC<CropManagerProps> = ({
                                  </div>
                               )}
                               <div>
-                                 <label className="text-[10px] font-bold uppercase text-slate-400">Or enter Image URL</label>
-                                 <input type="text" value={selectedCrop.imageUrl && !selectedCrop.imageUrl.startsWith('data:') ? selectedCrop.imageUrl : ''} onChange={e => setSelectedCrop({...selectedCrop, imageUrl: e.target.value})} placeholder="https://..." className="w-full p-2 bg-slate-50 border border-slate-100 rounded-lg text-sm font-medium text-slate-600" />
+                                 <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)]">Or enter Image URL</label>
+                                 <input type="text" value={selectedCrop.imageUrl && !selectedCrop.imageUrl.startsWith('data:') ? selectedCrop.imageUrl : ''} onChange={e => setSelectedCrop({...selectedCrop, imageUrl: e.target.value})} placeholder="https://..." className="w-full p-2 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-lg text-sm font-medium text-white placeholder:text-[var(--text-subtle)]" />
                               </div>
                            </div>
                         </div>
 
                         {/* Pricing */}
-                        <div className="pt-3 border-t border-slate-200 space-y-3">
-                           <h4 className="text-xs font-bold uppercase text-slate-400 flex items-center">
+                        <div className="pt-3 border-t border-[rgba(255,255,255,0.12)] space-y-3">
+                           <h4 className="text-xs font-bold uppercase text-[var(--text-subtle)] flex items-center">
                               <Euro className="w-3 h-3 mr-1.5" />
                               Pricing
                            </h4>
                            <div className="grid grid-cols-2 gap-3">
                               <div>
-                                 <label className="text-[10px] font-bold uppercase text-slate-400">Small Pack (g)</label>
-                                 <input type="number" value={selectedCrop.pkgWeightSmall || ''} onChange={e => setSelectedCrop({...selectedCrop, pkgWeightSmall: parseInt(e.target.value)})} placeholder="500" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                 <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)]">Small Pack (g)</label>
+                                 <input type="number" value={selectedCrop.pkgWeightSmall || ''} onChange={e => setSelectedCrop({...selectedCrop, pkgWeightSmall: parseInt(e.target.value)})} placeholder="500" className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-white placeholder:text-[var(--text-subtle)]" />
                               </div>
                               <div>
-                                 <label className="text-[10px] font-bold uppercase text-slate-400">Large Pack (g)</label>
-                                 <input type="number" value={selectedCrop.pkgWeightLarge || ''} onChange={e => setSelectedCrop({...selectedCrop, pkgWeightLarge: parseInt(e.target.value)})} placeholder="1000" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                 <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)]">Large Pack (g)</label>
+                                 <input type="number" value={selectedCrop.pkgWeightLarge || ''} onChange={e => setSelectedCrop({...selectedCrop, pkgWeightLarge: parseInt(e.target.value)})} placeholder="1000" className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-white placeholder:text-[var(--text-subtle)]" />
                               </div>
                               <div>
-                                 <label className="text-[10px] font-bold uppercase text-slate-400">Price {selectedCrop.pkgWeightSmall || 500}g (€)</label>
+                                 <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)]">Price {selectedCrop.pkgWeightSmall || 500}g (€)</label>
                                  <div className="relative">
-                                    <span className="absolute left-3 top-3.5 text-xs font-bold text-slate-400">€</span>
-                                    <input type="number" step="0.01" value={selectedCrop.price500g || ''} onChange={e => setSelectedCrop({...selectedCrop, price500g: parseFloat(e.target.value)})} className="w-full pl-7 p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                    <span className="absolute left-3 top-3.5 text-xs font-bold text-mint">€</span>
+                                    <input type="number" step="0.01" value={selectedCrop.price500g || ''} onChange={e => setSelectedCrop({...selectedCrop, price500g: parseFloat(e.target.value)})} className="w-full pl-7 p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-white placeholder:text-[var(--text-subtle)]" />
                                  </div>
                               </div>
                               <div>
-                                 <label className="text-[10px] font-bold uppercase text-slate-400">Price {selectedCrop.pkgWeightLarge ? (selectedCrop.pkgWeightLarge >= 1000 ? (selectedCrop.pkgWeightLarge/1000) + 'kg' : selectedCrop.pkgWeightLarge + 'g') : '1kg'} (€)</label>
+                                 <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)]">Price {selectedCrop.pkgWeightLarge ? (selectedCrop.pkgWeightLarge >= 1000 ? (selectedCrop.pkgWeightLarge/1000) + 'kg' : selectedCrop.pkgWeightLarge + 'g') : '1kg'} (€)</label>
                                  <div className="relative">
-                                    <span className="absolute left-3 top-3.5 text-xs font-bold text-slate-400">€</span>
-                                    <input type="number" step="0.01" value={selectedCrop.price1kg || ''} onChange={e => setSelectedCrop({...selectedCrop, price1kg: parseFloat(e.target.value)})} className="w-full pl-7 p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                    <span className="absolute left-3 top-3.5 text-xs font-bold text-mint">€</span>
+                                    <input type="number" step="0.01" value={selectedCrop.price1kg || ''} onChange={e => setSelectedCrop({...selectedCrop, price1kg: parseFloat(e.target.value)})} className="w-full pl-7 p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-white placeholder:text-[var(--text-subtle)]" />
                                  </div>
                               </div>
                            </div>
                         </div>
 
                         {/* Description */}
-                        <div className="pt-3 border-t border-slate-200 space-y-3">
-                           <h4 className="text-xs font-bold uppercase text-slate-400">Description</h4>
+                        <div className="pt-3 border-t border-[rgba(255,255,255,0.12)] space-y-3">
+                           <h4 className="text-xs font-bold uppercase text-[var(--text-subtle)]">Description</h4>
                            <div>
-                              <label className="text-[10px] font-bold uppercase text-slate-400">Category / Flavor Profile</label>
-                              <input type="text" value={selectedCrop.category || ''} onChange={e => setSelectedCrop({...selectedCrop, category: e.target.value})} placeholder="e.g. Spicy, Mild, Peppery, Nutty, Sweet" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600" />
+                              <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)]">Category / Flavor Profile</label>
+                              <input type="text" value={selectedCrop.category || ''} onChange={e => setSelectedCrop({...selectedCrop, category: e.target.value})} placeholder="e.g. Spicy, Mild, Peppery, Nutty, Sweet" className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-sm font-medium text-white placeholder:text-[var(--text-subtle)]" />
                            </div>
                            <div>
-                              <label className="text-[10px] font-bold uppercase text-slate-400">Summary / Notes</label>
-                              <textarea value={selectedCrop.summary || ''} onChange={e => setSelectedCrop({...selectedCrop, summary: e.target.value})} placeholder="Description..." className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600 h-20 resize-none" />
+                              <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)]">Summary / Notes</label>
+                              <textarea value={selectedCrop.summary || ''} onChange={e => setSelectedCrop({...selectedCrop, summary: e.target.value})} placeholder="Description..." className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-sm font-medium text-white placeholder:text-[var(--text-subtle)] h-20 resize-none" />
                            </div>
                         </div>
 
                         {/* Additional Crop Information */}
-                        <div className="pt-3 border-t border-slate-200 space-y-3">
-                           <h4 className="text-xs font-bold uppercase text-slate-400">Additional Information</h4>
+                        <div className="pt-3 border-t border-[rgba(255,255,255,0.12)] space-y-3">
+                           <h4 className="text-xs font-bold uppercase text-[var(--text-subtle)]">Additional Information</h4>
                            
                            <div className="grid grid-cols-2 gap-3">
                               <div>
-                                 <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center">
+                                 <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)] flex items-center">
                                     <Thermometer className="w-3 h-3 mr-1" />
                                     Optimal Temp (°C)
                                  </label>
-                                 <input type="number" value={selectedCrop.optimalTemperature || ''} onChange={e => setSelectedCrop({...selectedCrop, optimalTemperature: parseInt(e.target.value) || undefined})} placeholder="e.g. 20" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                 <input type="number" value={selectedCrop.optimalTemperature || ''} onChange={e => setSelectedCrop({...selectedCrop, optimalTemperature: parseInt(e.target.value) || undefined})} placeholder="e.g. 20" className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-white placeholder:text-[var(--text-subtle)]" />
                               </div>
                               <div>
-                                 <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center">
+                                 <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)] flex items-center">
                                     <Save className="w-3 h-3 mr-1" />
                                     Storage Days
                                  </label>
-                                 <input type="number" value={selectedCrop.storageDays || ''} onChange={e => setSelectedCrop({...selectedCrop, storageDays: parseInt(e.target.value) || undefined})} placeholder="e.g. 7" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-base font-bold" />
+                                 <input type="number" value={selectedCrop.storageDays || ''} onChange={e => setSelectedCrop({...selectedCrop, storageDays: parseInt(e.target.value) || undefined})} placeholder="e.g. 7" className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-white placeholder:text-[var(--text-subtle)]" />
                               </div>
                            </div>
 
                            <div>
-                              <label className="text-[10px] font-bold uppercase text-slate-400">Growing Tips</label>
-                              <textarea value={selectedCrop.growingTips || ''} onChange={e => setSelectedCrop({...selectedCrop, growingTips: e.target.value})} placeholder="Special growing instructions or tips..." className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600 h-20 resize-none" />
+                              <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)]">Growing Tips</label>
+                              <textarea value={selectedCrop.growingTips || ''} onChange={e => setSelectedCrop({...selectedCrop, growingTips: e.target.value})} placeholder="Special growing instructions or tips..." className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-sm font-medium text-white placeholder:text-[var(--text-subtle)] h-20 resize-none" />
                            </div>
 
                            <div>
-                              <label className="text-[10px] font-bold uppercase text-slate-400">Nutrition Info</label>
-                              <textarea value={selectedCrop.nutritionInfo || ''} onChange={e => setSelectedCrop({...selectedCrop, nutritionInfo: e.target.value})} placeholder="Nutritional highlights (e.g. High in Vitamin C, Iron, etc.)" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-600 h-20 resize-none" />
+                              <label className="text-[10px] font-bold uppercase text-[var(--text-subtle)]">Nutrition Info</label>
+                              <textarea value={selectedCrop.nutritionInfo || ''} onChange={e => setSelectedCrop({...selectedCrop, nutritionInfo: e.target.value})} placeholder="Nutritional highlights (e.g. High in Vitamin C, Iron, etc.)" className="w-full p-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-sm font-medium text-white placeholder:text-[var(--text-subtle)] h-20 resize-none" />
                            </div>
                         </div>
 
@@ -3401,36 +3401,7 @@ const CropManager: React.FC<CropManagerProps> = ({
                         {/* Add to Shelf Option (only for new crops) */}
                         {!selectedCrop.id && (
                            <div className="pt-3 border-t border-slate-200 space-y-3">
-                              <div className="flex items-center space-x-3">
-                                 <input 
-                                    type="checkbox" 
-                                    id="addToShelf"
-                                    checked={addToShelf}
-                                    onChange={(e) => {
-                                       setAddToShelf(e.target.checked);
-                                       if (!e.target.checked) setSelectedShelfLocation('');
-                                    }}
-                                    className="w-5 h-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
-                                 />
-                                 <label htmlFor="addToShelf" className="flex items-center text-sm font-bold text-slate-700 cursor-pointer">
-                                    <MapPin className="w-4 h-4 mr-2 text-teal-600" />
-                                    Add to existing shelf
-                                 </label>
-                              </div>
-                              
-                              {addToShelf && (
-                                 <div>
-                                    <label className="text-[10px] font-bold uppercase text-slate-400 block mb-2">Select Shelf Location</label>
-                                    <CustomSelect
-                                       value={selectedShelfLocation}
-                                       onChange={(val) => setSelectedShelfLocation(val)}
-                                       options={[
-                                          { value: '', label: 'Choose location...' },
-                                          ...availableLocations.map(loc => ({ value: loc, label: loc }))
-                                       ]}
-                                    />
-                                 </div>
-                              )}
+
                            </div>
                         )}
 

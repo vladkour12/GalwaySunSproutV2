@@ -162,13 +162,13 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-white mb-1">
                   Customer *
                 </label>
                 <select
                   value={formData.customerId || ''}
                   onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-mint"
                 >
                   <option value="">Select Customer</option>
                   {customers.map((c) => (
@@ -179,36 +179,36 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-white mb-1">
                   Order Date *
                 </label>
                 <input
                   type="date"
                   value={formData.date || ''}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-mint"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-white mb-1">
                   Due Date *
                 </label>
                 <input
                   type="date"
                   value={formData.dueDate || ''}
                   onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-mint"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                <label className="block text-sm font-medium text-white mb-1">Status</label>
                 <select
                   value={formData.status || 'pending'}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-mint"
                 >
                   <option value="pending">Pending</option>
                   <option value="confirmed">Confirmed</option>
@@ -219,26 +219,26 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
                 </select>
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Notes</label>
+                <label className="block text-sm font-medium text-white mb-1">Notes</label>
                 <input
                   type="text"
                   value={formData.notes || ''}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   placeholder="Special instructions or notes"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] rounded-lg text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:ring-2 focus:ring-mint"
                 />
               </div>
             </div>
 
             {/* Order Items */}
-            <div className="border-t border-slate-200 pt-4">
-              <h4 className="font-semibold text-slate-900 mb-3">Order Items</h4>
+            <div className="border-t border-[rgba(255,255,255,0.12)] pt-4">
+              <h4 className="font-semibold text-white mb-3">Order Items</h4>
               <div className="space-y-3 mb-4">
                 {(formData.items || []).map((item) => (
-                  <div key={item.id} className="flex items-center justify-between bg-slate-50 p-3 rounded-lg">
+                  <div key={item.id} className="flex items-center justify-between bg-[rgba(255,255,255,0.06)] p-3 rounded-lg border border-[rgba(255,255,255,0.12)]">
                     <div>
-                      <p className="font-medium text-slate-900">{getCropName(item.cropId)}</p>
-                      <p className="text-sm text-slate-600">
+                      <p className="font-medium text-white">{getCropName(item.cropId)}</p>
+                      <p className="text-sm text-[var(--text-subtle)]">
                         {item.quantity} tray{item.quantity !== 1 ? 's' : ''} @ €{item.unitPrice} = €{item.subtotal.toFixed(2)}
                       </p>
                     </div>
@@ -253,14 +253,14 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
                 ))}
               </div>
 
-              <div className="space-y-3 bg-slate-50 p-4 rounded-lg">
+              <div className="space-y-3 bg-[rgba(255,255,255,0.06)] p-4 rounded-lg border border-[rgba(255,255,255,0.12)]">
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Crop</label>
+                    <label className="block text-sm font-medium text-white mb-1">Crop</label>
                     <select
                       value={newItem.cropId || ''}
                       onChange={(e) => setNewItem({ ...newItem, cropId: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-mint text-sm"
                     >
                       <option value="">Select</option>
                       {crops.map((c) => (
@@ -271,7 +271,7 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Qty</label>
+                    <label className="block text-sm font-medium text-white mb-1">Qty</label>
                     <input
                       type="number"
                       value={newItem.quantity || 1}
@@ -279,11 +279,11 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
                         setNewItem({ ...newItem, quantity: parseInt(e.target.value) })
                       }
                       min="1"
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-mint text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Price €</label>
+                    <label className="block text-sm font-medium text-white mb-1">Price €</label>
                     <input
                       type="number"
                       value={newItem.unitPrice || 0}
@@ -291,30 +291,30 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
                         setNewItem({ ...newItem, unitPrice: parseFloat(e.target.value) })
                       }
                       step="0.01"
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-mint text-sm"
                     />
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={handleAddItem}
-                  className="w-full bg-slate-300 text-slate-700 px-3 py-2 rounded-lg hover:bg-slate-400 transition-colors text-sm font-medium"
+                  className="w-full bg-mint text-slate-900 px-3 py-2 rounded-lg hover:bg-mint/80 transition-colors text-sm font-medium"
                 >
                   + Add Item
                 </button>
               </div>
 
               {(formData.items || []).length > 0 && (
-                <div className="mt-3 text-right text-lg font-bold text-slate-900">
+                <div className="mt-3 text-right text-lg font-bold text-mint">
                   Total: €{(formData.totalAmount || 0).toFixed(2)}
                 </div>
               )}
             </div>
 
-            <div className="flex space-x-3 border-t border-slate-200 pt-4">
+            <div className="flex space-x-3 border-t border-[rgba(255,255,255,0.12)] pt-4">
               <button
                 type="submit"
-                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex-1 bg-mint text-slate-900 px-4 py-2 rounded-lg hover:bg-mint/80 transition-colors font-semibold"
               >
                 {selectedOrder ? 'Update' : 'Create'} Order
               </button>
@@ -324,7 +324,7 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
                   setShowForm(false);
                   resetForm();
                 }}
-                className="flex-1 bg-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-300 transition-colors"
+                className="flex-1 bg-[rgba(255,255,255,0.12)] text-white px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.18)] transition-colors"
               >
                 Cancel
               </button>
@@ -338,8 +338,8 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
       {/* Orders List */}
       <div className="space-y-3">
         {orders.length === 0 ? (
-          <div className="text-center py-8 bg-slate-50 rounded-lg text-slate-600">
-            <ShoppingCart className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+          <div className="text-center py-8 bg-[rgba(255,255,255,0.06)] rounded-lg text-[var(--text-subtle)] border border-[rgba(255,255,255,0.12)]">
+            <ShoppingCart className="w-12 h-12 text-[var(--text-subtle)] mx-auto mb-2" />
             <p>No orders yet</p>
           </div>
         ) : (
@@ -348,7 +348,7 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <p className="font-semibold text-slate-900">{getCustomerName(order.customerId)}</p>
+                    <p className="font-semibold text-white">{getCustomerName(order.customerId)}</p>
                     <span
                       className={`text-xs font-semibold px-2 py-1 rounded ${
                         statusColors[order.status]
@@ -357,10 +357,10 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
                       {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-[var(--text-subtle)]">
                     {order.items.length} item{order.items.length !== 1 ? 's' : ''} • €{order.totalAmount.toFixed(2)}
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[var(--text-subtle)]">
                     Due: {new Date(order.dueDate).toLocaleDateString()}
                   </p>
                 </div>
@@ -389,7 +389,7 @@ export const OrderManager: React.FC<OrderManagerProps> = ({
                 </div>
               </div>
               {order.items.length > 0 && (
-                <div className="text-sm text-slate-600 space-y-1">
+                <div className="text-sm text-[var(--text-subtle)] space-y-1">
                   {order.items.slice(0, 2).map((item) => (
                     <p key={item.id}>
                       {getCropName(item.cropId)} × {item.quantity}

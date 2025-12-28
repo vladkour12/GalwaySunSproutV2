@@ -25,12 +25,12 @@ const ViewLoading: React.FC = () => (
   <motion.div 
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
-    className="min-h-[240px] flex flex-col items-center justify-center text-slate-400"
+    className="min-h-[240px] flex flex-col items-center justify-center text-ocean-light"
   >
     <motion.div
       animate={{ rotate: 360 }}
       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-      className="w-8 h-8 border-3 border-teal-200 border-t-teal-500 rounded-full mb-3"
+      className="w-8 h-8 border-3 border-ocean-secondary border-t-ocean-accent rounded-full mb-3"
     />
     <span className="text-sm font-bold">Loading…</span>
   </motion.div>
@@ -848,28 +848,28 @@ const App: React.FC = () => {
 
   if (fatalError) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 p-6">
-        <div className="w-full max-w-xl bg-slate-800 rounded-3xl border border-slate-700 shadow-2xl overflow-hidden">
-          <div className="p-6 border-b border-slate-100">
-            <h2 className="text-lg font-extrabold text-slate-900">App crashed</h2>
-            <p className="text-sm text-slate-500 mt-1">
-              View: <span className="font-mono text-xs">{currentView}</span>
+      <div className="min-h-screen flex items-center justify-center bg-ocean-dark p-6">
+        <div className="w-full max-w-xl bg-ocean-primary rounded-3xl border border-ocean-contrast shadow-2xl overflow-hidden">
+          <div className="p-6 border-b border-ocean-secondary/40">
+            <h2 className="text-lg font-extrabold text-white">App crashed</h2>
+            <p className="text-sm text-ocean-light mt-1">
+              View: <span className="font-mono text-xs text-white">{currentView}</span>
             </p>
           </div>
           <div className="p-6 space-y-3">
-            <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4">
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Error</div>
-              <div className="mt-1 font-mono text-xs text-slate-900 whitespace-pre-wrap break-words">{fatalError.message}</div>
+            <div className="rounded-2xl bg-ocean-secondary/15 border border-ocean-accent/30 p-4">
+              <div className="text-xs font-bold text-ocean-light uppercase tracking-wider">Error</div>
+              <div className="mt-1 font-mono text-xs text-white whitespace-pre-wrap break-words">{fatalError.message}</div>
               {fatalError.source && (
-                <div className="mt-2 text-[10px] font-mono text-slate-500 whitespace-pre-wrap break-words">
+                <div className="mt-2 text-[10px] font-mono text-ocean-light whitespace-pre-wrap break-words">
                   {fatalError.source}
                 </div>
               )}
             </div>
             {fatalError.stack && (
-              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 max-h-52 overflow-auto">
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stack</div>
-                <div className="mt-1 font-mono text-[10px] text-slate-700 whitespace-pre-wrap break-words">
+              <div className="rounded-2xl bg-ocean-secondary/15 border border-ocean-accent/30 p-4 max-h-52 overflow-auto">
+                <div className="text-xs font-bold text-ocean-light uppercase tracking-wider">Stack</div>
+                <div className="mt-1 font-mono text-[10px] text-ocean-light whitespace-pre-wrap break-words">
                   {fatalError.stack}
                 </div>
               </div>
@@ -880,18 +880,18 @@ const App: React.FC = () => {
                   setFatalError(null);
                   setCurrentView('dashboard');
                 }}
-                className="flex-1 px-4 py-3 rounded-2xl bg-slate-900 text-white font-bold"
+                className="flex-1 px-4 py-3 rounded-2xl bg-ocean-accent text-white font-bold"
               >
                 Recover
               </button>
               <button
                 onClick={() => window.location.reload()}
-                className="flex-1 px-4 py-3 rounded-2xl bg-slate-100 text-slate-900 font-bold"
+                className="flex-1 px-4 py-3 rounded-2xl bg-ocean-primary border border-ocean-contrast text-ocean-light font-bold"
               >
                 Reload
               </button>
             </div>
-            <p className="text-[10px] text-slate-400 font-mono">crash-capture:v1</p>
+            <p className="text-[10px] text-ocean-light font-mono">crash-capture:v1</p>
           </div>
         </div>
       </div>
@@ -901,11 +901,11 @@ const App: React.FC = () => {
   if (isLoading && authStatus === 'admin') {
      const elapsedSec = Math.max(0, Math.round((Date.now() - loadStartedAtRef.current) / 1000));
      return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-950">
+        <div className="min-h-screen flex items-center justify-center bg-ocean-dark">
            <div className="flex flex-col items-center">
-              <div className="bg-teal-600 p-3 rounded-2xl mb-4 animate-bounce"><Sprout className="w-8 h-8 text-white" /></div>
-              <h2 className="text-slate-100 font-bold text-lg">Loading Farm Data...</h2>
-              <p className="mt-2 text-slate-400 text-sm font-semibold">{loadPhase} · {elapsedSec}s</p>
+              <div className="bg-ocean-accent p-3 rounded-2xl mb-4 animate-bounce"><Sprout className="w-8 h-8 text-white" /></div>
+              <h2 className="text-white font-bold text-lg">Loading Farm Data...</h2>
+              <p className="mt-2 text-ocean-light text-sm font-semibold">{loadPhase} · {elapsedSec}s</p>
               <div className="mt-6 flex gap-3">
                 <button
                   onClick={() => {
@@ -918,18 +918,18 @@ const App: React.FC = () => {
                     });
                     setIsLoading(false);
                   }}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-100 font-bold text-sm hover:bg-slate-700 transition"
+                  className="px-4 py-2 rounded-xl bg-ocean-primary text-white font-bold text-sm border border-ocean-contrast hover:bg-ocean-primary/80 transition"
                 >
                   Continue offline
                 </button>
                 <button
                   onClick={() => setLoadAttempt(v => v + 1)}
-                  className="px-4 py-2 rounded-xl bg-teal-600 text-white font-bold text-sm hover:bg-teal-700 transition"
+                  className="px-4 py-2 rounded-xl bg-ocean-accent text-white font-bold text-sm hover:bg-ocean-accent/90 transition"
                 >
                   Retry
                 </button>
               </div>
-              <p className="mt-4 text-slate-500 text-xs font-mono opacity-80">boot:lf4 crash-capture:v1</p>
+              <p className="mt-4 text-ocean-light text-xs font-mono opacity-80">boot:lf4 crash-capture:v1</p>
            </div>
         </div>
      );
@@ -987,7 +987,7 @@ const App: React.FC = () => {
     <Layout currentView={currentView} onNavigate={setCurrentView} onLogout={() => setAuthStatus('landing')} alertCount={alertCount} appState={appState}>
       {didForceBoot && (
         <div className="px-4 pt-4">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700 text-sm font-semibold">
+          <div className="rounded-2xl border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] px-4 py-3 text-white text-sm font-semibold">
             Local-first mode: started with defaults (local DB was empty or slow). Changes will sync when online.
           </div>
         </div>

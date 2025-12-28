@@ -103,7 +103,7 @@ export const WateringScheduleManager: React.FC<WateringScheduleManagerProps> = (
 
       {/* Urgent Alerts */}
       {dueSoon.length > 0 && (
-        <div className="bg-orange-50 border border-orange-200 rounded-xl p-6">
+        <div className="bg-orange-900 border border-orange-700 rounded-xl p-6">
           <div className="flex items-start space-x-3">
             <AlertCircle className="w-6 h-6 text-orange-600 flex-shrink-0 mt-0.5" />
             <div>
@@ -116,7 +116,7 @@ export const WateringScheduleManager: React.FC<WateringScheduleManagerProps> = (
                   <button
                     key={tray.id}
                     onClick={() => handleWaterTray(tray.id)}
-                    className="w-full text-left bg-white hover:bg-orange-50 border border-orange-200 rounded-lg p-3 transition-colors"
+                    className="w-full text-left bg-slate-800 hover:bg-orange-900 border border-orange-700 rounded-lg p-3 transition-colors"
                   >
                     <p className="font-medium text-slate-900">
                       {getCropName(tray.cropTypeId)} - {tray.location}
@@ -153,7 +153,7 @@ export const WateringScheduleManager: React.FC<WateringScheduleManagerProps> = (
                   className={`border rounded-lg p-4 ${
                     isOverdue
                       ? 'bg-red-50 border-red-200'
-                      : 'bg-white border-slate-200 hover:border-blue-300'
+                      : 'bg-slate-800 border-slate-700 hover:border-blue-300'
                   } transition-colors`}
                 >
                   <div className="flex items-start justify-between">

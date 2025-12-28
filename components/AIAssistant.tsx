@@ -77,23 +77,23 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ state }) => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] bg-slate-800 rounded-3xl shadow-sm border border-slate-700 overflow-hidden relative">
+    <div className="flex flex-col h-[calc(100vh-140px)] bg-ocean-primary rounded-3xl shadow-sm border border-ocean-contrast overflow-hidden relative">
       {/* Header */}
-      <div className="bg-slate-800/90 backdrop-blur-sm border-b border-slate-700 p-4 flex items-center justify-center absolute top-0 left-0 right-0 z-10">
+      <div className="bg-ocean-primary/90 backdrop-blur-sm border-b border-ocean-contrast p-4 flex items-center justify-center absolute top-0 left-0 right-0 z-10">
          <div className="flex flex-col items-center">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Consultant</span>
+            <span className="text-xs font-bold text-ocean-light uppercase tracking-widest mb-0.5">Consultant</span>
             <div className="flex items-center space-x-1.5">
                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-ocean-accent opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-ocean-accent"></span>
                </span>
-               <h3 className="font-bold text-slate-100">Sprout AI</h3>
+               <h3 className="font-bold text-white">Sprout AI</h3>
             </div>
          </div>
       </div>
       
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto pt-20 pb-4 px-4 space-y-6 bg-gradient-to-b from-slate-900 to-slate-800">
+      <div className="flex-1 overflow-y-auto pt-20 pb-4 px-4 space-y-6 bg-gradient-to-b from-ocean-dark to-ocean-primary">
         <AnimatePresence>
         {messages.map((msg) => (
           <motion.div 
@@ -104,17 +104,17 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ state }) => {
             className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div className={`flex max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse space-x-reverse' : 'flex-row'} items-end space-x-2`}>
-               <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${msg.sender === 'user' ? 'bg-emerald-600' : 'bg-emerald-900/30 border border-emerald-700'}`}>
-                  {msg.sender === 'user' ? <User className="w-4 h-4 text-white" /> : <Sprout className="w-4 h-4 text-emerald-400" />}
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${msg.sender === 'user' ? 'bg-ocean-accent' : 'bg-ocean-primary/60 border border-ocean-secondary'}`}>
+                {msg.sender === 'user' ? <User className="w-4 h-4 text-white" /> : <Sprout className="w-4 h-4 text-ocean-light" />}
                </div>
                
                <div className={`p-4 rounded-3xl text-sm leading-relaxed shadow-sm ${
                  msg.sender === 'user' 
-                   ? 'bg-emerald-600 text-white rounded-br-none' 
-                   : 'bg-slate-700 text-slate-100 border border-slate-600 rounded-bl-none'
+                   ? 'bg-ocean-accent text-white rounded-br-none' 
+                   : 'bg-ocean-primary text-white border border-ocean-contrast rounded-bl-none'
                }`}>
                  <div dangerouslySetInnerHTML={{ __html: msg.text.replace(/\n/g, '<br/>') }} />
-                 <span className={`text-[10px] block mt-2 opacity-60 ${msg.sender === 'user' ? 'text-white' : 'text-slate-400'}`}>
+                 <span className={`text-[10px] block mt-2 opacity-60 ${msg.sender === 'user' ? 'text-white' : 'text-ocean-light'}`}>
                     {msg.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                  </span>
                </div>
@@ -129,10 +129,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ state }) => {
             animate={{ opacity: 1 }}
             className="flex justify-start"
           >
-             <div className="flex items-center space-x-2 bg-slate-700 border border-slate-600 px-4 py-3 rounded-2xl rounded-bl-none shadow-sm ml-10">
-                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+             <div className="flex items-center space-x-2 bg-ocean-primary border border-ocean-contrast px-4 py-3 rounded-2xl rounded-bl-none shadow-sm ml-10">
+               <div className="w-1.5 h-1.5 bg-ocean-light rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+               <div className="w-1.5 h-1.5 bg-ocean-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+               <div className="w-1.5 h-1.5 bg-ocean-contrast rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
              </div>
           </motion.div>
         )}
@@ -140,16 +140,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ state }) => {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-slate-800 border-t border-slate-700">
-        <div className="flex items-center space-x-2 bg-slate-700 p-2 rounded-2xl border border-slate-600 focus-within:ring-2 focus-within:ring-emerald-500 transition-shadow">
+      <div className="p-4 bg-ocean-primary border-t border-ocean-contrast">
+        <div className="flex items-center space-x-2 bg-ocean-dark p-2 rounded-2xl border border-ocean-contrast focus-within:ring-2 focus-within:ring-ocean-accent transition-shadow">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Ask about planting schedules..."
-            className="flex-1 bg-slate-700 text-slate-100 placeholder-slate-400 outline-none"
-            className="flex-1 p-2 bg-transparent border-none focus:outline-none text-slate-800 placeholder:text-slate-400 font-medium"
+            className="flex-1 bg-transparent border-none focus:outline-none text-white placeholder:text-ocean-light font-medium p-2"
             disabled={isLoading}
           />
           <motion.button 
@@ -157,7 +156,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ state }) => {
             disabled={isLoading || !input.trim()}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="bg-teal-600 hover:bg-teal-700 disabled:bg-slate-300 text-white p-3 rounded-xl transition-all shadow-md"
+            className="bg-ocean-accent hover:bg-ocean-accent/90 disabled:bg-ocean-contrast text-white p-3 rounded-xl transition-all shadow-md"
           >
             <Send className="w-5 h-5" />
           </motion.button>

@@ -329,17 +329,17 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between items-center">
            <div>
-              <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
+              <h2 className="text-4xl font-bold text-white tracking-tight">
                 {viewMode === 'transactions' ? 'Finances' : viewMode === 'customers' ? 'Customers' : 'Business Expenses'}
               </h2>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-sm text-[var(--text-subtle)] font-medium mt-2">
                 {viewMode === 'transactions' ? 'Cash Flow & Records' : viewMode === 'customers' ? 'Client Management' : 'Track Business Spending'}
               </p>
            </div>
-           <div className="flex bg-slate-700 p-1 rounded-xl relative z-10">
-              <button onClick={() => setViewMode('transactions')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-lg transition-all ${viewMode === 'transactions' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400'}`}><LayoutGrid className="w-5 h-5" /></button>
-              <button onClick={() => setViewMode('customers')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-lg transition-all ${viewMode === 'customers' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400'}`}><Users className="w-5 h-5" /></button>
-              <button onClick={() => setViewMode('expenses')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-lg transition-all ${viewMode === 'expenses' ? 'bg-pink-600 text-white shadow-sm' : 'text-slate-400'}`}><Building2 className="w-5 h-5" /></button>
+           <div className="glass-card p-1.5 flex relative z-10 border border-[rgba(255,255,255,0.1)]">
+              <button onClick={() => setViewMode('transactions')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-xl transition-all ${viewMode === 'transactions' ? 'bg-[var(--mint)] text-[var(--ultra-dark)] shadow-md' : 'text-[var(--text-subtle)] hover:text-[var(--text-strong)]'}`}><LayoutGrid className="w-5 h-5 icon-thin" /></button>
+              <button onClick={() => setViewMode('customers')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-xl transition-all ${viewMode === 'customers' ? 'bg-[var(--lavender)] text-[var(--ultra-dark)] shadow-md' : 'text-[var(--text-subtle)] hover:text-[var(--text-strong)]'}`}><Users className="w-5 h-5 icon-thin" /></button>
+              <button onClick={() => setViewMode('expenses')} style={{ position: 'relative', zIndex: 10 }} className={`p-2 rounded-xl transition-all ${viewMode === 'expenses' ? 'bg-[var(--peach)] text-[var(--ultra-dark)] shadow-md' : 'text-[var(--text-subtle)] hover:text-[var(--text-strong)]'}`}><Building2 className="w-5 h-5 icon-thin" /></button>
            </div>
         </div>
 
@@ -349,9 +349,9 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
             whileTap={{ scale: 0.99 }}
             onClick={() => { if (showTxForm) { setShowTxForm(false); resetForm(); } else { setShowTxForm(true); resetForm(); } }}
             style={{ touchAction: 'manipulation', position: 'relative', zIndex: 10 }}
-            className={`w-full py-3 rounded-2xl shadow-lg flex items-center justify-center text-sm font-bold transition-all ${showTxForm ? 'bg-slate-100 text-slate-600 shadow-none' : 'bg-slate-900 text-white shadow-slate-200'}`}
+            className={`w-full py-3.5 rounded-2xl shadow-lg flex items-center justify-center text-sm font-bold transition-all ${showTxForm ? 'glass-card border border-[rgba(255,255,255,0.1)] text-[var(--text-subtle)] hover:border-[rgba(255,255,255,0.2)]' : 'bg-[var(--mint)] text-[var(--ultra-dark)] shadow-[0_12px_40px_rgba(0,217,163,0.3)] hover:shadow-[0_16px_50px_rgba(0,217,163,0.4)]'}`}
           >
-            {showTxForm ? 'Cancel Entry' : <><Plus className="w-4 h-4 mr-2" /> Add Transaction</>}
+            {showTxForm ? 'Cancel Entry' : <><Plus className="w-4 h-4 mr-2 icon-thin" /> Add Transaction</>}
           </motion.button>
         ) : viewMode === 'customers' ? (
           <motion.button
@@ -359,9 +359,9 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
             whileTap={{ scale: 0.99 }}
             onClick={openNewCustomerModal}
             style={{ touchAction: 'manipulation', position: 'relative', zIndex: 10 }}
-            className="w-full bg-white hover:bg-slate-100 text-slate-800 py-3 rounded-2xl shadow-lg flex items-center justify-center text-sm font-bold transition-all"
+            className="w-full glass-card-elevated border border-[rgba(255,255,255,0.12)] text-white hover:border-[rgba(255,255,255,0.2)] py-3.5 rounded-2xl shadow-lg flex items-center justify-center text-sm font-bold transition-all"
           >
-            <Plus className="w-4 h-4 mr-2" /> Add Customer
+            <Plus className="w-4 h-4 mr-2 icon-thin" /> Add Customer
           </motion.button>
         ) : (
           <motion.button
@@ -382,9 +382,9 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
               } 
             }}
             style={{ touchAction: 'manipulation', position: 'relative', zIndex: 10 }}
-            className={`w-full py-3 rounded-2xl shadow-lg flex items-center justify-center text-sm font-bold transition-all ${showExpenseForm ? 'bg-slate-100 text-slate-600 shadow-none' : 'bg-purple-600 text-white shadow-purple-200'}`}
+            className={`w-full py-3.5 rounded-2xl shadow-lg flex items-center justify-center text-sm font-bold transition-all ${showExpenseForm ? 'glass-card border border-[rgba(255,255,255,0.1)] text-[var(--text-subtle)] hover:border-[rgba(255,255,255,0.2)]' : 'bg-[var(--peach)] text-[var(--ultra-dark)] shadow-[0_12px_40px_rgba(255,185,151,0.3)] hover:shadow-[0_16px_50px_rgba(255,185,151,0.4)]'}`}
           >
-            {showExpenseForm ? 'Cancel' : <><Plus className="w-4 h-4 mr-2" /> Add Business Investment</>}
+            {showExpenseForm ? 'Cancel' : <><Plus className="w-4 h-4 mr-2 icon-thin" /> Add Business Investment</>}
           </motion.button>
         )}
       </div>
@@ -393,20 +393,43 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
         <div className="space-y-6">
           <AnimatePresence>
           {showTxForm && (
-            <motion.form initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: 'easeInOut' }} onSubmit={handleTxSubmit} className="bg-slate-800 p-6 rounded-3xl shadow-xl shadow-purple-900/30 border border-slate-700 space-y-5 relative overflow-hidden">
-               <div className={`pointer-events-none absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${editingTx ? 'from-amber-400 to-orange-500' : 'from-teal-400 to-blue-500'}`}></div>
-               <h3 className="text-sm font-bold text-slate-800">{editingTx ? 'Edit Transaction' : 'New Transaction'}</h3>
-               <div className="bg-slate-100 p-1.5 rounded-2xl flex relative">
-                 <motion.div className="pointer-events-none absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-purple-600 rounded-xl shadow-sm" animate={{ x: type === 'expense' ? '100%' : '0%' }} transition={{ type: "spring", stiffness: 500, damping: 30 }} />
-                 <button type="button" onClick={() => setType('income')} onPointerUp={() => setType('income')} style={{ touchAction: 'manipulation' }} className={`relative flex-1 py-2.5 text-sm font-bold rounded-xl transition-colors z-10 ${type === 'income' ? 'text-teal-700' : 'text-slate-500'}`}>Income</button>
-                 <button type="button" onClick={() => setType('expense')} onPointerUp={() => setType('expense')} style={{ touchAction: 'manipulation' }} className={`relative flex-1 py-2.5 text-sm font-bold rounded-xl transition-colors z-10 ${type === 'expense' ? 'text-red-700' : 'text-slate-500'}`}>Expense</button>
+            <motion.form initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: 'easeInOut' }} onSubmit={handleTxSubmit} className="glass-card-elevated p-6 shadow-xl border border-[rgba(255,255,255,0.12)] space-y-5 relative overflow-hidden">
+               <div className={`pointer-events-none absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${editingTx ? 'from-[var(--peach)] to-orange-500' : 'from-[var(--mint)] to-teal-400'}`}></div>
+               <h3 className="text-sm font-bold text-[var(--text-strong)]">{editingTx ? 'Edit Transaction' : 'New Transaction'}</h3>
+               <div className="glass-card p-1.5 flex relative border border-[rgba(255,255,255,0.12)]">
+                 <motion.div
+                   className="pointer-events-none absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] rounded-xl shadow-sm"
+                   animate={{
+                     x: type === 'expense' ? '100%' : '0%',
+                     backgroundColor: type === 'expense' ? 'var(--peach)' : 'var(--mint)'
+                   }}
+                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                 />
+                 <button
+                   type="button"
+                   onClick={() => setType('income')}
+                   onPointerUp={() => setType('income')}
+                   style={{ touchAction: 'manipulation' }}
+                   className={`relative flex-1 py-2.5 text-sm font-bold rounded-xl transition-colors z-10 ${type === 'income' ? 'text-[var(--ultra-dark)]' : 'text-[var(--text-subtle)]'}`}
+                 >
+                   Income
+                 </button>
+                 <button
+                   type="button"
+                   onClick={() => setType('expense')}
+                   onPointerUp={() => setType('expense')}
+                   style={{ touchAction: 'manipulation' }}
+                   className={`relative flex-1 py-2.5 text-sm font-bold rounded-xl transition-colors z-10 ${type === 'expense' ? 'text-[var(--ultra-dark)]' : 'text-[var(--text-subtle)]'}`}
+                 >
+                   Expense
+                 </button>
                </div>
                <div className="space-y-4">
-                  <div className="relative"><span className="absolute left-4 top-3.5 text-slate-400 font-medium">€</span><input type="number" value={amount} onChange={e => setAmount(e.target.value)} onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()} className="w-full pl-8 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-lg font-bold text-slate-800 focus:ring-2 focus:ring-teal-100 placeholder:text-slate-300 transition-all" placeholder="0.00" required /></div>
-                  {editingTx && ( <div className="relative"><Calendar className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" /><input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-base font-bold text-slate-700 focus:ring-2 focus:ring-teal-100 outline-none" /></div> )}
+                  <div className="relative"><span className="absolute left-4 top-3.5 text-[var(--text-subtle)] font-semibold">€</span><input type="number" value={amount} onChange={e => setAmount(e.target.value)} onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()} className="w-full pl-8 pr-4 py-3.5 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-lg font-bold text-[var(--text-strong)] focus:ring-2 focus:ring-[var(--mint)] placeholder:text-[var(--text-subtle)] transition-all" placeholder="0.00" required /></div>
+                  {editingTx && ( <div className="relative"><Calendar className="absolute left-4 top-3.5 w-4 h-4 text-[var(--text-subtle)] icon-thin" /><input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full pl-10 pr-4 py-3.5 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-xl text-base font-bold text-[var(--text-strong)] focus:ring-2 focus:ring-[var(--mint)] outline-none" /></div> )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <div className="relative">
-                       {type === 'income' && <label className="absolute -top-2 left-3 bg-slate-800 px-1 text-[10px] text-purple-400 font-bold z-10">Sales Channel</label>}
+                       {type === 'income' && <label className="absolute -top-2 left-3 bg-[var(--ultra-dark)] px-1 text-[10px] text-[var(--mint)] font-bold z-10">Sales Channel</label>}
                        <CustomSelect 
                           value={category} 
                           onChange={(val) => setCategory(val)} 
@@ -433,7 +456,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                      </div>
                      {type === 'income' ? (
                        <div className="relative">
-                          <label className="absolute -top-2 left-3 bg-slate-800 px-1 text-[10px] text-blue-400 font-bold z-10">Customer (Optional)</label>
+                          <label className="absolute -top-2 left-3 bg-[var(--ultra-dark)] px-1 text-[10px] text-[var(--lavender)] font-bold z-10">Customer (Optional)</label>
                           <CustomSelect 
                              value={selectedCustomerId} 
                              onChange={(val) => setSelectedCustomerId(val)} 
@@ -444,23 +467,41 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                           />
                        </div>
                      ) : (
-                        <div className="relative"><input type="text" value={payee} onChange={e => setPayee(e.target.value)} list="payee-suggestions" placeholder="Payee / Vendor" className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-base font-medium text-slate-700 focus:ring-2 focus:ring-teal-100 outline-none" /><datalist id="payee-suggestions">{payeeSuggestions.map((p, i) => <option key={i} value={p} />)}</datalist></div>
+                        <div className="relative"><input type="text" value={payee} onChange={e => setPayee(e.target.value)} list="payee-suggestions" placeholder="Payee / Vendor" className="w-full p-3.5 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-2xl text-base font-medium text-[var(--text-strong)] focus:ring-2 focus:ring-[var(--mint)] placeholder:text-[var(--text-subtle)] outline-none" /><datalist id="payee-suggestions">{payeeSuggestions.map((p, i) => <option key={i} value={p} />)}</datalist></div>
                      )}
                   </div>
-                  <input type="text" value={description} onChange={e => setDescription(e.target.value)} className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-base font-medium text-slate-700 focus:ring-2 focus:ring-teal-100 placeholder:text-slate-300 outline-none" placeholder="Description (e.g. Weekly Farmers Market)" />
+                  <input type="text" value={description} onChange={e => setDescription(e.target.value)} className="w-full p-3.5 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-2xl text-base font-medium text-[var(--text-strong)] focus:ring-2 focus:ring-[var(--mint)] placeholder:text-[var(--text-subtle)] outline-none" placeholder="Description (e.g. Weekly Farmers Market)" />
                </div>
                <div className="pt-2 flex gap-3">
-                  <button type="button" onClick={() => { setShowTxForm(false); resetForm(); }} className="flex-1 py-3.5 rounded-2xl border border-slate-200 text-slate-500 font-bold hover:bg-slate-50 transition-colors">Cancel</button>
-                  <button type="submit" className="flex-1 py-3.5 rounded-2xl bg-white text-slate-800 font-bold hover:bg-slate-100 shadow-lg transition-colors">{editingTx ? 'Update Record' : 'Save Transaction'}</button>
+                  <button type="button" onClick={() => { setShowTxForm(false); resetForm(); }} className="flex-1 py-3.5 rounded-2xl glass-card border border-[rgba(255,255,255,0.12)] text-[var(--text-subtle)] hover:text-[var(--text-strong)] hover:border-[rgba(255,255,255,0.2)] font-bold transition-colors">Cancel</button>
+                  <button type="submit" className="flex-1 py-3.5 rounded-2xl bg-[var(--mint)] text-[var(--ultra-dark)] font-bold shadow-lg hover:shadow-xl transition-all">{editingTx ? 'Update Record' : 'Save Transaction'}</button>
                </div>
             </motion.form>
           )}
           </AnimatePresence>
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-             <div className="bg-teal-50 p-5 rounded-3xl border border-teal-100 flex flex-col justify-between"><span className="text-teal-600 text-xs font-bold uppercase tracking-wider">Total Income</span><div className="text-2xl font-bold text-teal-800 mt-1">€{financials.income.toFixed(2)}</div></div>
-             <div className="bg-red-50 p-5 rounded-3xl border border-red-100 flex flex-col justify-between"><span className="text-red-600 text-xs font-bold uppercase tracking-wider">Total Expenses</span><div className="text-2xl font-bold text-red-800 mt-1">€{financials.expenses.toFixed(2)}</div></div>
-             <div className={`p-5 rounded-3xl border flex flex-col justify-between ${financials.netProfit >= 0 ? 'bg-slate-900 text-white border-slate-800' : 'bg-orange-50 text-orange-800 border-orange-100'}`}><span className={`text-xs font-bold uppercase tracking-wider ${financials.netProfit >= 0 ? 'text-slate-400' : 'text-orange-600'}`}>Net Profit</span><div className="text-2xl font-bold mt-1">€{financials.netProfit.toFixed(2)}</div></div>
+             <div className="glass-card-elevated p-6 flex flex-col justify-between border border-[var(--mint)]/30 relative overflow-hidden group">
+               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                 <ArrowUpRight className="w-20 h-20 text-[var(--mint)]" />
+               </div>
+               <span className="text-[var(--mint)] text-xs font-bold uppercase tracking-widest relative z-10">Total Income</span>
+               <div className="text-3xl font-bold text-[var(--text-strong)] mt-3 relative z-10">€{financials.income.toFixed(2)}</div>
+             </div>
+             <div className="glass-card-elevated p-6 flex flex-col justify-between border border-[rgba(255,107,107,0.3)] relative overflow-hidden group">
+               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                 <ArrowDownLeft className="w-20 h-20 text-[rgb(255,107,107)]" />
+               </div>
+               <span className="text-[rgb(255,107,107)] text-xs font-bold uppercase tracking-widest relative z-10">Total Expenses</span>
+               <div className="text-3xl font-bold text-[var(--text-strong)] mt-3 relative z-10">€{financials.expenses.toFixed(2)}</div>
+             </div>
+             <div className={`glass-card-elevated p-6 flex flex-col justify-between border transition-all relative overflow-hidden group ${financials.netProfit >= 0 ? 'border-[var(--mint)]/30' : 'border-[rgba(255,107,107,0.3)]'}`}>
+               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                 <TrendingUp className={`w-20 h-20 ${financials.netProfit >= 0 ? 'text-[var(--mint)]' : 'text-[rgb(255,107,107)]'}`} />
+               </div>
+               <span className={`text-xs font-bold uppercase tracking-widest relative z-10 ${financials.netProfit >= 0 ? 'text-[var(--mint)]' : 'text-[rgb(255,107,107)]'}`}>Net Profit</span>
+               <div className={`text-3xl font-bold mt-3 relative z-10 ${financials.netProfit >= 0 ? 'text-[var(--mint)]' : 'text-[rgb(255,107,107)]'}`}>€{financials.netProfit.toFixed(2)}</div>
+             </div>
           </motion.div>
 
           {true ? (
@@ -470,34 +511,44 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
               transition={{ delay: 0.1 }}
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
-              <div className="bg-slate-800 p-5 rounded-3xl shadow-sm border border-slate-700 relative z-0">
-                <h4 className="text-sm font-bold text-white mb-4">Cash Flow (Last 7 Days)</h4>
+              <div className="glass-card-elevated p-6 rounded-3xl shadow-sm border border-[rgba(255,255,255,0.12)]">
+                <h4 className="text-sm font-bold text-white mb-4 flex items-center">
+                  <div className="w-9 h-9 rounded-lg bg-[var(--mint)]/20 flex items-center justify-center text-[var(--mint)] border border-[var(--mint)]/30 mr-3">
+                    <BarChart3 className="w-4 h-4 icon-thin" />
+                  </div>
+                  Cash Flow (Last 7 Days)
+                </h4>
                 <div ref={chartRef1} className="h-48 w-full" style={{ minHeight: 192, position: 'relative', pointerEvents: 'none' }}>
                   {chartWidth > 0 && (
                     <BarChart width={chartWidth} height={192} data={cashFlowData}>
                       <XAxis dataKey="date" hide />
-                      <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                      <Bar dataKey="income" fill="#0d9488" radius={[4, 4, 0, 0]} isAnimationActive={false} />
-                      <Bar dataKey="expense" fill="#ef4444" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+                      <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgba(10, 10, 15, 0.95)', color: '#fff' }} />
+                      <Bar dataKey="income" fill="var(--mint)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+                      <Bar dataKey="expense" fill="rgb(255, 107, 107)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
                     </BarChart>
                   )}
                 </div>
-                {isTouchUI && <p className="mt-2 text-[10px] text-slate-400 font-bold">Charts are view-only on mobile.</p>}
+                {isTouchUI && <p className="mt-2 text-[10px] text-[var(--text-subtle)] font-bold">Charts are view-only on mobile.</p>}
              </div>
-              <div className="bg-slate-800 p-5 rounded-3xl shadow-sm border border-slate-700 relative z-0">
-                <h4 className="text-sm font-bold text-white mb-4">Expenses by Category</h4>
+              <div className="glass-card-elevated p-6 rounded-3xl shadow-sm border border-[rgba(255,255,255,0.12)]">
+                <h4 className="text-sm font-bold text-white mb-4 flex items-center">
+                  <div className="w-9 h-9 rounded-lg bg-[var(--lavender)]/20 flex items-center justify-center text-[var(--lavender)] border border-[var(--lavender)]/30 mr-3">
+                    <PieChart className="w-4 h-4 icon-thin" />
+                  </div>
+                  Expenses by Category
+                </h4>
                 <div ref={chartRef2} className="h-48 w-full" style={{ minHeight: 192, position: 'relative', pointerEvents: 'none' }}>
                   {chartWidth > 0 && (
                     <PieChart width={chartWidth} height={192}>
                       <Pie data={expenseCategoryData} innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value" isAnimationActive={false}>
                         {expenseCategoryData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
                       </Pie>
-                      <Tooltip />
-                      <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
+                      <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgba(10, 10, 15, 0.95)', color: '#fff' }} />
+                      <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.7)' }} />
                     </PieChart>
                   )}
                 </div>
-                {isTouchUI && <p className="mt-2 text-[10px] text-slate-400 font-bold">Charts are view-only on mobile.</p>}
+                {isTouchUI && <p className="mt-2 text-[10px] text-[var(--text-subtle)] font-bold">Charts are view-only on mobile.</p>}
              </div>
           </motion.div>
           ) : (
@@ -528,17 +579,17 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                          className="text-xs"
                       />
                    </div>
-                   <button onClick={handleExportCSV} className="p-1 text-slate-400 hover:text-teal-600"><Download className="w-4 h-4" /></button>
+                   <button onClick={handleExportCSV} className="p-1 text-slate-400 hover:text-teal-400"><Download className="w-4 h-4" /></button>
                 </div>
              </div>
              <motion.div initial="hidden" animate="visible" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.05 } } }} className="divide-y divide-slate-50">
                 {filteredTransactions.slice().reverse().map(tx => (
-                   <motion.div key={tx.id} variants={{ hidden: { opacity: 0, x: -10 }, visible: { opacity: 1, x: 0 } }} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors group">
+                   <motion.div key={tx.id} variants={{ hidden: { opacity: 0, x: -10 }, visible: { opacity: 1, x: 0 } }} className="p-4 flex items-center justify-between hover:bg-slate-700 transition-colors group">
                       <div className="flex items-center space-x-3">
-                         <div className={`p-2.5 rounded-xl ${tx.type === 'income' ? 'bg-teal-50 text-teal-600' : 'bg-red-50 text-red-600'}`}>{getCategoryIcon(tx.category, tx.type)}</div>
-                         <div><div className="font-bold text-slate-800 text-sm">{tx.description || tx.category}</div><div className="text-[10px] text-slate-400 font-medium">{(() => { const d = new Date(tx.date); return isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString(); })()} • {tx.payee || tx.customerId ? (tx.payee || state.customers.find(c => c.id === tx.customerId)?.name) : 'General'}</div></div>
+                         <div className={`p-2.5 rounded-xl ${tx.type === 'income' ? 'bg-teal-50 text-teal-400' : 'bg-red-50 text-red-600'}`}>{getCategoryIcon(tx.category, tx.type)}</div>
+                         <div><div className="font-bold text-slate-100 text-sm">{tx.description || tx.category}</div><div className="text-[10px] text-slate-400 font-medium">{(() => { const d = new Date(tx.date); return isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString(); })()} • {tx.payee || tx.customerId ? (tx.payee || state.customers.find(c => c.id === tx.customerId)?.name) : 'General'}</div></div>
                       </div>
-                      <div className="flex items-center space-x-3"><span className={`font-bold text-sm ${tx.type === 'income' ? 'text-teal-600' : 'text-slate-900'}`}>{tx.type === 'income' ? '+' : '-'}€{tx.amount.toFixed(2)}</span><div className="flex space-x-1"><button onClick={() => setEditingTx(tx)} className="p-2 text-slate-400 hover:text-blue-500 bg-slate-50 rounded-lg active:bg-blue-50"><Edit2 className="w-4 h-4" /></button><button onClick={() => onDeleteTransaction(tx.id)} className="p-2 text-slate-400 hover:text-red-500 bg-slate-50 rounded-lg active:bg-red-50"><Trash2 className="w-4 h-4" /></button></div></div>
+                      <div className="flex items-center space-x-3"><span className={`font-bold text-sm ${tx.type === 'income' ? 'text-teal-400' : 'text-slate-300'}`}>{tx.type === 'income' ? '+' : '-'}€{tx.amount.toFixed(2)}</span><div className="flex space-x-1"><button onClick={() => setEditingTx(tx)} className="p-2 text-slate-400 hover:text-blue-500 bg-slate-700 rounded-lg active:bg-blue-900"><Edit2 className="w-4 h-4" /></button><button onClick={() => onDeleteTransaction(tx.id)} className="p-2 text-slate-400 hover:text-red-500 bg-slate-700 rounded-lg active:bg-red-900"><Trash2 className="w-4 h-4" /></button></div></div>
                    </motion.div>
                 ))}
              </motion.div>
@@ -568,7 +619,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
             <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="bg-slate-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden p-6 space-y-4 max-h-[85vh] overflow-y-auto">
                <div className="flex justify-between items-center">
                    <h3 className="text-lg font-bold text-white">{editingCustomer.id ? 'Edit Customer' : 'Add New Customer'}</h3>
-                   <button onClick={() => setShowCustomerModal(false)} className="p-3 bg-slate-700 rounded-full hover:bg-slate-600 active:bg-slate-500 transition-colors"><X className="w-5 h-5 text-slate-300" /></button>
+                   <button onClick={() => setShowCustomerModal(false)} className="p-3 bg-slate-700 rounded-full hover:bg-slate-600 active:bg-slate-7000 transition-colors"><X className="w-5 h-5 text-slate-300" /></button>
                </div>
                <div className="space-y-3">
                   <div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Name</label><input type="text" value={editingCustomer.name} onChange={e => setEditingCustomer({...editingCustomer, name: e.target.value})} className="w-full p-3 bg-slate-700 border border-slate-600 text-white rounded-xl text-base font-bold focus:ring-2 focus:ring-purple-500 outline-none" /></div>
@@ -587,7 +638,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                   <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Contact Person</label><input type="text" value={editingCustomer.contact} onChange={e => setEditingCustomer({...editingCustomer, contact: e.target.value})} className="w-full p-3 bg-slate-700 border border-slate-600 text-white rounded-xl text-base font-medium focus:ring-2 focus:ring-purple-500 outline-none" /></div><div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Email</label><input type="email" value={editingCustomer.email} onChange={e => setEditingCustomer({...editingCustomer, email: e.target.value})} className="w-full p-3 bg-slate-700 border border-slate-600 text-white rounded-xl text-base font-medium focus:ring-2 focus:ring-purple-500 outline-none" /></div></div>
                   <div><label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Notes</label><textarea value={editingCustomer.notes} onChange={e => setEditingCustomer({...editingCustomer, notes: e.target.value})} className="w-full p-3 bg-slate-700 border border-slate-600 text-white rounded-xl text-base font-medium focus:ring-2 focus:ring-purple-500 outline-none resize-none h-20" /></div>
                </div>
-               <div className="flex space-x-3 pt-2"><button onClick={() => setShowCustomerModal(false)} className="flex-1 py-3 bg-white border border-white text-slate-800 font-bold rounded-xl hover:bg-slate-100">Cancel</button><button onClick={handleSaveCustomer} className="flex-1 py-3 bg-white text-slate-800 font-bold rounded-xl shadow-lg hover:bg-slate-100">Save Customer</button></div>
+               <div className="flex space-x-3 pt-2"><button onClick={() => setShowCustomerModal(false)} className="flex-1 py-3 bg-slate-800 border border-slate-700 text-slate-100 font-bold rounded-xl hover:bg-slate-700">Cancel</button><button onClick={handleSaveCustomer} className="flex-1 py-3 bg-slate-800 text-slate-100 font-bold rounded-xl shadow-lg hover:bg-slate-700">Save Customer</button></div>
             </motion.div>
          </motion.div>
       )}
@@ -705,7 +756,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                     type="text" 
                     value={expenseDescription} 
                     onChange={e => setExpenseDescription(e.target.value)} 
-                    className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-base font-medium text-slate-700 focus:ring-2 focus:ring-purple-100 placeholder:text-slate-300 outline-none" 
+                    className="w-full p-3.5 bg-slate-700 border-none rounded-2xl text-base font-medium text-slate-100 focus:ring-2 focus:ring-purple-500 placeholder:text-slate-300 outline-none" 
                     placeholder="Description (e.g. LED Grow Lights for Shelf 1)" 
                   />
                   
@@ -718,7 +769,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                           <img 
                             src={expenseReceipt} 
                             alt="Receipt" 
-                            className="w-full h-48 object-contain rounded-xl border-2 border-purple-200 bg-slate-50"
+                            className="w-full h-48 object-contain rounded-xl border-2 border-purple-700 bg-slate-700"
                           />
                           <button
                             type="button"
@@ -760,7 +811,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                               }}
                             />
                           </label>
-                          <label className="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
+                          <label className="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-slate-700 rounded-xl cursor-pointer bg-slate-700 hover:bg-slate-700 transition-colors">
                             <div className="flex items-center justify-center pt-3 pb-3">
                               <ImageIcon className="w-5 h-5 mr-2 text-slate-500" />
                               <p className="text-sm font-bold text-slate-600">Choose from gallery</p>
@@ -807,13 +858,13 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                       setEditingExpense(null);
                       setExpenseDate(new Date().toISOString().split('T')[0]);
                     }} 
-                    className="flex-1 py-3.5 rounded-2xl border border-slate-200 text-slate-500 font-bold hover:bg-slate-50 transition-colors"
+                    className="flex-1 py-3.5 rounded-2xl border border-slate-700 text-slate-500 font-bold hover:bg-slate-700 transition-colors"
                   >
                     Cancel
                   </button>
                   <button 
                     type="submit" 
-                    className="flex-1 py-3.5 rounded-2xl bg-white text-slate-800 font-bold hover:bg-slate-100 shadow-lg transition-colors"
+                    className="flex-1 py-3.5 rounded-2xl bg-slate-800 text-slate-100 font-bold hover:bg-slate-700 shadow-lg transition-colors"
                   >
                     {editingExpense ? 'Update Investment' : 'Save Investment'}
                   </button>
@@ -831,16 +882,16 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                   <p className="text-purple-200 text-xs font-bold uppercase tracking-wider mb-1">Total Business Investments</p>
                   <h3 className="text-3xl font-bold text-white tracking-tight">€{businessExpensesSummary.totalSpent.toFixed(2)}</h3>
                 </div>
-                <div className="p-3 bg-white/10 backdrop-blur-md rounded-xl text-purple-200">
+                <div className="p-3 bg-slate-800/10 backdrop-blur-md rounded-xl text-purple-200">
                   <Building2 className="w-6 h-6" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 mt-4">
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-3">
+                <div className="bg-slate-800/10 backdrop-blur-md rounded-xl p-3">
                   <p className="text-purple-300 text-[10px] font-bold uppercase mb-1">This Period</p>
                   <p className="text-xl font-bold text-white">€{businessExpensesSummary.periodTotal.toFixed(2)}</p>
                 </div>
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-3">
+                <div className="bg-slate-800/10 backdrop-blur-md rounded-xl p-3">
                   <p className="text-purple-300 text-[10px] font-bold uppercase mb-1">Total Items</p>
                   <p className="text-xl font-bold text-white">{businessExpensesSummary.totalItems}</p>
                 </div>
@@ -862,7 +913,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                   {businessExpensesSummary.categoryBreakdown.slice(0, 5).map((cat, idx) => (
                     <div key={idx} className="space-y-1">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium text-slate-700">{cat.name}</span>
+                        <span className="font-medium text-slate-100">{cat.name}</span>
                         <span className="font-bold text-purple-600">€{cat.value.toFixed(2)}</span>
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
@@ -983,7 +1034,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                     key={expense.id} 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-4 hover:bg-slate-50 transition-colors group"
+                    className="p-4 hover:bg-slate-700 transition-colors group"
                   >
                     <div className="flex items-start gap-3 sm:gap-4 overflow-hidden">
                       {/* Receipt Thumbnail */}
@@ -992,7 +1043,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                           <img 
                             src={expense.receiptImage} 
                             alt="Receipt" 
-                            className="w-20 h-20 object-cover rounded-xl border-2 border-purple-200 cursor-pointer hover:border-purple-400 transition-colors"
+                            className="w-20 h-20 object-cover rounded-xl border-2 border-purple-700 cursor-pointer hover:border-purple-400 transition-colors"
                             onClick={() => {
                               // Open full size image in modal
                               const modal = document.createElement('div');
@@ -1009,7 +1060,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                               img.className = 'max-w-full max-h-full object-contain rounded-xl';
                               
                               const closeBtn = document.createElement('button');
-                              closeBtn.className = 'absolute -top-10 right-0 p-2 bg-white text-black rounded-full hover:bg-slate-200 transition-colors font-bold text-xl w-10 h-10 flex items-center justify-center';
+                              closeBtn.className = 'absolute -top-10 right-0 p-2 bg-slate-800 text-black rounded-full hover:bg-slate-200 transition-colors font-bold text-xl w-10 h-10 flex items-center justify-center';
                               closeBtn.textContent = '×';
                               closeBtn.onclick = (e) => {
                                 e.stopPropagation();
@@ -1024,7 +1075,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                           />
                         </div>
                       ) : (
-                        <div className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center flex-shrink-0">
+                        <div className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-700 bg-slate-700 flex items-center justify-center flex-shrink-0">
                           <Receipt className="w-8 h-8 text-slate-300" />
                         </div>
                       )}
@@ -1034,8 +1085,8 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-wrap items-center gap-2 mb-1">
-                              <h4 className="font-bold text-slate-800 text-sm break-words">{expense.description || expense.category}</h4>
-                              <span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold flex-shrink-0">
+                              <h4 className="font-bold text-slate-100 text-sm break-words">{expense.description || expense.category}</h4>
+                              <span className="text-[10px] bg-purple-100 text-purple-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">
                                 {expense.category}
                               </span>
                             </div>
@@ -1070,7 +1121,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                                     form?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                   }, 100);
                                 }}
-                                className="p-2 text-slate-400 hover:text-blue-500 bg-slate-50 rounded-lg active:bg-blue-50 flex-shrink-0 transition-colors"
+                                className="p-2 text-slate-400 hover:text-blue-500 bg-slate-700 rounded-lg active:bg-blue-900 flex-shrink-0 transition-colors"
                                 title="Edit investment"
                               >
                                 <Edit2 className="w-4 h-4" />
@@ -1082,7 +1133,7 @@ const FinanceTracker: React.FC<FinanceTrackerProps> = ({
                                     onDeleteTransaction(expense.id);
                                   }
                                 }}
-                                className="p-2 text-slate-400 hover:text-red-500 bg-slate-50 rounded-lg active:bg-red-50 flex-shrink-0 transition-colors"
+                                className="p-2 text-slate-400 hover:text-red-500 bg-slate-700 rounded-lg active:bg-red-900 flex-shrink-0 transition-colors"
                                 title="Delete investment"
                               >
                                 <Trash2 className="w-4 h-4" />

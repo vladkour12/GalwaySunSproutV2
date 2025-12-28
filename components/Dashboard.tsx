@@ -121,7 +121,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
             title: `Planted ${crop?.name || 'Tray'}`,
             subtitle: `${tray.location}`,
             icon: Sprout,
-            color: 'bg-teal-100 text-teal-600'
+            color: 'bg-ocean-secondary/20 text-ocean-accent'
           });
        }
 
@@ -134,7 +134,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
              title: tray.stage === Stage.HARVESTED ? `Harvested ${crop?.name}` : `${crop?.name} Updated`,
              subtitle: `Moved to ${tray.stage}`,
              icon: tray.stage === Stage.HARVESTED ? CheckCircle : Clock,
-             color: tray.stage === Stage.HARVESTED ? 'bg-teal-100 text-teal-600' : 'bg-slate-100 text-slate-600'
+             color: tray.stage === Stage.HARVESTED ? 'bg-ocean-secondary/25 text-ocean-accent' : 'bg-ocean-contrast/30 text-ocean-light'
           });
        }
     });
@@ -145,13 +145,13 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
        if (isNaN(txDate.getTime())) return;
 
        activities.push({
-          id: `tx-${tx.id}`,
-          date: txDate,
-          type: 'finance',
-          title: tx.type === 'income' ? 'Sale Recorded' : 'Expense Logged',
-          subtitle: `${tx.category} • €${tx.amount.toFixed(2)}`,
-          icon: DollarSign,
-          color: tx.type === 'income' ? 'bg-blue-100 text-blue-600' : 'bg-red-100 text-red-600'
+         id: `tx-${tx.id}`,
+         date: txDate,
+         type: 'finance',
+         title: tx.type === 'income' ? 'Sale Recorded' : 'Expense Logged',
+         subtitle: `${tx.category} • €${tx.amount.toFixed(2)}`,
+         icon: DollarSign,
+         color: tx.type === 'income' ? 'bg-ocean-accent/20 text-ocean-accent' : 'bg-ocean-contrast/40 text-ocean-light'
        });
     });
 
@@ -233,8 +233,8 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
     return { readyTrays, maturingTrays };
   }, [activeTrays, state.crops]);
 
-  // Updated Colors: Teal as primary
-  const COLORS = ['#0d9488', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444'];
+  // Ocean/Teal palette for charts
+  const COLORS = ['#00969C', '#047075', '#6BA3BE', '#274D60', '#032F30'];
 
   return (
     <motion.div 
@@ -244,96 +244,94 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
       animate="show"
     >
       {/* Top Header */}
-      <motion.div variants={item} className="flex flex-col space-y-1 mb-2">
-        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Business Overview</h2>
-        <p className="text-slate-500 text-sm">Welcome back. Here's what's happening in the shed.</p>
+      <motion.div variants={item} className="flex flex-col space-y-1 mb-4">
+        <h2 className="text-4xl font-bold text-white tracking-tight">Business Overview</h2>
+        <p className="text-[var(--text-subtle)] text-sm font-medium">Welcome back. Monitor your farm operations in real-time.</p>
       </motion.div>
 
-      {/* --- Key Metrics Grid --- */}
+      {/* --- Key Metrics Grid with 3D Stack Effect --- */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {/* Metric 1: Active Trays */}
         <motion.div 
           variants={item}
-          className="bg-slate-800 p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-700 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:border-teal-600 transition-colors"
+          className="glass-card-elevated card-3d-stack p-5 flex flex-col justify-between relative overflow-hidden group cursor-pointer"
           onClick={() => onNavigate('crops')}
-          whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+          whileHover={{ scale: 1.02, y: -4, transition: { duration: 0.2 } }}
           whileTap={{ scale: 0.98 }}
         >
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-             <Sun className="w-20 h-20 text-teal-900" />
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
+             <Sun className="w-24 h-24 text-[var(--mint)]" />
           </div>
           <div className="flex justify-between items-start z-10">
-            <div className="p-2.5 bg-teal-50 rounded-2xl text-teal-600">
-              <Sun className="w-5 h-5" />
+            <div className="w-12 h-12 rounded-2xl bg-[var(--mint)]/20 flex items-center justify-center text-[var(--mint)] border border-[var(--mint)]/30">
+              <Sun className="w-6 h-6 icon-thin" />
             </div>
           </div>
-          <div className="mt-4 z-10">
-            <h3 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">{activeTrays.length}</h3>
-            <p className="text-sm font-medium text-slate-500">Active Trays</p>
+          <div className="mt-6 z-10">
+            <h3 className="text-3xl font-bold text-[var(--text-strong)] tracking-tight">{activeTrays.length}</h3>
+            <p className="text-xs font-semibold text-[var(--text-subtle)] mt-2 uppercase tracking-wide">Active Trays</p>
           </div>
         </motion.div>
 
         {/* Metric 2: Harvest Ready */}
         <motion.div 
           variants={item}
-          className="bg-slate-800 p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-700 flex flex-col justify-between cursor-pointer hover:border-amber-600 transition-colors group relative overflow-hidden"
+          className="glass-card-elevated card-3d-stack p-5 flex flex-col justify-between relative overflow-hidden group cursor-pointer"
           onClick={() => onNavigate('crops')}
-          whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+          whileHover={{ scale: 1.02, y: -4, transition: { duration: 0.2 } }}
           whileTap={{ scale: 0.98 }}
         >
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-             <CheckCircle className="w-20 h-20 text-amber-900" />
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
+             <CheckCircle className="w-24 h-24 text-[var(--lavender)]" />
           </div>
           <div className="flex justify-between items-start z-10">
-             <div className="p-2.5 bg-amber-50 rounded-2xl text-amber-600">
-              <CheckCircle className="w-5 h-5" />
+             <div className="w-12 h-12 rounded-2xl bg-[var(--lavender)]/20 flex items-center justify-center text-[var(--lavender)] border border-[var(--lavender)]/30">
+              <CheckCircle className="w-6 h-6 icon-thin" />
             </div>
             {readyToHarvest.length > 0 && (
-              <span className="flex h-3 w-3 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+              <span className="flex h-3 w-3 relative animate-glow-pulse">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--lavender)] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--lavender)]"></span>
               </span>
             )}
           </div>
-          <div className="mt-4 z-10">
-            <h3 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">{readyToHarvest.length}</h3>
-            <p className="text-sm font-medium text-slate-500">Ready to Cut</p>
+          <div className="mt-6 z-10">
+            <h3 className="text-3xl font-bold text-[var(--text-strong)] tracking-tight">{readyToHarvest.length}</h3>
+            <p className="text-xs font-semibold text-[var(--text-subtle)] mt-2 uppercase tracking-wide">Ready to Cut</p>
           </div>
         </motion.div>
 
-        {/* Metric 3: Revenue Breakdown */}
+        {/* Metric 3: Revenue Value with 3D Stack */}
         <motion.div 
           variants={item}
-          className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 sm:p-5 rounded-3xl shadow-xl shadow-slate-200 col-span-2 relative overflow-hidden cursor-pointer"
-          whileHover={{ scale: 1.01 }}
+          className="glass-card-elevated card-3d-stack col-span-2 relative overflow-hidden cursor-pointer p-6 transition-all duration-300"
           onClick={() => setShowValueBreakdown(true)}
+          whileHover={{ scale: 1.01, y: -4, transition: { duration: 0.2 } }}
         >
-           <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-              <TrendingUp className="w-24 h-24 text-white" />
+           <div className="absolute -top-20 -right-20 opacity-10 pointer-events-none">
+              <TrendingUp className="w-48 h-48 text-[var(--mint)]" />
            </div>
+           <div className="absolute inset-0 bg-gradient-to-br from-[var(--mint)]/5 via-transparent to-[var(--peach)]/5 pointer-events-none"></div>
            
            <div className="relative z-10 h-full flex flex-col justify-between">
               <div className="flex justify-between items-start">
                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                       <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Potential Value</p>
-                       <Info className="w-3 h-3 text-slate-400" />
-                    </div>
-                    <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">€{financialStats.total.toFixed(2)}</h3>
+                    <p className="text-[var(--text-subtle)] text-xs font-semibold uppercase tracking-widest">Potential Value</p>
+                    <h3 className="text-4xl font-bold text-[var(--text-strong)] tracking-tight mt-2">€{financialStats.total.toFixed(2)}</h3>
                  </div>
-                 <div className="p-2 bg-white/10 backdrop-blur-md rounded-xl text-teal-400">
-                    <ArrowUpRight className="w-5 h-5" />
+                 <div className="w-14 h-14 rounded-2xl bg-[var(--mint)]/20 flex items-center justify-center text-[var(--mint)] border border-[var(--mint)]/30">
+                    <TrendingUp className="w-7 h-7 icon-thin" />
                  </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-white/10">
+                <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-[rgba(255,255,255,0.1)]">
                  <div>
-                    <span className="text-xs text-slate-400 block mb-0.5">Ready Now</span>
-                    <span className="text-lg font-bold text-teal-400">€{financialStats.readyValue.toFixed(2)}</span>
+                    <span className="text-xs text-[var(--text-subtle)] block mb-2 uppercase tracking-wide font-semibold">Ready Now</span>
+                    <span className="text-2xl font-bold text-[var(--mint)]">€{financialStats.readyValue.toFixed(2)}</span>
                  </div>
                  <div>
-                    <span className="text-xs text-slate-400 block mb-0.5">Maturing</span>
-                    <span className="text-lg font-bold text-blue-300">€{financialStats.maturingValue.toFixed(2)}</span>
+                    <span className="text-xs text-[var(--text-subtle)] block mb-2 uppercase tracking-wide font-semibold">Maturing</span>
+                    <span className="text-2xl font-bold text-[var(--peach)]">€{financialStats.maturingValue.toFixed(2)}</span>
                  </div>
               </div>
            </div>
@@ -344,71 +342,67 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
          
          {/* Smart Alerts */}
-         <motion.div variants={item} className="bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-700">
-            <div className="flex items-center space-x-2 mb-4">
-               <Bell className="w-5 h-5 text-slate-400" />
-               <h3 className="font-bold text-white">Action Needed</h3>
+        <motion.div variants={item} className="glass-card-elevated p-6 flex flex-col">
+            <div className="flex items-center space-x-3 mb-6">
+            <div className="w-11 h-11 rounded-2xl bg-[var(--lavender)]/20 flex items-center justify-center text-[var(--lavender)] border border-[var(--lavender)]/30">
+              <Bell className="w-5 h-5 icon-thin" />
+            </div>
+            <h3 className="font-bold text-white text-lg">Action Needed</h3>
             </div>
             
-            <div className="space-y-3">
+            <div className="space-y-3 flex-1">
                {smartAlerts.length === 0 ? (
-                  <div className="py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                     <CheckCircle className="w-8 h-8 text-teal-300 mx-auto mb-2" />
-                     <p className="text-sm font-medium text-slate-500">Everything looks good!</p>
+              <div className="py-10 text-center bg-[var(--glass-bg)] rounded-2xl border border-dashed border-[rgba(255,255,255,0.1)]">
+                <CheckCircle className="w-10 h-10 text-[var(--mint)] mx-auto mb-3" />
+                <p className="text-sm font-semibold text-[var(--text-subtle)]">Everything looks good!</p>
                   </div>
                ) : (
-                  smartAlerts.map(alert => {
-                     let styles = "bg-slate-50 border-slate-100";
-                     let iconColor = "text-slate-500";
-                     let titleColor = "text-slate-800";
-                     let msgColor = "text-slate-600";
+                  smartAlerts.slice(0, 3).map(alert => {
+                let bgColor = "bg-[rgba(0,217,163,0.1)]";
+                let borderColor = "border-[rgba(0,217,163,0.3)]";
+                let iconColor = "text-[var(--mint)]";
                      let Icon = AlertCircle;
 
                      if (alert.type === 'urgent') {
-                        styles = "bg-red-50 border-red-100";
-                        iconColor = "text-red-500";
-                        titleColor = "text-red-800";
-                        msgColor = "text-red-600";
+                  bgColor = "bg-[rgba(255,107,107,0.1)]";
+                  borderColor = "border-[rgba(255,107,107,0.3)]";
+                  iconColor = "text-[rgb(255,107,107)]";
                      } else if (alert.type === 'warning') {
-                        styles = "bg-amber-50 border-amber-100";
-                        iconColor = "text-amber-500";
-                        titleColor = "text-amber-800";
-                        msgColor = "text-amber-600";
+                  bgColor = "bg-[rgba(255,185,151,0.1)]";
+                  borderColor = "border-[rgba(255,185,151,0.3)]";
+                  iconColor = "text-[var(--peach)]";
                      } else if (alert.type === 'routine') {
-                        styles = "bg-blue-50 border-blue-100";
-                        iconColor = "text-blue-500";
-                        titleColor = "text-blue-800";
-                        msgColor = "text-blue-600";
+                  bgColor = "bg-[rgba(196,181,253,0.1)]";
+                  borderColor = "border-[rgba(196,181,253,0.3)]";
+                  iconColor = "text-[var(--lavender)]";
                         Icon = Droplets;
                      }
 
                      return (
-                        <div key={alert.id} className={`p-4 rounded-2xl border flex items-center justify-between transition-transform hover:scale-[1.02] ${styles}`}>
-                           <div 
-                              className="flex items-center space-x-3 flex-1 cursor-pointer"
-                              onClick={() => onNavigate(alert.linkTo || 'crops')}
-                           >
-                              <Icon className={`w-5 h-5 ${iconColor}`} />
+                        <motion.div 
+                          key={alert.id} 
+                          className={`p-4 rounded-2xl border ${bgColor} ${borderColor} flex items-start justify-between transition-all duration-200 cursor-pointer hover:scale-[1.02] group`}
+                          onClick={() => onNavigate(alert.linkTo || 'crops')}
+                          whileHover={{ y: -2 }}
+                        >
+                           <div className="flex items-start space-x-3 flex-1">
+                              <Icon className={`w-5 h-5 ${iconColor} mt-0.5 flex-shrink-0`} />
                               <div>
-                                 <p className={`text-sm font-bold ${titleColor}`}>{alert.title}</p>
-                                 <p className={`text-xs ${msgColor}`}>{alert.message}</p>
+                                <p className="text-sm font-bold text-white">{alert.title}</p>
+                                <p className="text-xs text-[var(--text-subtle)] mt-1">{alert.message}</p>
                               </div>
                            </div>
-                           <div className="flex items-center space-x-2">
-                              <button
-                                 onClick={(e) => {
-                                    e.stopPropagation();
-                                    onDismissAlert?.(alert.id);
-                                 }}
-                                 className={`p-2 rounded-lg transition-colors ${iconColor} hover:bg-white/50 active:bg-white/70`}
-                                 title="Mark as done"
-                                 style={{ touchAction: 'manipulation' }}
-                              >
-                                 <X className="w-4 h-4" />
-                              </button>
-                              <ChevronRight className={`w-4 h-4 opacity-50 ${iconColor} cursor-pointer`} onClick={() => onNavigate(alert.linkTo || 'crops')} />
-                           </div>
-                        </div>
+                           <button
+                              onClick={(e) => {
+                                 e.stopPropagation();
+                                 onDismissAlert?.(alert.id);
+                              }}
+                              className="p-2 rounded-lg hover:bg-[rgba(255,255,255,0.1)] transition-colors flex-shrink-0"
+                              title="Dismiss"
+                           >
+                              <X className="w-4 h-4 text-[var(--text-subtle)]" />
+                           </button>
+                        </motion.div>
                      );
                   })
                )}
@@ -416,41 +410,43 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
          </motion.div>
 
          {/* Recent Activity */}
-         <motion.div variants={item} className="bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-700">
-            <div className="flex items-center justify-between mb-4">
-               <div className="flex items-center space-x-2">
-                  <Clock className="w-5 h-5 text-slate-400" />
-                  <h3 className="font-bold text-white">Recent Activity</h3>
+                <motion.div variants={item} className="glass-card-elevated p-6 flex flex-col">
+            <div className="flex items-center justify-between mb-6">
+               <div className="flex items-center space-x-3">
+                 <div className="w-11 h-11 rounded-2xl bg-[var(--mint)]/20 flex items-center justify-center text-[var(--mint)] border border-[var(--mint)]/30">
+                      <Clock className="w-5 h-5 icon-thin" />
+                 </div>
+                  <h3 className="font-bold text-white text-lg">Recent Activity</h3>
                </div>
-               <button onClick={() => onNavigate('data')} className="text-xs font-bold text-teal-400 hover:text-teal-300">View All</button>
+                    <button onClick={() => onNavigate('data')} className="text-xs font-bold text-[var(--mint)] hover:text-[var(--mint-dark)] transition-colors">View All</button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3 flex-1">
                {recentActivity.length === 0 ? (
-                  <div className="text-center py-8 text-slate-400 text-sm">No activity recorded yet.</div>
+                      <div className="text-center py-10 text-[var(--text-subtle)] text-sm">No activity recorded yet.</div>
                ) : (
-                  recentActivity.map((activity, idx) => {
+                  recentActivity.slice(0, 4).map((activity, idx) => {
                      const Icon = activity.icon;
                      return (
-                        <div key={activity.id} className="flex items-start space-x-3 relative">
+                        <motion.div key={activity.id} className="flex items-start space-x-3 relative" whileHover={{ x: 2 }}>
                            {/* Connector Line */}
-                           {idx !== recentActivity.length - 1 && (
-                              <div className="absolute left-[15px] top-8 bottom-[-16px] w-0.5 bg-slate-100"></div>
-                           )}
+                          {idx !== recentActivity.length - 1 && (
+                            <div className="absolute left-[15px] top-10 bottom-0 w-0.5 bg-[rgba(255,255,255,0.1)]"></div>
+                          )}
                            
-                           <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 ${activity.color}`}>
-                              <Icon className="w-4 h-4" />
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 z-10 ${activity.color} border border-current/30`}>
+                              <Icon className="w-4 h-4 icon-thin" />
                            </div>
                            <div className="flex-1 pt-0.5">
                               <div className="flex justify-between items-start">
-                                 <h4 className="text-sm font-bold text-slate-800">{activity.title}</h4>
-                                 <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap ml-2">
+                              <h4 className="text-sm font-bold text-white">{activity.title}</h4>
+                              <span className="text-xs text-[var(--text-subtle)] font-medium whitespace-nowrap ml-2">
                                     {activity.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                  </span>
                               </div>
-                              <p className="text-xs text-slate-500 mt-0.5">{activity.subtitle}</p>
+                            <p className="text-xs text-[var(--text-subtle)] mt-1">{activity.subtitle}</p>
                            </div>
-                        </div>
+                        </motion.div>
                      );
                   })
                )}
@@ -459,16 +455,18 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
       </div>
 
       {/* --- Production Pipeline Chart --- */}
-      <motion.div variants={item} className="bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-700">
+      <motion.div variants={item} className="glass-card-elevated p-6 flex flex-col">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-slate-800 flex items-center">
-              <Droplets className="w-5 h-5 mr-2 text-blue-500" />
+            <h3 className="text-lg font-bold text-white flex items-center">
+              <div className="w-10 h-10 rounded-xl bg-[var(--peach)]/20 flex items-center justify-center text-[var(--peach)] border border-[var(--peach)]/30 mr-3">
+                <Droplets className="w-5 h-5 icon-thin" />
+              </div>
               Production Pipeline
             </h3>
           </div>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
-            <div className="h-48 w-48 flex-shrink-0 relative">
+            <div className="h-56 w-56 flex-shrink-0 relative">
                {/* Center text for Donut */}
               {activeTrays.length > 0 && (
                  <motion.div 
@@ -477,52 +475,53 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.5, type: "spring" }}
                  >
-                    <span className="text-3xl font-bold text-slate-800">{activeTrays.length}</span>
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Trays</span>
+                      <span className="text-4xl font-bold text-white">{activeTrays.length}</span>
+                      <span className="text-xs uppercase font-bold text-[var(--text-subtle)] tracking-wider mt-1">Trays</span>
                  </motion.div>
               )}
               
               {activeTrays.length > 0 ? (
-                <div style={{ width: 192, height: 192 }}>
+                <div style={{ width: 224, height: 224 }}>
                   {showCharts && (
-                      <PieChart width={192} height={192}>
+                      <PieChart width={224} height={224}>
                     <Pie
                       data={chartData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
+                      innerRadius={70}
+                      outerRadius={95}
                       paddingAngle={5}
-                      cornerRadius={4}
+                      cornerRadius={6}
                       dataKey="value"
-                      stroke="none"
+                      stroke="rgba(255,255,255,0.05)"
+                      strokeWidth={2}
                     >
                       {chartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
                     <Tooltip 
-                      contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px', fontWeight: 600 }}
+                      contentStyle={{ backgroundColor: 'rgba(10, 10, 15, 0.95)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)', fontSize: '12px', fontWeight: 600, color: '#fff' }}
                     />
                     </PieChart>
                   )}
                 </div>
               ) : (
-                <div className="h-full w-full rounded-full border-4 border-dashed border-slate-100 flex items-center justify-center">
-                   <Sprout className="w-8 h-8 text-slate-300" />
+                <div className="h-full w-full rounded-full border-2 border-dashed border-[rgba(255,255,255,0.2)] flex items-center justify-center bg-[var(--glass-bg)]">
+                   <Sprout className="w-10 h-10 text-[var(--text-subtle)]" />
                 </div>
               )}
             </div>
             
             <div className="flex-1 w-full grid grid-cols-2 gap-3">
               {chartData.map((entry, index) => (
-                <div key={entry.name} className="flex items-center space-x-2 bg-slate-50 p-2 rounded-xl">
+                <motion.div key={entry.name} className="glass-card p-4 flex items-center space-x-3" whileHover={{ scale: 1.05 }}>
                   <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
                   <div className="flex flex-col">
-                     <span className="text-xs font-bold text-slate-700">{entry.name}</span>
-                     <span className="text-xs text-slate-400">{entry.value} Trays</span>
+                     <span className="text-xs font-bold text-white">{entry.name}</span>
+                     <span className="text-xs text-[var(--text-subtle)]">{entry.value} Tray{entry.value !== 1 ? 's' : ''}</span>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -535,25 +534,25 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-[rgba(10,10,15,0.6)] backdrop-blur-lg flex items-center justify-center p-4"
             onClick={() => setShowValueBreakdown(false)}
           >
             <motion.div 
               initial={{ scale: 0.95, y: 10 }} 
               animate={{ scale: 1, y: 0 }} 
               exit={{ scale: 0.95, y: 10 }} 
-              className="bg-slate-800 w-full max-w-2xl rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
+              className="glass-card-elevated w-full max-w-2xl p-6 max-h-[85vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-800">Potential Value Breakdown</h3>
-                  <p className="text-sm text-slate-500 mt-1">Trays contributing to total value (€7.00 per 100g)</p>
+                  <h3 className="text-2xl font-bold text-white">Potential Value Breakdown</h3>
+                  <p className="text-sm text-[var(--text-subtle)] mt-2">Trays contributing to total value (€7.00 per 100g)</p>
                 </div>
                 <button 
                   onClick={() => setShowValueBreakdown(false)} 
-                  className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 active:bg-slate-300 transition-colors"
+                  className="p-3 bg-[var(--glass-bg)] hover:bg-[rgba(255,255,255,0.1)] rounded-xl transition-colors border border-[rgba(255,255,255,0.1)]"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -562,12 +561,12 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
               {/* Ready Now Section */}
               {trayValueBreakdown.readyTrays.length > 0 && (
                 <div className="mb-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-lg font-bold text-slate-800 flex items-center">
-                      <CheckCircle className="w-5 h-5 mr-2 text-teal-600" />
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-bold text-white flex items-center">
+                      <CheckCircle className="w-5 h-5 mr-3 text-[var(--mint)]" />
                       Ready Now
                     </h4>
-                    <span className="text-sm font-bold text-teal-600">
+                    <span className="text-sm font-bold text-[var(--mint)]">
                       €{financialStats.readyValue.toFixed(2)}
                     </span>
                   </div>
@@ -575,22 +574,22 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
                     {trayValueBreakdown.readyTrays.map((item) => (
                       <div 
                         key={item.tray.id} 
-                        className="bg-teal-50 border border-teal-100 rounded-xl p-4 flex items-center justify-between"
+                        className="glass-card p-4 flex items-center justify-between border-l-2 border-[var(--mint)]"
                       >
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-bold text-slate-800">
+                            <span className="font-bold text-white">
                               {item.crop2Name ? (
                                 <span className="flex items-center gap-1">
                                   {item.cropName} + {item.crop2Name}
-                                  <Package className="w-3 h-3 text-purple-600" />
+                                  <Package className="w-4 h-4 text-[var(--text-subtle)]" />
                                 </span>
                               ) : (
                                 item.cropName
                               )}
                             </span>
                           </div>
-                          <div className="flex items-center gap-3 text-xs text-slate-600">
+                          <div className="flex items-center gap-3 text-xs text-[var(--text-subtle)]">
                             <span className="flex items-center">
                               <Scale className="w-3 h-3 mr-1" />
                               {item.yield.toFixed(0)}g yield
@@ -602,7 +601,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className="text-lg font-bold text-teal-600">€{item.value.toFixed(2)}</span>
+                          <span className="text-lg font-bold text-[var(--mint)]">€{item.value.toFixed(2)}</span>
                         </div>
                       </div>
                     ))}
@@ -613,12 +612,12 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
               {/* Maturing Section */}
               {trayValueBreakdown.maturingTrays.length > 0 && (
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-lg font-bold text-slate-800 flex items-center">
-                      <Clock className="w-5 h-5 mr-2 text-blue-600" />
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-bold text-white flex items-center">
+                      <Clock className="w-5 h-5 mr-3 text-[var(--peach)]" />
                       Maturing
                     </h4>
-                    <span className="text-sm font-bold text-blue-600">
+                    <span className="text-sm font-bold text-[var(--text-subtle)]">
                       €{financialStats.maturingValue.toFixed(2)}
                     </span>
                   </div>
@@ -626,25 +625,25 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
                     {trayValueBreakdown.maturingTrays.map((item) => (
                       <div 
                         key={item.tray.id} 
-                        className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-center justify-between"
+                        className="glass-card p-4 flex items-center justify-between border-l-2 border-[var(--peach)]"
                       >
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-bold text-slate-800">
+                            <span className="font-bold text-white">
                               {item.crop2Name ? (
                                 <span className="flex items-center gap-1">
                                   {item.cropName} + {item.crop2Name}
-                                  <Package className="w-3 h-3 text-purple-600" />
+                                  <Package className="w-4 h-4 text-[var(--text-subtle)]" />
                                 </span>
                               ) : (
                                 item.cropName
                               )}
                             </span>
-                            <span className="text-xs font-bold text-slate-500 bg-white px-2 py-0.5 rounded">
+                            <span className="text-xs font-bold text-[var(--peach)] bg-[var(--peach)]/10 px-2 py-1 rounded-lg border border-[var(--peach)]/30">
                               {item.tray.stage}
                             </span>
                           </div>
-                          <div className="flex items-center gap-3 text-xs text-slate-600">
+                          <div className="flex items-center gap-3 text-xs text-[var(--text-subtle)]">
                             <span className="flex items-center">
                               <Scale className="w-3 h-3 mr-1" />
                               {item.yield.toFixed(0)}g yield
@@ -656,7 +655,7 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className="text-lg font-bold text-blue-600">€{item.value.toFixed(2)}</span>
+                          <span className="text-lg font-bold text-[var(--peach)]">€{item.value.toFixed(2)}</span>
                         </div>
                       </div>
                     ))}
@@ -666,19 +665,19 @@ const Dashboard: React.FC<DashboardProps> = ({ state, onNavigate, dismissedAlert
 
               {/* Empty State */}
               {trayValueBreakdown.readyTrays.length === 0 && trayValueBreakdown.maturingTrays.length === 0 && (
-                <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                  <Sprout className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-                  <p className="text-slate-500 font-bold text-sm mb-1">No active trays</p>
-                  <p className="text-slate-400 text-xs">Start planting to see value breakdown</p>
+                <div className="text-center py-12 bg-[var(--glass-bg)] rounded-2xl border border-dashed border-[rgba(255,255,255,0.1)]">
+                  <Sprout className="w-14 h-14 mx-auto mb-3 text-[var(--text-subtle)]" />
+                  <p className="text-[var(--text-subtle)] font-bold text-sm mb-1">No active trays</p>
+                  <p className="text-[var(--text-subtle)]/60 text-xs">Start planting to see value breakdown</p>
                 </div>
               )}
 
               {/* Total Summary */}
               {(trayValueBreakdown.readyTrays.length > 0 || trayValueBreakdown.maturingTrays.length > 0) && (
-                <div className="mt-6 pt-4 border-t border-slate-200">
+                <div className="mt-8 pt-6 border-t border-[rgba(255,255,255,0.1)]">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-slate-600">Total Potential Value</span>
-                    <span className="text-2xl font-bold text-slate-800">€{financialStats.total.toFixed(2)}</span>
+                    <span className="text-sm font-bold text-[var(--text-subtle)] uppercase tracking-wide">Total Potential Value</span>
+                    <span className="text-3xl font-bold text-white">€{financialStats.total.toFixed(2)}</span>
                   </div>
                 </div>
               )}

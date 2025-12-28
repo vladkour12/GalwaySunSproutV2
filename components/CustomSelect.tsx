@@ -48,7 +48,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   return (
     <div className={`relative ${className}`} ref={containerRef}>
       {label && (
-        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 block">
+        <label className="text-xs font-bold text-ocean-light uppercase tracking-wider mb-1 block">
           {label}
         </label>
       )}
@@ -56,12 +56,12 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full p-3 flex items-center justify-between bg-slate-700 border rounded-xl font-bold text-left outline-none transition-all ${
-          isOpen ? 'border-emerald-400 ring-2 ring-emerald-500/30' : 'border-slate-600 hover:border-slate-500'
-        } ${selectedOption ? 'text-slate-100' : 'text-slate-400'}`}
+        className={`w-full p-3 flex items-center justify-between bg-ocean-primary border rounded-xl font-bold text-left outline-none transition-all ${
+          isOpen ? 'border-ocean-accent ring-2 ring-ocean-accent/30' : 'border-ocean-contrast hover:border-ocean-accent/60'
+        } ${selectedOption ? 'text-white' : 'text-ocean-light'}`}
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
-        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-ocean-light transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       <AnimatePresence>
@@ -71,7 +71,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.1 }}
-            className="absolute z-50 w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto no-scrollbar"
+            className="absolute z-50 w-full mt-2 bg-ocean-primary border border-ocean-contrast rounded-xl shadow-xl max-h-60 overflow-y-auto no-scrollbar"
           >
             <div className="p-1 space-y-0.5">
               {options.map((option) => {
@@ -85,8 +85,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                     }}
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-bold transition-colors ${
                       isSelected 
-                        ? 'bg-teal-50 text-teal-700' 
-                        : 'text-slate-600 hover:bg-slate-50'
+                        ? 'bg-ocean-secondary/20 text-ocean-accent' 
+                        : 'text-ocean-light hover:bg-ocean-secondary/15'
                     }`}
                   >
                     <span className="truncate text-left">{option.label}</span>
@@ -95,7 +95,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                 );
               })}
               {options.length === 0 && (
-                <div className="px-3 py-4 text-center text-xs text-slate-400 font-medium">
+                <div className="px-3 py-4 text-center text-xs text-ocean-light font-medium">
                   No options available
                 </div>
               )}
