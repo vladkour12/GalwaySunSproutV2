@@ -56,7 +56,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full p-3 flex items-center justify-between bg-ocean-primary border rounded-xl font-bold text-left outline-none transition-all ${
+        className={`w-full p-3 flex items-center justify-between bg-[rgba(255,255,255,0.08)] border rounded-xl font-bold text-left outline-none transition-all ${
           isOpen ? 'border-ocean-accent ring-2 ring-ocean-accent/30' : 'border-ocean-contrast hover:border-ocean-accent/60'
         } ${selectedOption ? 'text-white' : 'text-ocean-light'}`}
       >
@@ -71,7 +71,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.1 }}
-            className="absolute z-50 w-full mt-2 bg-ocean-primary border border-ocean-contrast rounded-xl shadow-xl max-h-60 overflow-y-auto no-scrollbar"
+            className="absolute z-50 w-full mt-2 bg-[rgba(12,13,18,0.95)] border border-[rgba(255,255,255,0.12)] rounded-xl shadow-xl max-h-60 overflow-y-auto no-scrollbar"
           >
             <div className="p-1 space-y-0.5">
               {options.map((option) => {
